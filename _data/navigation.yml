@@ -1,9 +1,12 @@
 main:
   - title: "Posts"
     url: /posts/
+    description: "Pages of course content and educational materials"
   - title: "Categories"
     url: /categories/
-  - title: "Tags"
-    url: /tags/
+    description: "Browse posts by category"
+  # - title: "Tags"
+  #   url: /tags/
   - title: "About"
     url: /about/
+    description: "Information about the course and instructor"

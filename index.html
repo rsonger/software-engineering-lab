@@ -3,5 +3,10 @@
 # Edit theme's home layout instead if you wanna make some changes
 # See: https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 layout: home
-author_profile: true
+classes: wide
 ---
+
+<h1>Welcome{% if site.title %} to {{ site.title }}{% endif %}!</h1>
+{% if site.description %}
+<blockquote>{{ site.description }}</blockquote>
+{% endif %}

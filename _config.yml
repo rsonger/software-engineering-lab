@@ -13,25 +13,34 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: MM
-email:
+title: "Software Engineering Lab"
+subtitle: "Academic Year 2022"
+logo: "/assets/images/ict_logo.png"
+name: "Robert Songer"
+email: rsonger@neptune.kanazawa-it.ac.jp
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
-twitter_username: username
-github_username: username
+  Course materials for the Software Engineering Lab class in the Science and 
+  Technology Department at International College of Technology (ICT), Kanazawa.
+github_username: rsonger
 minimal_mistakes_skin: default
 search: true
+locale: "en-US"
+repository: "rsonger/software-engineering-lab"
+
+url: https://rsonger.github.io # the base hostname & protocol for your site
+baseurl: /software-engineering-lab # the subpath of your site, e.g. /blog/
+last_updated: true # set to true if you want to display last updated in the footer
 
 # Build settings
 markdown: kramdown
+kramdown:
+  math_engine: katex
 remote_theme: mmistakes/minimal-mistakes
 # Outputting
 permalink: /:categories/:title/
 paginate: 5 # amount of posts to show
 paginate_path: /page:num/
-timezone: # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone: "Asia/Tokyo" # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 include:
   - _pages
@@ -53,39 +62,45 @@ plugins:
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-gist
-  - jekyll-feed
+  # - jekyll-feed
   - jemoji
   - jekyll-include-cache
+  - jekyll-sitemap
 
 author:
-  name   : "First Lastname"
+  name   : "Robert Songer"
   avatar : "/assets/images/bio-photo.jpg"
-  bio    : "My awesome biography constrained to a sentence or two goes here."
+  bio    : "Associate Professor teaching programming, web development, and software engineering at International College of Technology (ICT), Kanazawa."
+  location: "Kanazawa, Japan"
   links:
+    - 
     - label: "Website"
       icon: "fas fa-fw fa-link"
-      url: "https://"
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/"
+      url: "https://rsonger.github.io"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      url: "https://instagram.com/"
+      url: "https://github.com/rsonger"
+    - label: "ICT Home"
+      icon: "fa fa-fw fa-school"
+      url: "https://www.ict-kanazawa.ac.jp/"
+    # - label: "Twitter"
+    #   icon: "fab fa-fw fa-twitter-square"
+    #   url: "https://twitter.com/"
+    # - label: "Instagram"
+    #   icon: "fab fa-fw fa-instagram"
+    #   url: "https://instagram.com/"
+
+atom_feed:
+  hide: true
 
 footer:
   links:
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/"
+    - label: "ICT Home"
+      icon: "fa fa-fw fa-school"
+      url: "https://www.ict-kanazawa.ac.jp/"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      url: "https://instagram.com/"
+      url: "https://github.com/rsonger/software-engineering-lab"
 
 defaults:
   # _posts
@@ -94,18 +109,23 @@ defaults:
       type: posts
     values:
       layout: single
-      author_profile: true
+      author_profile: false
       read_time: true
-      comments: true
-      share: true
-      related: true
+      comments: false
+      share: false
+      related: false
+      toc: true
+      toc_sticky: true
   # _pages
   - scope:
       path: "_pages"
       type: pages
     values:
       layout: single
-      author_profile: true
+      author_profile: false
+      read_time: true
+
+words_per_minute: 150
 
 category_archive:
   type: liquid
@@ -113,3 +133,8 @@ category_archive:
 tag_archive:
   type: liquid
   path: /tags/
+
+compress_html:
+  clippings: all
+  ignore:
+    envs: development
