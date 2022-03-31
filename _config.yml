@@ -26,8 +26,9 @@ minimal_mistakes_skin: default
 search: true
 locale: "en-US"
 repository: "rsonger/software-engineering-lab"
+github: [metadata]
 
-url: https://rsonger.github.io # the base hostname & protocol for your site
+url: https://robsonger.dev # the base hostname & protocol for your site
 baseurl: /software-engineering-lab # the subpath of your site, e.g. /blog/
 last_updated: true # set to true if you want to display last updated in the footer
 
@@ -62,10 +63,10 @@ plugins:
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-gist
-  # - jekyll-feed
   - jemoji
   - jekyll-include-cache
   - jekyll-sitemap
+  # - jekyll-feed
 
 author:
   name   : "Robert Songer"
@@ -76,19 +77,13 @@ author:
     - 
     - label: "Website"
       icon: "fas fa-fw fa-link"
-      url: "https://rsonger.github.io"
+      url: "https://robsonger.dev"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/rsonger"
     - label: "ICT Home"
       icon: "fa fa-fw fa-school"
       url: "https://www.ict-kanazawa.ac.jp/"
-    # - label: "Twitter"
-    #   icon: "fab fa-fw fa-twitter-square"
-    #   url: "https://twitter.com/"
-    # - label: "Instagram"
-    #   icon: "fab fa-fw fa-instagram"
-    #   url: "https://instagram.com/"
 
 atom_feed:
   hide: true
