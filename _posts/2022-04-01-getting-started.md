@@ -170,9 +170,9 @@ Now we can install the required packages:
 (.venv) $ pip install pygame numpy pyopengl pyopengl-accelerate
 ```
 
-:arrow_right: When installing on **Windows**, you might see an error that says `Microsoft Visual C++ 14.0 is required`. If that happens, try the instructions below for [Troubleshooting on Windows](#troubleshooting-on-windows) before continuing.
+When installing on **Windows**, you might see an error that says `Microsoft Visual C++ 14.0 is required`. If that happens, try the instructions below for [Troubleshooting on Windows](#troubleshooting-on-windows) before continuing.
 
-The latest versions of each package for the installed Python version should be enough. When the installation completes, let's confirm they are usable in a Python program. Run the interactive Python interpreter by typing `python` in the terminal and pressing Enter. The prompt will change into `>>>` and you can directly enter Python script. With **Git Bash** on **Windows**, the terminal might freeze after typing `python` and never respond. If that happens, look under the [Troubleshooting on Windows](#troubleshooting-on-windows) section below.
+The latest versions of each package for the installed Python version should be enough. When the installation completes, let's confirm they are usable in a Python program. Run the interactive Python interpreter by typing `python` in the terminal and pressing Enter. The prompt will change into `>>>` and you can directly enter Python script. 
 
 ```bash
 (.venv) $ python
@@ -180,6 +180,7 @@ Python 3.7.3 (v3.7.3:ef4ec6ed12)
 Type "help", "copyright", "credits" or "license" for more information.
 >>> █
 ```
+:arrow_right: With **Git Bash** on **Windows**, the terminal might freeze after typing `python` and never respond. If that happens, look under the [Troubleshooting on Windows](#troubleshooting-on-windows) section below for help.
 
 Try importing the installed packages to confirm their installation. If you do not see any errors, then you are all ready to begin the project!
 
@@ -214,18 +215,20 @@ If the `python` command in **Git Bash** freezes and never gives you a `>>>` prom
 (.venv) $ winpty python.exe
 ```
 
-If you do not want to remember the above command, we can create an [alias](https://en.wikipedia.org/wiki/Alias_(command)) in the `.bashrc` file. This file runs every time you open the Git Bash, so the alias will always be available for you.
+We can create an [alias](https://en.wikipedia.org/wiki/Alias_(command)) in our `.bashrc` file so this alias is always available. The `.bashrc` script runs every time we open the Git Bash, so it is a good place to put things like aliases that you want in every bash session.
 
 ```bash
 (.venv) $ echo "alias python='winpty python.exe'" >> ~/.bashrc
 ```
 
-This command assigns the `winpty python.exe` command to an alias `python`, then appends that to the end of the `.bashrc` file in the user's home directory. We can confirm it by looking at the contents in the `~/.bashrc` file.
+This `alias` command assigns the `winpty python.exe` command to `python`. Here we use `echo` and `>>` to append the alias command to the end of the `.bashrc` file in the user's home directory. We can confirm the command is set by looking at the contents in the `~/.bashrc` file.
 
 ```bash
-(.venv) $ tail -n 1 ~/.bashrc
+(.venv) $ tail ~/.bashrc
 alias python='winpty python.exe'
 ```
+
+Finally, restart the bash or type `source ~/.bashrc` to run the script.
 
 ## Troubleshooting on MacOS
 
