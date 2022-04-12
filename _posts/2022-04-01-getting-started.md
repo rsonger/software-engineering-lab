@@ -60,7 +60,7 @@ On **Windows**, you can upgrade Python using an installer from the [Python Downl
 
 If you get the option during installation, be sure add Python to your `PATH` variable. 
 
-After the installation completes, open a terminal and confirm the version number with `python3 --version` again.
+After the installation completes, open a terminal and confirm the version number with `python --version` again. 
 
 # Virtual Environment
 
@@ -125,7 +125,7 @@ Here we will configure `pip` to use the KIT internal network proxy server only w
 First, activate the virtual environment as mentioned above and then type the following command:
 
 ```bash
-(.venv) $ pip config --site set global.proxy wwwproxy.kanazawa-it.ac.jp:8080
+(.venv) $ pip config --site set global.proxy http://wwwproxy.kanazawa-it.ac.jp:8080
 ```
 
 You should see a message that says it is writing to a `pip.conf` file (for **MacOS**) or a `pip.ini` file (for **Windows**). Make sure the file is inside your virtual environment `.venv` directory.
@@ -133,14 +133,14 @@ You should see a message that says it is writing to a `pip.conf` file (for **Mac
 If this doesn't work, you can create a blank `pip.conf` or `pip.ini` file and write these contents to it:
 ```
 [global]
-proxy = wwwproxy.kanazawa-it.ac.jp:8080
+proxy = http://wwwproxy.kanazawa-it.ac.jp:8080
 ```
 
 Finally, confirm that the proxy is set with the following command in your terminal and you should see the proxy server address echoed back to you.
 
 ```bash
 (.venv) $ pip config get global.proxy
-wwwproxy.kanazawa-it.ac.jp:8080
+http://wwwproxy.kanazawa-it.ac.jp:8080
 ```
 
 And confirm that `pip` can communicate through the proxy with the `pip list -o` command again. If you don't get an error and see a list of package names and version numbers, then you are ready to install packages!
@@ -172,7 +172,7 @@ Now we can install the required packages:
 
 :arrow_right: When installing on **Windows**, you might see an error that says `Microsoft Visual C++ 14.0 is required`. If that happens, try the instructions below for [Troubleshooting on Windows](#troubleshooting-on-windows) before continuing.
 
-The latest versions of each package for the installed Python version should be enough. When the installation completes, let's confirm they are usable in a Python program. Run the interactive Python interpreter by typing `python` in the terminal and pressing Enter. The prompt will change into `>>>` and you can directly enter Python script.
+The latest versions of each package for the installed Python version should be enough. When the installation completes, let's confirm they are usable in a Python program. Run the interactive Python interpreter by typing `python` in the terminal and pressing Enter. The prompt will change into `>>>` and you can directly enter Python script. With **Git Bash** on **Windows**, the terminal might freeze after typing `python` and never respond. If that happens, look under the [Troubleshooting on Windows](#troubleshooting-on-windows) section below.
 
 ```bash
 (.venv) $ python
@@ -205,6 +205,27 @@ When installing PyOpenGL and PyOpenGL-accelerate on Windows, you may encounter t
 > Microsoft Visual C++ 14.0 is required. Get it with "Build Tools for Visual Studio": https://visualstudio.microsoft.com/downloads/
 
 If that happens, open the [Visual Studio Downloads](https://visualstudio.microsoft.com/downloads/) page and get the "Build Tools for Visual Studio 2022". After the download completes, run the installer to get Microsoft Visual C++.
+
+---
+
+If the `python` command in **Git Bash** freezes and never gives you a `>>>` prompt, then we need to use a program called [winpty](https://stackoverflow.com/questions/48199794/winpty-and-git-bash) to run the Python executable.
+
+```bash
+(.venv) $ winpty python.exe
+```
+
+If you do not want to remember the above command, we can create an [alias](https://en.wikipedia.org/wiki/Alias_(command)) in the `.bashrc` file. This file runs every time you open the Git Bash, so the alias will always be available for you.
+
+```bash
+(.venv) $ echo "alias python='winpty python.exe'" >> ~/.bashrc
+```
+
+This command assigns the `winpty python.exe` command to an alias `python`, then appends that to the end of the `.bashrc` file in the user's home directory. We can confirm it by looking at the contents in the `~/.bashrc` file.
+
+```bash
+(.venv) $ tail -n 1 ~/.bashrc
+alias python='winpty python.exe'
+```
 
 ## Troubleshooting on MacOS
 
