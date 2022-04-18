@@ -421,7 +421,7 @@ class Test_2_2(Base):
         # vertex shader code as a character string
         vsCode = """
         void main() {
-            gl_Position = vec4(0.0, 0.1, 0.0, 1.0);
+            gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
         }
         """
 
@@ -429,7 +429,7 @@ class Test_2_2(Base):
         fsCode = """
         out vec4 fragColor;
         void main() {
-            fragColor = vec4(1.0, 0.5, 0.0, 0.5);
+            fragColor = vec4(1.0, 1.0, 0.0, 0.0);
         }
         """
 
@@ -440,7 +440,7 @@ class Test_2_2(Base):
         vaoRef = glGenVertexArrays(1)
         glBindVertexArray(vaoRef)
 
-        # (optional) set point size (diameter in pixels)
+        # (optional) set point size (width and height in pixels)
         glPointSize(10)
     
     def update(self):
