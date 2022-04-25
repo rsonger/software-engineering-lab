@@ -70,7 +70,7 @@ class Base(object):
         # initialize all pygame modules
         pygame.init()
         #indicate rendering details
-        displayFlags = pygame.OPENGL
+        displayFlags = pygame.OPENGL | pygame.DOUBLEBUF
         # initialize buffers to perform antialiasing
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, 1)
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, 4)
@@ -88,10 +88,10 @@ class Base(object):
 
 This code creates an initialization method for our `Base` class which prepares the necessary Pygame modules with specific buffer settings before creating a window. The window size is set by the `screenSize` parameter which has a default 512 x 512 resolution. We create the screen with the `pygame.display.set_mode()` method and save a reference to it in the `self.screen` property. 
 
-Additional options for the display screen are set by `displayFlags` which is currently set to create a display for OpenGL. We can combine flags with the binary OR operator `|` when we want to use multiple options. For example, the following code would create an OpenGL display that can change sizes:
+Additional options for the display screen are set by `displayFlags` which is currently set to create a display for OpenGL with double buffering. We can combine flags with the binary OR operator `|` when we want to use multiple options. For example, the following code would create an OpenGL display with double buffering that can change sizes:
 
 ```python
-        displayFlags = pygame.OPENGL | pygame.RESIZABLE
+        displayFlags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE
 ```
 
 See the [`pygame.display`](https://www.pygame.org/docs/ref/display.html#pygame.display.set_mode){:target="_blank"} documentation for more display modes and their descriptions.
