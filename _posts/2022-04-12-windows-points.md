@@ -211,6 +211,7 @@ from core.input import Input
             self.input.update()
             if self.input.quit:
                 running = False
+                break
 ```
 
 ## Testing the `Base` and `Input` Classes
