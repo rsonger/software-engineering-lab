@@ -61,7 +61,7 @@ The `Uniform` class introduces some strict type checking that we didn't have in 
     def locateVariable(self, programRef, variableName):
         """Get and store a reference to a uniform variable with the given name."""
         self.variableRef = glGetUniformLocation(programRef, variableName)
-        if self.variableRef = -1:
+        if self.variableRef == -1:
           raise Exception(f"No uniform variable found for {variableName}")
 ```
 
