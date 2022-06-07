@@ -188,7 +188,7 @@ The `Scene` and `Group` classes have little to no additional functionality, but 
 <input type="checkbox" class="checkbox inline"> Open `scene.py` for editing and add the following code:  
 
 ```python
-from core.object3D import Object3D
+from core.object3d import Object3D
 
 class Scene(Object3D):
     """Represents the root node of the scene graph tree structure."""
@@ -208,7 +208,7 @@ This time, we use a special decorator (`@Object3D.parent.setter`) to access the 
 <input type="checkbox" class="checkbox inline"> Open `group.py` for editing and add the following code:  
 
 ```python
-from core.object3D import Object3D
+from core.object3d import Object3D
 
 class Group(Object3D):
     """A node that can serve as a base for transforming many attached nodes."""
@@ -232,7 +232,7 @@ So, we apply the position and orientation of the camera as the inverse of the ca
 ```python
 from numpy.linalg import inv
 
-from core.object3D import Object3D
+from core.object3d import object3d
 from core.matrix import Matrix
 
 class Camera(Object3D):
@@ -295,7 +295,7 @@ Now we can create `Mesh` with `Geometry` and `Material` even though they are not
 ```python
 from OpenGL.GL import *
 
-from core.object3D import Object3D
+from core.object3d import Object3D
 from geometry.geometry import Geometry
 from material.material import Material
 
