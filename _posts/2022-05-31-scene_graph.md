@@ -252,7 +252,7 @@ class Camera(Object3D):
         return self.__view_matrix
 
     def updateViewMatrix(self):
-        self.__view_matrix = inv(self.getWorldMatrix())```
+        self.__view_matrix = inv(self.getWorldMatrix())
 ```
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
