@@ -137,7 +137,7 @@ The `getWorldMatrix()` method will recursively apply its transformation matrix t
     
     def rotateZ(self, angle, localCoord=True):
         """Calculate and apply a rotation around the z-axis of this object."""
-        m = Matrix.makeRotationY(angle)
+        m = Matrix.makeRotationZ(angle)
         self.applyMatrix(m, localCoord)
     
     def scaleUniform(self, s, localCoord=True):
