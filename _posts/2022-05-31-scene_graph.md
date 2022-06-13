@@ -300,11 +300,7 @@ from geometry.geometry import Geometry
 from material.material import Material
 
 class Mesh(Object3D):
-    """A visible object in the scene with geometric and appearance data.
-
-    Mesh contains data geometric data related to the object vertices and material data about its appearance.
-    It also creates and stores a vertex array object (VAO) reference, and associates variables between
-    vertex buffers and shader varriables."""
+    """A visible object in the scene with geometric and appearance data."""
     def __init__(self, geometry, material):
         super().__init__()
 
