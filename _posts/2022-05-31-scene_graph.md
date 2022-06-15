@@ -262,6 +262,7 @@ The `Mesh` class represents objects that can be rendered in the scene. It stores
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new folder called `geometry`.  
+<input type="checkbox" class="checkbox inline"> In the `geometry` folder, create an empty file called `__init__.py` so we can import from `geometry` as a package.  
 <input type="checkbox" class="checkbox inline"> In the `geometry` folder, create a new file called `geometry.py`.  
 <input type="checkbox" class="checkbox inline"> Open `geometry.py` for editing and add the following code:  
 
@@ -273,6 +274,7 @@ class Geometry(object):
 ```
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new folder called `material`.  
+<input type="checkbox" class="checkbox inline"> In the `material` folder, create an empty file called `__init__.py` so we can import from `material` as a package.  
 <input type="checkbox" class="checkbox inline"> In the `material` folder, create a new file called `material.py`.  
 <input type="checkbox" class="checkbox inline"> Open `material.py` for editing and add the following code:  
 

@@ -205,9 +205,9 @@ The base class of `Material` will compile and initialize the shader program, sto
         self._uniforms = {}
 
         # common shader uniforms used in the render process
-        self._uniforms["modelMatrix"] = Uniform("mat4", None)
-        self._uniforms["viewMatrix"] = Uniform("mat4", None)
-        self._uniforms["projectionMatrix"] = Uniform("mat4", None)
+        self.setUniform("modelMatrix", None, "mat4")
+        self.setUniform("viewMatrix", None, "mat4")
+        self.setUniform("projectionMatrix", None, "mat4")
 
         # OpenGL render settings
         self._settings = {"drawStyle": GL_TRIANGLES}
@@ -221,7 +221,7 @@ The base class of `Material` will compile and initialize the shader program, sto
         return self._settings.get(setting_name, None)
 ```
 
-Subclasses of `Material` will need to provide the vertex and fragment shader code when calling their superclass `__init__` method. Then it is assumed that the program will have a `modelMatrix`, `viewMatrix`, and `projectionMatrix` uniform variable defined. We also provide a getter for the program reference which is necessary in the `Mesh` class to associate geometric attribute data with program variables and then draw each object.
+Subclasses of `Material` will need to provide the vertex and fragment shader code when calling their superclass `__init__` method. Then it is assumed that the program will have `modelMatrix`, `viewMatrix`, and `projectionMatrix` uniform variables defined. We create and store those uniform objects with a method called `setUniform` which we define below. We also provide a getter for the program reference which is necessary in the `Mesh` class to associate geometric attribute data with program variables and then draw each object.
 
 <input type="checkbox" class="checkbox inline"> Next, add the following code for managing uniforms and settings to the `Material` class:  
 
