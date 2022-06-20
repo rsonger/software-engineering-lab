@@ -430,7 +430,7 @@ Each axis is its own mesh with a `BoxGeometry` and a `SurfaceMaterial`. We use `
 The next helper component renders lines in a square grid so the user can get a feel for their location when moving around a scene. 
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside your main working folder, create a new file called `grid_helper.py`.  
+<input type="checkbox" class="checkbox inline"> Inside the `extras` folder, create a new file called `grid_helper.py`.  
 <input type="checkbox" class="checkbox inline"> Open `grid_helper.py` for editing and add the following code:  
 
 ```python
@@ -557,8 +557,8 @@ If all goes well, the application should show the following scene:
 The final component is a special object that carries the camera as it moves in three dimensions. In addition, the camera will be able to pan up and down without affecting the direction of movement. We can accomplish this by making the `CameraRig` class extend the `Group` class and then add to it the camera object as a child node. Inputs related to movement will apply to the `CameraRig` object itself while inputs for panning the camera will apply as local transformations to the camera. Keeping these as local transformations will make sure the camera always rotates with respect to its parent, the `CameraRig`.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside your main working folder, create a new file called `grid_helper.py`.  
-<input type="checkbox" class="checkbox inline"> Open `grid_helper.py` for editing and add the following lines of code:
+<input type="checkbox" class="checkbox inline"> Inside the `extras` folder, create a new file called `camera_rig.py`.  
+<input type="checkbox" class="checkbox inline"> Open `camera_rig.py` for editing and add the following lines of code:
 
 ```python
 from math import pi
@@ -631,7 +631,7 @@ The `CameraRig` class uses an instance of `Input` from `core.input` to handle ke
 
 Finally, let's make our last test application to try out the camera rig. 
 
-<input type="checkbox" class="checkbox inline"> Inside your main working folder, copy the file called `test_4_6.py` and save it as `test_4_7.py`.  
+<input type="checkbox" class="checkbox inline"> Inside your main working folder, create a copy of the file called `test_4_6.py` and change its name to `test_4_7.py`.  
 <input type="checkbox" class="checkbox inline"> Open `test_4_7.py` for editing and add the following import statement just before the class definition:
 
 ```python
