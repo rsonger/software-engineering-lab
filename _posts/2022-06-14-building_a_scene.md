@@ -12,7 +12,7 @@ classes: wide
 toc_sticky: false
 ---
 
-*The remainder of Chapter 4 shows how to apply our newest framework components in various ways, such as creating a visible grid and axes to help orient the viewer.*  
+*The remainder of Chapter 4 shows how to apply custom `Geometry` and `Material` objects in various ways, such as creating a visible grid and axes to help orient the viewer as they move through a 3D scene.*  
 
 With the addition of `Geometry` and `Material` objects in the [previous lesson](/software-engineering-lab/_posts/geometry_and_material), we now have all the components necessary for rendering basic objects in a 3D scene. Now let's practice using these base classes to create custom objects with various effects. After experimenting with geometries and materials a little bit, then we will create some extra components to help the user view a 3D scene: a visible grid, axes, and a movable camera.
 
@@ -167,7 +167,7 @@ Test_4_3(screenSize=(800,600)).run()
 <input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_4_3.py` in the terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a sine curve of thick yellow dots connected by thin magenta lines.  
 
-Here, the point data is generated using the `sin` function from the `math` package. We use the NumPy [`arange`](https://numpy.org/doc/stable/reference/generated/numpy.arange.html) function to get a list of values from $-\pi$ (included) to $+\pi$ (not included) at increments of $\frac{\pi}{12}$ for a total of 24 values. Then the `for` loop steps through each of these values as $x$ and appends the vertex $(x, \sin(x), 0)$ to `positionData`. This creates the shape of the curve with 24 vertices in just two lines of code!
+Here, the point data is generated using the `sin` function from the `math` package. We use the NumPy [`arange`](https://numpy.org/doc/stable/reference/generated/numpy.arange.html) function to get a list of values from $-\pi$ (included) to $+\pi$ (not included) at increments of $\frac{\pi}{12}$ for a total of 24 values. Then the `for` loop steps through each of these values as $x$ and adds the vertex $(x, \sin(x), 0)$ to `positionData`. Altogether this effectively creates a sine curve with 24 vertices in just two lines of code!
 
 # Custom Materials
 
@@ -360,17 +360,17 @@ Test_4_5(screenSize=(800,600)).run()
 <input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_4_5.py` in the terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a cube with its vertex positions rolling up and down like a wave, and its surface colors changing over time.  
 
-This time we create a new `uniform` variable inside the shader programs called `time`. The value for this veriable is set by the application inside its `update` method where it passes its own `self.time` value to the shader variable. Inside the vertex shader, this `time` variable is used in a sine function to calculate an offset value for the $y$ coordinate of each vertex. We also apply the $x$ coordinate value so that the vertices at different horizonal positions will move at different intervals.
+This time we create a new `uniform` variable inside the shader program called `time`. The value for this veriable is set by the application inside its `update` method where it passes its own `self.time` value to the shader variable. Inside the vertex shader, this `time` variable is used in a sine function to calculate an offset value for the $y$ coordinate of each vertex. We also apply the $x$ coordinate value so that the vertices at different horizonal positions will move at different intervals.
 
 Inside the fragment shader, the `time` uniform variable is used to calculate a red saturation value from a sine function and add that to the vertex colors. The same value is also subtracted from the green and blue values at half the magnitude in order to emphasize the red color. This effectively makes the sides of the cube appear to pulse red before returning to their original color again.
 
 # Extra Components
 
-After learning about how to customize geometry and material objects, we can now think about how to use them to create objects that help render a 3D scene. All of our scenes so far have been just shapes floating in a black void. Let's change that by creating a structure to represent the coordinate axes and a grid to help orient the user. After rendering those in a scene, we will then create a special object that handles inputs and allows the camera to move around the scene to explore it.
+After learning about how to customize geometry and material objects, we can now think about how to use them to create objects that help render a 3D scene. All of our scenes so far have just been shapes floating in a black void. Let's change that by creating a structure to represent the coordinate axes and a grid to help orient the user. After rendering those in a scene, we will then create a special object that handles inputs and allows the user to explore the scene by moving the camera around.
 
 ## Axes Helper
 
-The coordinate axes will include three box geometries--one for each axis. Using the box geometry allows us to give a thickness to the axes without worrying about platform compatibility. (The `glLineWidth` function is deprecated and does not work on MacOS.) Here we can use our `Group` class as the base mesh for the axes and add each separate axis as a child to it.
+The coordinate axes will include three box geometries&mdash;one for each axis. Using the box geometry allows us to give a thickness to the axes without worrying about platform compatibility. (Line width cannot be changed with `glLineWidth` on MacOS.) Here we can use our `Group` class for the base mesh and add to it each of the separate axis meshes as child nodes.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside your main working folder, create a new folder called `extras`.  
@@ -423,7 +423,7 @@ class AxesHelper:
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-Each axis is its own mesh with a `BoxGeometry` and a `SurfaceMaterial`. We set the size of the dimension that corresponds to the axis as the value of `length` while the other two dimensions are set to the `thickness` value. We use `baseColor` instead of `vertexColors` for the material since all the vertices will be the same color. Then we translate each mesh so it extends along the positive direction of its axis. All three axes are added to the group node stored in `self.mesh`, which we will use later in our applications.  
+Each axis is its own mesh with a `BoxGeometry` and a `SurfaceMaterial`. We use `length` for the size of the dimension that corresponds to the given axis while the other two dimensions take the `thickness` value. We use `baseColor` instead of `vertexColors` for the material since all the vertices will be the same color. Then we translate each mesh so it extends along the positive direction of its axis. All three axes are added to the group node stored in `self.mesh`, which we will use later in our applications.  
 
 ## Grid Helper
 
@@ -493,11 +493,11 @@ class GridHelper:
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-We calculate coordinates for the grid on the $xy$-plane by setting coordinates for vertical lines first and horizonal lines second. Our applications will be able to easily rotate the grid $90°$ in any direction and place it along the desired plane.
+We calculate coordinates for the grid on the $xy$-plane by setting coordinates for vertical lines first and horizonal lines second. Applications that use the grid mesh will be able to easily rotate it $90°$ in any direction to place it along the desired plane.
 
-The first `for` loop calculates the coordinate values for each line that will be drawn with respect to its perpendicular axis and stores those values in the `ticks` list. Then, the second `for` loop uses each value in `ticks` as the $x$-coordinates for vertical lines. The third `for` loop also uses the same `ticks` values but sets them to the $y$-coordinates of the horizontal lines.
+The first `for` loop calculates coordinate values of the perpendicular axis for each line and stores those values in the `ticks` list. Then, the second `for` loop uses the values in `ticks` as $x$-coordinates for vertical lines. The third `for` loop also uses the same `ticks` values but sets them to the $y$-coordinates of horizontal lines.
 
-The `majorColor` parameter sets the color for only the center lines while the `minorColor` parameter sets the color for all the rest. Like the `AxesHelper` class, the `GridHelper` class also stores a `self.mesh` which our applications can use to render the grid.
+The `majorColor` parameter sets the color for the two center lines while the `minorColor` parameter sets the color for all the rest. Like the `AxesHelper` class, the `GridHelper` class also stores a `self.mesh` which our applications will use to render the grid.
 
 Now let's make sure these two helper classes render correctly with a test application.
 
@@ -554,7 +554,7 @@ If all goes well, the application should show the following scene:
 
 ## Camera Rig
 
-The final component is a special object that can move in three dimensions with the scene's camera attached to it. The camera will also be able to pan up and down without changing the direction of movement. We can accomplish this by making the `CameraRig` class extend the `Group` class and then add the camera object as its child. Then, inputs related to movement will apply to the `CameraRig` object itself while inputs related to rotating the camera will apply only to the camera. Keeping these as local transformations will make sure the camera always rotates with respect to its parent, the `CameraRig`.
+The final component is a special object that carries the camera as it moves in three dimensions. In addition, the camera will be able to pan up and down without affecting the direction of movement. We can accomplish this by making the `CameraRig` class extend the `Group` class and then add to it the camera object as a child node. Inputs related to movement will apply to the `CameraRig` object itself while inputs for panning the camera will apply as local transformations to the camera. Keeping these as local transformations will make sure the camera always rotates with respect to its parent, the `CameraRig`.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside your main working folder, create a new file called `grid_helper.py`.  
