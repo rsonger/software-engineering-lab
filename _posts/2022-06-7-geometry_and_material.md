@@ -100,19 +100,16 @@ class RectangleGeometry(Geometry):
         P2 = (-width/2,  height/2, 0)
         P3 = ( width/2,  height/2, 0)
 
-        # color data for each vertex
-        C0, C1, C2, C3 = (1,1,1), # white
-                         (1,0,0), # red
-                         (0,1,0), # green
-                         (0,0,1)  # blue
+        # color data for white, red, green, and blue vertices
+        C0, C1, C2, C3 = (1,1,1), (1,0,0), (0,1,0), (0,0,1)
 
         positionData = (P0,P1,P3, # first triangle
                         P0,P3,P2) # second triangle
         colorData = (C0,C1,C3, # first triangle
                      C0,C3,C2) # second triangle
 
-        self.addAttribute("vec3", "vertexPosition", positionData)
-        self.addAttribute("vec3", "vertexColor", colorData)
+        self.setAttribute("vertexPosition", positionData, "vec3")
+        self.setAttribute("vertexColor", colorData, "vec3")
 
         self.countVertices()
 ```
