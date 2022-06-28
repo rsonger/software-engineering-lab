@@ -234,7 +234,7 @@ class EllipsoidGeometry(ParametricGeometry):
         ]
 
         super().__init__(0, 2*pi, radial_segments, 
-                            -pi/2, pi/2, height_segments, surface_function)
+                         -pi/2, pi/2, height_segments, surface_function)
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -248,8 +248,8 @@ When we call the superclass `__init__` method, we give our values for $u$ and $v
 When we want to create a perfect sphere, it is useful to have a simpler interface than the one for an ellipsoid since the width, height, and depth of a sphere are all the same value.  
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `ellipsoid_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `ellipsoid_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `sphere_geometry.py`.  
+<input type="checkbox" class="checkbox inline"> Open `sphere_geometry.py` for editing and add the following code:  
 
 ```python
 from geometry.ellipsoid_geometry import EllipsoidGeometry
@@ -257,6 +257,7 @@ from geometry.ellipsoid_geometry import EllipsoidGeometry
 class SphereGeometry(EllipsoidGeometry):
     """A perfect sphere with the given radius."""
     def __init__(self, radius=1, radial_segments=32, height_segments=16):
+
         super().__init__(2*radius, 2*radius, 2*radius, 
                          radial_segments, height_segments)
 ```
@@ -384,8 +385,8 @@ We handle the top and bottom surfaces separately for maximum flexibility. For ea
 Now that all of the hard parts are complete, cylinders are really easy to make. The `CylinderGeometry` class restricts the interface to the `CylindricalGeometry` superclass to comply with the fact that a cylinder's radius is the same everywhere along its height.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `cylindrical_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `cylindrical_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `cylinder_geometry.py`.  
+<input type="checkbox" class="checkbox inline"> Open `cylinder_geometry.py` for editing and add the following code:  
 
 ```python
 from geometry.cylindrical_geometry import CylindricalGeometry
@@ -411,8 +412,8 @@ Changing the `radial_segments` parameter to smaller values such as `8` or `3` wi
 Finally, we can extend the `CylindricalGeometry` class and give it specific parameters to create cone-shaped objects. A cone is unique in that its top radius is $0$ but its bottom radius can be any non-zero value. As with cylinders, we will simplify the construction of a `CylindricalGeometry` object in the `__init__` method of the `ConeGeometry` class.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `cylindrical_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `cylindrical_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `cone_geometry.py`.  
+<input type="checkbox" class="checkbox inline"> Open `cone_geometry.py` for editing and add the following code:  
 
 ```python
 from geometry.cylindrical_geometry import CylindricalGeometry
