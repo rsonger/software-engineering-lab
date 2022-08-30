@@ -52,144 +52,151 @@ Now let's start coding these classes!
 The `Object3D` class makes the tree graph structure possible. As a node in the graph, it must have the ability to add and remove other nodes as children. At the same time it will manage a one-parent-only rule when its own parent is assigned.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `object3d.py`.  
-<input type="checkbox" class="checkbox inline"> Open `object3d.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `scene_graph.py`.  
+<input type="checkbox" class="checkbox inline"> Open `scene_graph.py` for editing and add the following code:  
 
 ```python
+# core.scene_graph.py
 from core.matrix import Matrix
 
-class Object3D(object):
+class Object3D:
     """A node in the scene graph tree structure."""
     def __init__(self):
-        self.__transform = Matrix.makeIdentity()
-        self.__parent = None
-        self.__children = []
+        self._transform = Matrix.get_identity()
+        self._parent = None
+        self._children = []
 
     @property
     def parent(self):
-        return self.__parent
+        return self._parent
 
     @parent.setter
     def parent(self, node):
         """Sets or removes the parent of this node."""
-        if self.__parent is not None and node is not None:
+        if not isinstance(node, Object3D):
+            raise Exception("Parent node must be an instance of Object3D.")
+        if self._parent is not None and node is not None:
             raise Exception("Cannot add a child of another node.")
-        self.__parent = node
-
+        self._parent = node
 
     def add(self, child):
+        """Adds an object as the child to this object in the scene graph."""
         child.parent = self
-        self.__children.append(child)
+        self._children.append(child)
 
     def remove(self, child):
-        self.__children.remove(child)
+        """Remove a child object from this object."""
+        self._children.remove(child)
         child.parent = None
 ```
 
 In order for our scene graph to function properly, each node can only have a single parent node. We enforce this rule by creating a **setter** for the `parent` property which will run whenever a program tries to assign a new value to the `parent` property. We can remove the `parent` by calling this setter with the `None` value for the new parent. Otherwise, if `parent` already has a value and the new value is not `None`, we raise an exception to explain the problem.
 
-<input type="checkbox" class="checkbox inline"> Add the next code to `object3d.py` for getting the world transform and all descendants of an object.  
+<input type="checkbox" class="checkbox inline"> Add the next code to the `Object3D` class for getting the world transform and all descendants of an object.  
 
 ```python
-    def getWorldMatrix(self):
+    @property
+    def world_matrix(self):
         """Calculate the transformation of this node relative to the root node."""
-        if self.__parent == None:
-            return self.__transform
+        if self._parent is None:
+            return self._transform
         else:
             # recursion!
-            return self.__parent.getWorldMatrix() @ self.__transform
+            return self._parent.world_matrix @ self._transform
 
-    def getDescendantList(self):
+    @property
+    def descendant_list(self):
         """Get a single list containing all the descendants of this node."""
-        # more recursion!
         descendants = [self]
-        for c in self.__children:
-            descendants += c.getDescendantList()
+        for c in self._children:
+            # more recursion!
+            descendants += c.descendant_list
         return descendants
 ```
 
-The `getWorldMatrix()` method will recursively apply its transformation matrix to each of its ancestors' matrices until it reaches the root node (which has no parent) where it returns the final product. The `getDescendantList()` method similarly uses recursion to build a list of each node below this one in the graph.
+The `world_matrix` property will recursively apply its transformation matrix to each of its ancestors' matrices until it reaches the root node (which has no parent) where it returns the final product. The `descendant_list` property similarly uses recursion to build a list of each node below this one in the graph.
 
-<input type="checkbox" class="checkbox inline"> Next, add code to `object3d.py` for applying both local and global geometric transformations.  
+<input type="checkbox" class="checkbox inline"> Next, add this code to the `Object3D` class for applying both local and global geometric transformations.  
 
 ```python
-    def applyMatrix(self, matrix, localCoord=True):
+    def apply_matrix(self, matrix, local_coords=True):
         """Apply a geometric transformation to this object."""
-        if localCoord:
-            self.__transform = self.__transform @ matrix
+        if local_coords:
+            self._transform = self._transform @ matrix
         else:
-            self.__transform = matrix @ self.__transform
+            self._transform = matrix @ self._transform
 
-    def translate(self, x, y, z, localCoord=True):
+    def translate(self, x, y, z, local_coords=True):
         """Calculate and apply a translation to this object."""
-        m = Matrix.makeTranslation(x,y,z)
-        self.applyMatrix(m, localCoord)
+        m = Matrix.make_translation(x,y,z)
+        self.apply_matrix(m, local_coords)
     
-    def rotateX(self, angle, localCoord=True):
+    def rotate_x(self, angle, local_coords=True):
         """Calculate and apply a rotation around the x-axis of this object."""
-        m = Matrix.makeRotationX(angle)
-        self.applyMatrix(m, localCoord)
+        m = Matrix.make_rotation_x(angle)
+        self.apply_matrix(m, local_coords)
     
-    def rotateY(self, angle, localCoord=True):
+    def rotate_y(self, angle, local_coords=True):
         """Calculate and apply a rotation around the y-axis of this object."""
-        m = Matrix.makeRotationY(angle)
-        self.applyMatrix(m, localCoord)
+        m = Matrix.make_rotation_y(angle)
+        self.apply_matrix(m, local_coords)
     
-    def rotateZ(self, angle, localCoord=True):
+    def rotate_z(self, angle, local_coords=True):
         """Calculate and apply a rotation around the z-axis of this object."""
-        m = Matrix.makeRotationZ(angle)
-        self.applyMatrix(m, localCoord)
+        m = Matrix.make_rotation_z(angle)
+        self.apply_matrix(m, local_coords)
     
-    def scaleUniform(self, s, localCoord=True):
+    def scale_uniform(self, s, local_coords=True):
         """Calculate and apply a scaling transformation to this object."""
-        m = Matrix.makeScale(s, s, s)
-        self.applyMatrix(m, localCoord)
+        m = Matrix.make_scale(s, s, s)
+        self.apply_matrix(m, local_coords)
 ```
 
-First, we make a generic `applyMatrix()` method which accepts a transformation matrix as its first parameter and an optional Boolean as its second parameter. A `True` value for the Boolean indicates that the transformation is local to the object's coordinate axes. Otherwise, we apply the matrix as a global transformation. Then, each method after `applyMatrix()` generates and applies a specific type of transformation matrix to this object.
+First, we make a generic `apply_matrix` method which accepts a transformation matrix as its first parameter and an optional Boolean as its second parameter. A `True` value for the Boolean indicates that the transformation is local to the object's coordinate axes. Otherwise, we apply the matrix as a global transformation. Then, each method after `apply_matrix` generates and applies a specific type of transformation matrix to this object.
 
-<input type="checkbox" class="checkbox inline"> Finally, add code to `object3d.py` for getting and setting the position of an object.  
+<input type="checkbox" class="checkbox inline"> Finally, add this code to the `Object3D` class for getting and setting the position of an object.  
 
 ```python
-    def getPosition(self):
+    @property
+    def position(self):
         """Get the position of this object relative to its parent node."""
-        return [self.__transform.item((0,3)),
-                self.__transform.item((1,3)),
-                self.__transform.item((2,3))]
+        return [self._transform.item((0,3)),
+                self._transform.item((1,3)),
+                self._transform.item((2,3))]
 
-    def getWorldPosition(self):
-        """Get the position of this object relative to the root node."""
-        world_transform = self.getWorldMatrix()
-        return [world_transform.item((0,3)),
-                world_transform.item((1,3)),
-                world_transform.item((2,3))]
-
-    def setPosition(self, position):
+    @position.setter
+    def position(self, position):
         """Set the position of this object relative to its parent node."""
         if not type(position) in (list,tuple) or len(position) != 3:
             raise Exception("Object3D position must be in the form (x,y,z).")
 
-        self.__transform.itemset((0,3), position[0])
-        self.__transform.itemset((1,3), position[1])
-        self.__transform.itemset((2,3), position[2])
+        self._transform.itemset((0,3), position[0])
+        self._transform.itemset((1,3), position[1])
+        self._transform.itemset((2,3), position[2])
+
+    @property
+    def world_position(self):
+        """Get the position of this object relative to the root node."""
+        world_transform = self.world_matrix
+        return [world_transform.item((0,3)),
+                world_transform.item((1,3)),
+                world_transform.item((2,3))]
 ```
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-Here, the `getPosition()` and `getWorldPosition()` methods both use a `numpy.ndarray` method called [`item()`](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.item.html). This method returns the scalar value from inside the NDArray matrix at the given location. Remember, we use a 4x4 matrix to represent 3D transformations and the numbers in the last column (at index 3) are the translation values for $x$, $y$, and $z$. So, we just extract the values from the last column and return them as the object's position. 
+Here, the `position` and `world_position` properties both use a `numpy.ndarray` method called [`item()`](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.item.html). This method returns the scalar value from inside the NDArray matrix at the given location. Remember, we use a 4x4 matrix to represent 3D transformations and the numbers in the last column (at index 3) are the translation values for $x$, $y$, and $z$. So, we just extract the values from the last column and return them as the object's position. 
 
-The `setPosition()` method uses another `numpy.ndarray` method called [`itemset()`](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.itemset.html) which inserts values into a NDArray matrix. In this way, we can directly set the position of an object without applying a translation matrix.
+The `position` setter uses another `numpy.ndarray` method called [`itemset()`](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.itemset.html) which inserts values into a NDArray matrix. In this way, we can directly set the position of an object without applying a translation matrix.
 
 ## Scene and Group
 
 The `Scene` and `Group` classes have little to no additional functionality, but they are conceptually important to our scene graph structure. The `Scene` class is the root node of the scene graph and so it will not accept any node as a parent. We will use the `Group` class when we want to apply transformations to many objects together as a whole. For example, a bundle of balloons may not have a visible parent object even though they move together. We could create an instance of `Group` and then add each balloon to it as a child.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `scene.py`.  
-<input type="checkbox" class="checkbox inline"> Open `scene.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `scene_graph.py`.  
+<input type="checkbox" class="checkbox inline"> At the end of the file `scene_graph.py` add the following code after the `Object3D` class:  
 
 ```python
-from core.object3d import Object3D
-
 class Scene(Object3D):
     """Represents the root node of the scene graph tree structure."""
     def __init__(self):
@@ -202,14 +209,11 @@ class Scene(Object3D):
 ```
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-This time, we use a special decorator (`@Object3D.parent.setter`) to access the setter for the `parent` property in the `Object3D` superclass. Then we can raise an exception if a program tries to assign a parent to the scene node.
+This time, we use a special decorator (`@Object3D.parent.setter`) to access the setter for the `parent` property in the `Object3D` superclass. Then we can raise an exception if a program tries to assign a parent node to the scene node.
 
-<input type="checkbox" class="checkbox inline"> Next, create a create a new file called `group.py` also in the `core` folder.  
-<input type="checkbox" class="checkbox inline"> Open `group.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Next, add the following code at the end of `scene_graph.py` after the `Scene` class:  
 
 ```python
-from core.object3d import Object3D
-
 class Group(Object3D):
     """A node that can serve as a base for transforming many attached nodes."""
     def __init__(self):
@@ -226,33 +230,36 @@ For example, if the camera moves two units to the right, all of the objects in t
 So, we apply the position and orientation of the camera as the inverse of the camera's global transform and store it in a *view matrix*. In addition to the view matrix, we will also manage the projection matrix for the scene with our newly created `Camera` class.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `camera.py`.  
-<input type="checkbox" class="checkbox inline"> Open `camera.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Open `scene_graph.py` for editing and add the following code to the imports at the top of the file:  
 
 ```python
 from numpy.linalg import inv
 
-from core.object3d import object3d
 from core.matrix import Matrix
+```
 
+<input type="checkbox" class="checkbox inline"> Next, scroll to the bottom of `scene_graph.py` and add the following code after the `Group` class.  
+
+```python
 class Camera(Object3D):
     """Represents the virtual camera used to view the scene."""
-    def __init__(self, angleOfView=60, aspectRatio=1, near=0.1, far=1000):
+    def __init__(self, angle_of_view=60, aspect_ratio=1, near=0.1, far=1000):
         super().__init__()
-        self.__projection_matrix = Matrix.makePerspective(angleOfView, 
-                                    aspectRatio, near, far)
-        self.__view_matrix = Matrix.makeIdentity()
+        self._projection_matrix = Matrix.make_perspective(
+            angle_of_view, aspect_ratio, near, far
+        )
+        self._view_matrix = Matrix.get_identity()
 
     @property
     def projection_matrix(self):
-        return self.__projection_matrix
+        return self._projection_matrix
 
     @property
     def view_matrix(self):
-        return self.__view_matrix
+        return self._view_matrix
 
-    def updateViewMatrix(self):
-        self.__view_matrix = inv(self.getWorldMatrix())
+    def update_view_matrix(self):
+        self._view_matrix = inv(self.world_matrix)
 ```
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
@@ -263,11 +270,11 @@ The `Mesh` class represents objects that can be rendered in the scene. It stores
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new folder called `geometry`.  
 <input type="checkbox" class="checkbox inline"> In the `geometry` folder, create an empty file called `__init__.py` so we can import from `geometry` as a package.  
-<input type="checkbox" class="checkbox inline"> In the `geometry` folder, create a new file called `geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Open `__init__.py` for editing and add the following code:  
 
 ```python
-from core.attribute import Attribute
+# geometry.__init__.py
+from core.openGL import Attribute
 
 class Geometry(object):
     pass
@@ -275,11 +282,11 @@ class Geometry(object):
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new folder called `material`.  
 <input type="checkbox" class="checkbox inline"> In the `material` folder, create an empty file called `__init__.py` so we can import from `material` as a package.  
-<input type="checkbox" class="checkbox inline"> In the `material` folder, create a new file called `material.py`.  
-<input type="checkbox" class="checkbox inline"> Open `material.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Open `__init__.py` for editing and add the following code:  
 
 ```python
-from OpenGL.GL import *
+# material.__init__.py
+import OpenGL.GL as GL
 
 from core.openGLUtils import OpenGLUtils
 from core.uniform import Uniform
@@ -291,16 +298,17 @@ class Material(object):
 
 Now we can create `Mesh` with `Geometry` and `Material` even though they are not yet finished.
 
-<input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `mesh.py`.  
-<input type="checkbox" class="checkbox inline"> Open `mesh.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Open the `scene_graph.py` file again from inside the `core` folder.  
+<input type="checkbox" class="checkbox inline"> At the top of the `scene_graph.py` file, add the following import statements:  
 
 ```python
-from OpenGL.GL import *
+from geometry import Geometry
+from material import Material
+```
 
-from core.object3d import Object3D
-from geometry.geometry import Geometry
-from material.material import Material
+<input type="checkbox" class="checkbox inline"> At the end of the `scene_graph.py` file, add the following code after the `Camera` class:  
 
+```python
 class Mesh(Object3D):
     """A visible object in the scene with geometric and appearance data."""
     def __init__(self, geometry, material):
@@ -308,57 +316,57 @@ class Mesh(Object3D):
 
         if not isinstance(geometry, Geometry):
             raise Exception(f"Expecting an instance of Geometry but got {type(geometry)} instead.")
-        self.__geometry = geometry
+        self._geometry = geometry
         
         if not isinstance(material, Material):
             raise Exception(f"Expecting an instance of Material but got {type(material)} instead.")
-        self.__material = material
+        self._material = material
 
-        self.__visible = True
+        self._visible = True
 
-        self.__vaoRef = glGenVertexArrays(1)
-        glBindVertexArray(self.__vaoRef)
+        self._vao_ref = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(self._vao_ref)
 
         # associate geometry attributes to the material shader program
         for variable, attribute in geometry.attributes.items():
-            attribute.associateVariable(material.programRef, variable)
+            attribute.associate_variable(material.program_ref, variable)
 
         # unbind this vertex array object
-        glBindVertexArray(0)
+        GL.glBindVertexArray(0)
         
     @property
     def visible(self):
-        return self.__visible
+        return self._visible
     
     @visible.setter
     def visible(self, value):
-        self.__visible = bool(value)
+        self._visible = bool(value)
 ```
 
 Since this class very heavily relies on the interfaces we will create in `Geometry` and `Material`, we use the `__init__()` method to make sure that we get instances of those two classes. We also make a `visible` property so we can easily indicate that this object should be rendered. 
 
-The shader program will be stored in `Material` but the vertex attributes are stored in `Geometry`. The `Mesh` class manages both for this object, so naturally we should also maintain the vertex array object (VAO) that associates attribute data to shader program variables. With the `self.__vaoRef` property, we can easily keep track of which VAO binds to which 3D object and that makes it a lot easier to draw multiple shapes on the screen.
+The shader program will be stored in `Material` but the vertex attributes are stored in `Geometry`. The `Mesh` class manages both for this object, so naturally we should also maintain the vertex array object (VAO) that associates attribute data to shader program variables. With the `self._vao_ref` property, we can easily keep track of which VAO binds to which 3D object and that makes it a lot easier to draw multiple shapes on the screen.
 
 <input type="checkbox" class="checkbox inline"> Next, add code to `mesh.py` for drawing the 3D object.  
 
 ```python
     def render(self, view_matrix, projection_matrix):
-        glUseProgram(self.__material.programRef)
+        GL.glUseProgram(self._material.program_ref)
             
-        glBindVertexArray(self.__vaoRef)
+        GL.glBindVertexArray(self._vao_ref)
 
         # update matrix uniforms
-        self.__material.setUniform("modelMatrix", self.getWorldMatrix())        
-        self.__material.setUniform("viewMatrix", view_matrix)
-        self.__material.setUniform("projectionMatrix", projection_matrix)
+        self._material.set_uniform("modelMatrix", self.world_matrix)
+        self._material.set_uniform("viewMatrix", view_matrix)
+        self._material.set_uniform("projectionMatrix", projection_matrix)
 
         # update the stored data and settings before drawing
-        self.__material.uploadData()
-        self.__material.updateRenderSettings()
-        glDrawArrays(self.__material.getSetting("drawStyle"), 0, 
-                     self.__geometry.vertexCount)
+        self._material.upload_data()
+        self._material.update_render_settings()
+        GL.glDrawArrays(self._material.get_setting("drawStyle"), 0, 
+                     self._geometry.vertex_count)
 
-        glBindVertexArray(0)
+        GL.glBindVertexArray(0)
 ```
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 

@@ -17,7 +17,7 @@ toc_sticky: false
 
 With vertex array objects, we can associate position and color data to GPU program variables. However, the structure of VAOs means that we cannot share the same data between vertices. Instead, we need to repeat data when we want different vertices to be the same color, for example. This is not ideal. Repeating data multiple times in our source code lowers the **maintainability** and **extensibility** of our software. To change the color of a solid-color hexagon, we would need to change the data for six different vertices.
 
-There must be an easier way! Actually, in this situation we can use global variables called *uniform variables* that store values in a way that makes them uniformly accessible. That means both shaders use them for every vertex in the array.
+There must be an easier way! Actually, there is. In situations like this we can use global variables called *uniform variables* that store values in a way that makes them uniformly accessible. That means both shaders use them for every vertex in the array.
 
 # Working with Uniform Data
 
@@ -31,82 +31,80 @@ Similar to how we made the `Attribute` class for attribute variables in the prev
 - and load the data into the uniform variable as needed.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `uniform.py`.  
-<input type="checkbox" class="checkbox inline"> Open `uniform.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `openGL.py`.  
+<input type="checkbox" class="checkbox inline"> Scroll to the end of `openGL.py` and add the following code after the `Attribute` class:  
 
 ```python
-from OpenGL.GL import *
-
-class Uniform(object):
+class Uniform:
     """Manages a single uniform variable in a shader program."""
-    def __init__(self, dataType, data):
+    def __init__(self, data_type, data):
         # check the given data type
-        validTypes = ('int','bool','float','vec2','vec3','vec4')
-        if dataType.lower() not in validTypes:
-            raise Exception(f"Unsupported data type: {dataType}")
-        self.dataType = dataType.lower()
+        valid_types = ('int','bool','float','vec2','vec3','vec4')
+        if data_type.lower() not in valid_types:
+            raise Exception(f"Unsupported data type: {data_type}")
+        self.data_type = data_type.lower()
 
         # data to be sent to uniform variable
         self.data = data
 
         # reference for variable location in program
-        self.variableRef = None
+        self.variable_ref = None
 ```
 
-The `Uniform` class introduces some strict type checking that we didn't have in `Attribute`. It defines the valid data types with a tuple and raises an exception if the given data type is not one of them. This will make it easier to debug your code if you have a typo in your application code or try to use a type that we do not handle in our `uploadData` method later.
+The `Uniform` class introduces some strict type checking that we didn't have in `Attribute`. It defines the valid data types with a tuple and raises an exception if the given data type is not one of them. This will make it easier to debug your code if you have a typo in your application code or try to use a type that we do not handle in our `upload_data` method later.
 
-<input type="checkbox" class="checkbox inline"> Now add the `locateVariable` method to the `Uniform` class.  
+<input type="checkbox" class="checkbox inline"> Now add the `locate_variable` method to the `Uniform` class.  
 
 ```python
-    def locateVariable(self, programRef, variableName):
+    def locate_variable(self, program_ref, variable_name):
         """Get and store a reference to a uniform variable with the given name."""
-        self.variableRef = glGetUniformLocation(programRef, variableName)
-        if self.variableRef == -1:
-          raise Exception(f"No uniform variable found for {variableName}")
+        self.variable_ref = GL.glGetUniformLocation(program_ref, variable_name)
+        if self.variable_ref == -1:
+          raise Exception(f"No uniform variable found for {variable_name}")
 ```
 
-Here we use the [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} function to get a reference to the uniform variable in the given program. That function will return `-1` if the variable cannot be found. We don't want our program to fail silently if it cannot find the variable, so we raise an exception with a descriptive message to the programmer.
+Here we use the [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} function to get a reference to the uniform variable in the given program. That function will return `-1` if the variable cannot be found. We don't want our program to fail silently if it cannot find the variable, so we raise an exception with a descriptive message for the programmer.
 
-<input type="checkbox" class="checkbox inline"> Next, add the `uploadData` method to the `Uniform` class.  
+<input type="checkbox" class="checkbox inline"> Next, add the `upload_data` method to the `Uniform` class.  
 
 ```python
-    def uploadData(self):
+    def upload_data(self):
         """Store data in a previously located uniform variable."""
-        if self.variableRef == None:
+        if self.variable_ref == None:
             # the variable has not been located in a program
             raise Exception("Unable to upload data. Must locate uniform variable first.")
 
-        if self.dataType == "int":
-            glUniform1i(
-                self.variableRef, 
+        if self.data_type == "int":
+            GL.lUniform1i(
+                self.variable_ref, 
                 self.data
             )
-        elif self.dataType == "bool":
-            glUniform1i(
-                self.variableRef, 
+        elif self.data_type == "bool":
+            GL.glUniform1i(
+                self.variable_ref, 
                 self.data
             )
-        elif self.dataType == "float":
-            glUniform1f(
-                self.variableRef, 
+        elif self.data_type == "float":
+            GL.glUniform1f(
+                self.variable_ref, 
                 self.data
             )
-        elif self.dataType == "vec2":
-            glUniform2f(
-                self.variableRef, 
+        elif self.data_type == "vec2":
+            GL.glUniform2f(
+                self.variable_ref, 
                 self.data[0], 
                 self.data[1]
             )
-        elif self.dataType == "vec3":
-            glUniform3f(
-                self.variableRef, 
+        elif self.data_type == "vec3":
+            GL.glUniform3f(
+                self.variable_ref, 
                 self.data[0], 
                 self.data[1], 
                 self.data[2]
             )
-        elif self.dataType == "vec4":
-            glUniform4f(
-                self.variableRef, 
+        elif self.data_type == "vec4":
+            GL.glUniform4f(
+                self.variable_ref, 
                 self.data[0], 
                 self.data[1], 
                 self.data[2], 
@@ -114,9 +112,9 @@ Here we use the [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL
             )
 ```
 
-The first thing we do is confirm that we have a reference to the uniform variable. `self.variableRef` is set to `None` when the `Uniform` object initializes, but then it receives a value in the `locateVariable` method. So our message to the programmer is a reminder to call `locateVariable` before `uploadData`. Then we check the data type of this uniform variable and upload the data with the appropriate [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} function.
+The first thing we do is confirm that we have a reference to the uniform variable. `self.variable_ref` is set to `None` when the `Uniform` object initializes, but then it receives a value in the `locate_variable` method. So our message to the programmer is a reminder to call `locate_variable` before `upload_data`. Then we check the data type of this uniform variable and upload the data with the appropriate [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} function.
 
-<input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the `uniform.py` file.
+<input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the `openGL.py` file.
 
 Next we will write a simple test program to confirm that the `Uniform` class works as expected.
 
@@ -125,6 +123,7 @@ Next we will write a simple test program to confirm that the `Uniform` class wor
 The application that tests the `Uniform` class will show two triangles with the same shape, but different positions and colors. For this purpose, we will use shader programs that are slightly modified from before. Here is the vertex shader:
 
 ```glsl
+# GLSL version 330
 in vec3 position;
 uniform vec3 translation;
 void main() {
@@ -139,6 +138,7 @@ Second, `gl_Position` (which defines the location of each vertex) is the combina
 The new fragment shader program will look like this:
 
 ```glsl
+# GLSL version 330
 uniform vec3 baseColor;
 out vec4 fragColor;
 void main() {
@@ -155,19 +155,20 @@ In order to use the `translation` and `baseColor` uniform variables, our test ap
 <input type="checkbox" class="checkbox inline"> Open `test_2_6.py` for editing and add the following code:  
 
 ```python
-from core.base import Base
-from core.openGLUtils import OpenGLUtils
-from core.attribute import Attribute
-from core.uniform import Uniform
-from OpenGL.GL import *
+# test_2_6.py
+import OpenGL.GL as GL
 
-class Test_2_6(Base):
+from core.app import WindowApp
+from core.openGL import Attribute, Uniform
+from core.openGLUtils import OpenGLUtils
+
+class Test_2_6(WindowApp):
     """Test Uniform by drawing the same triangles with different positions and colors."""
-    def initialize(self):
-        print("Starting up Test 2-6")
+    def startup(self):
+        print("Starting up Test 2-6...")
 
         # vertex shader code with a uniform variable
-        vsCode = """
+        vs_code = """
         in vec3 position;
         uniform vec3 translation;
         void main() {
@@ -177,7 +178,7 @@ class Test_2_6(Base):
         """
 
         # fragment shader code with a uniform variable
-        fsCode = """
+        fs_code = """
         uniform vec3 baseColor;
         out vec4 fragColor;
         void main() {
@@ -185,47 +186,47 @@ class Test_2_6(Base):
         }
         """
 
-        self.programRef = OpenGLUtils.initializeProgram(vsCode, fsCode)
+        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
 
         # we only need one vertex array object this time
-        vaoRef = glGenVertexArrays(1)
-        glBindVertexArray(vaoRef)
+        vao_ref = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(vao_ref)
 
         # initialize the triangle vertices relative to the origin (0.0, 0.0, 0.0)
-        positionData = (
+        position_data = (
             ( 0.0,  0.2, 0.0), 
             ( 0.2, -0.2, 0.0), 
             (-0.2, -0.2, 0.0)
         )
-        self.vertexCount = len(positionData)
-        positionAttribute = Attribute("vec3", positionData)
-        positionAttribute.associateVariable(self.programRef, "position")
+        self.vertex_count = len(position_data)
+        position_attribute = Attribute("vec3", position_data)
+        position_attribute.associate_variable(self.program_ref, "position")
 
         # initialize a Uniform object for each translation and baseColor value
-        self.leftTranslation = Uniform("vec3", (-0.5, 0.0, 0.0))
-        self.leftTranslation.locateVariable(self.programRef, "translation")
+        self.left_translation = Uniform("vec3", [-0.5, 0.0, 0.0])
+        self.left_translation.locate_variable(self.program_ref, "translation")
 
-        self.rightTranslation = Uniform("vec3", (0.5, 0.0, 0.0))
-        self.rightTranslation.locateVariable(self.programRef, "translation")
+        self.right_translation = Uniform("vec3", [0.5, 0.0, 0.0])
+        self.right_translation.locate_variable(self.program_ref, "translation")
 
-        self.redColor = Uniform("vec3", (1.0, 0.0, 0.0))
-        self.redColor.locateVariable(self.programRef, "baseColor")
+        self.red_color = Uniform("vec3", [1.0, 0.0, 0.0])
+        self.red_color.locate_variable(self.program_ref, "baseColor")
 
-        self.blueColor = Uniform("vec3", (0.0, 0.0, 1.0))
-        self.blueColor.locateVariable(self.programRef, "baseColor")
+        self.blue_color = Uniform("vec3", [0.0, 0.0, 1.0])
+        self.blue_color.locate_variable(self.program_ref, "baseColor")
 
     def update(self):
-        glUseProgram(self.programRef)
+        GL.glUseProgram(self.program_ref)
 
         # load and draw the left, red triangle
-        self.leftTranslation.uploadData()
-        self.redColor.uploadData()
-        glDrawArrays(GL_TRIANGLES, 0, self.vertexCount)
+        self.left_translation.upload_data()
+        self.red_color.upload_data()
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
 
         # load and draw the right, blue triangle
-        self.rightTranslation.uploadData()
-        self.blueColor.uploadData()
-        glDrawArrays(GL_TRIANGLES, 0, self.vertexCount)
+        self.right_translation.upload_data()
+        self.blue_color.upload_data()
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
 
 # instantiate and run this test
 Test_2_6().run()
@@ -234,11 +235,11 @@ Test_2_6().run()
 <input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_2_6.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a red triangle on the left side of the screen and a blue triangle on the right side.  
 
-In this application we create a new `Uniform` object and saves it to the application instance `self` for each value that we will want to use with a uniform variable. Then we can just reference the `Uniform` object and use its `uploadData` method when we want to apply its associated value in our `update` method. Note that the data MUST be uploaded BEFORE calling `glDrawArrays` or the shader program won't have access to it.
+In this application we create a new `Uniform` object and saves it to the application instance `self` for each value that we will want to use with a uniform variable. Then we can just reference the `Uniform` object and use its `upload_data` method when we want to apply its associated value in our `update` method. Note that the data MUST be uploaded BEFORE calling `glDrawArrays` or the shader program won't have access to it.
 
 ## Animations
 
-Until now, all of our test applications have used the `update` method to draw still images, which it does 60 times a second. Remember that in the application runtime lifecycle, the `update` method runs in a continuous loop that updates data and renders the image at 60 FPS (see the `run` method in the `Base` class). With static images, we get no real benefit from structuring our application in that way. The benefit comes when the images change in some way over time, which we will now learn how to do by creating animations.
+Until now, all of our test applications have used the `update` method to draw still images, which it does 60 times a second. Remember that in the application runtime lifecycle, the `update` method runs in a continuous loop that updates data and renders the image at 60 FPS (see the `run` method in the `WindowApp` class). With static images, we get no real benefit from structuring our application in that way. The benefit comes when the images change in some way over time, which we will now learn how to do by creating animations.
 
 ### Clearing the Screen
 
@@ -255,20 +256,21 @@ The source code is very similary to `test_2_6.py`, except this time we only use 
 <input type="checkbox" class="checkbox inline"> Open `test_2_7.py` for editing and add the following code:  
 
 ```python
-from core.base import Base
-from core.openGLUtils import OpenGLUtils
-from core.attribute import Attribute
-from core.uniform import Uniform
-from OpenGL.GL import *
+# test_2_7.py
+import OpenGL.GL as GL
 
-class Test_2_7(Base):
+from core.app import WindowApp
+from core.openGL import Attribute, Uniform
+from core.openGLUtils import OpenGLUtils
+
+class Test_2_7(WindowApp):
     """Test animations with uniform variables by moving a triangle across the screen."""
 
-    def initialize(self):
-        print("Starting up Test 2-7")
+    def startup(self):
+        print("Starting up Test 2-7...")
 
         # vertex shader code
-        vsCode = """
+        vs_code = """
         in vec3 position;
         uniform vec3 translation;
         void main() {
@@ -278,7 +280,7 @@ class Test_2_7(Base):
         """
 
         # fragment shader code
-        fsCode = """
+        fs_code = """
         uniform vec3 baseColor;
         out vec4 fragColor;
         void main() {
@@ -286,28 +288,28 @@ class Test_2_7(Base):
         }
         """
 
-        self.programRef = OpenGLUtils.initializeProgram(vsCode, fsCode)
+        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
 
         # get and bind a vertex array object
-        vaoRef = glGenVertexArrays(1)
-        glBindVertexArray(vaoRef)
+        vao_ref = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(vao_ref)
 
         # the triangle shape as three vertices around the origin
-        positionData = (
+        position_data = (
             ( 0.0,  0.2, 0.0),
             ( 0.2, -0.2, 0.0), 
             (-0.2, -0.2, 0.0)
         )
-        self.vertexCount = len(positionData)
-        positionAttribute = Attribute("vec3", positionData)
-        positionAttribute.associateVariable(self.programRef, "position")
+        self.vertex_count = len(position_data)
+        position_attribute = Attribute("vec3", position_data)
+        position_attribute.associate_variable(self.program_ref, "position")
 
         # create initial values for translation and baseColor
         self.translation = Uniform("vec3", [-0.5, 0.0, 0.0])
-        self.translation.locateVariable(self.programRef, "translation")
+        self.translation.locate_variable(self.program_ref, "translation")
 
-        self.baseColor = Uniform("vec3", [1.0, 0.0, 0.0])
-        self.baseColor.locateVariable(self.programRef, "baseColor")
+        self.base_color = Uniform("vec3", [1.0, 0.0, 0.0])
+        self.base_color.locate_variable(self.program_ref, "baseColor")
 
         # specify the color to use for clearing the screen
         glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -321,13 +323,13 @@ class Test_2_7(Base):
             self.translation.data[0] = -1.2
 
         # reset color buffer with specified color
-        glClear(GL_COLOR_BUFFER_BIT)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
-        glUseProgram(self.programRef)
+        GL.glUseProgram(self.program_ref)
 
-        self.translation.uploadData()
-        self.baseColor.uploadData()
-        glDrawArrays(GL_TRIANGLES, 0, self.vertexCount)
+        self.translation.upload_data()
+        self.base_color.upload_data()
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
 
 # instantiate and run this test
 Test_2_7().run()
@@ -336,29 +338,31 @@ Test_2_7().run()
 <input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_2_7.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a red triangle moving to the right of the screen and then wrapping around to the left side.  
 
-This application only has one `Uniform` object for the `translation` variable and one for the `baseColor` variable. This time we use a list instead of a tuple for the initial values because Python tuples are *immutable* (cannot be changed). In the `update` method, we directly set the new data for the $x$-coordinate translation in the `Uniform` object before uploading its data. If the triangle moves more than `1.2` units to the right, we reposition it to the left side of the screen. Remember, the leftmost point in the triangle position data is at `-0.2` on the $x$-axis, so a translation value of `1.2` will put it at exactly `1.0`, the edge of the screen.
+This application only has one `Uniform` object for the `translation` variable and one for the `baseColor` variable. Here we use a list for each `Uniform` object's data because Python tuples are *immutable* (cannot be changed). If we used a tuple instead, we would not be able to change the data values (and would not be able to animate).
+
+In the `update` method, we directly set the new data for the $x$-coordinate translation in the `Uniform` object before uploading its data. If the triangle moves more than `1.2` units to the right, we reposition it to the left side of the screen. Remember, the leftmost point in the triangle position data is at `-0.2` on the $x$-axis, so a translation value of `1.2` will put it at exactly `1.0`, the edge of the screen.
 
 ### Keeping Time
 
 Another fundamental technique in computer animation is to calculate movements based on the amount of time that has passed since the previous frame. We will prepare two new instance variables for keeping track of time:
 - The `time` variable will count the total number of seconds that the application has been running.
-- The `deltaTime` variable will store the number of seconds that have passed since the last interation of the run loop.
+- The `delta_time` variable will store the number of seconds that have passed since the last interation of the run loop.
 
-These variables will go in the `Base` class so they can be inherited into each of our applications. 
+These variables will go in the `WindowApp` class so they can be inherited into each of our applications. 
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `base.py`.  
-<input type="checkbox" class="checkbox inline"> Look for the `__init__` method inside the `Base` class and add the following code at the end of `__init__`:  
+<input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `app.py`.  
+<input type="checkbox" class="checkbox inline"> Look for the `__init__` method inside the `WindowApp` class and add the following code at the end of `__init__`:  
 
 ```python
         # timekeeper variables
         self.__time = 0
-        self.__deltaTime = 0
+        self.__delta_time = 0
 ```
 
-Here, the double underscores in the variable names will give complete control of the variable access to the `Base` class. That means our applications can create their own `__time` and `__deltaTime` variables without overwriting the timekeeper features from `Base`.
+Here, the double underscores in the variable names will give complete control of the variable access to the `WindowApp` class. That means our applications can create their own `__time` and `__delta_time` variables without overwriting the timekeeper features from `WindowApp`.
 
-<input type="checkbox" class="checkbox inline"> Inside the `Base` class, add two `@property` definitions for the `time` and `deltaTime` variables.  
+<input type="checkbox" class="checkbox inline"> Inside the `WindowApp` class, add two `@property` definitions for the `time` and `delta_time` variables.  
 
 ```python
     @property
@@ -366,23 +370,23 @@ Here, the double underscores in the variable names will give complete control of
         return self.__time
 
     @property
-    def deltaTime(self):
-        return self.__deltaTime
+    def delta_time(self):
+        return self.__delta_time
 ```
 
-This makes the `time` and `deltaTime` variables read-only so applications cannot mess around with time.
+This makes the `time` and `delta_time` variables read-only so applications cannot mess around with time.
 
-<input type="checkbox" class="checkbox inline"> Finally, go to the `run` method inside the `Base` class and find the line that calls `self.update()`.  
+<input type="checkbox" class="checkbox inline"> Finally, go to the `run` method inside the `WindowApp` class and find the line that calls `self.update()`.  
 <input type="checkbox" class="checkbox inline"> Just before the `self.update()` call inside the `while running` loop, add the following code:
 
 ```python
             # calculate seconds since the last iteration of the run loop
-            self.__deltaTime = self.clock.get_time() / 1000
+            self.__delta_time = self.clock.get_time() / 1000
             # increment time application has been running
-            self.__time += self.__deltaTime
+            self.__time += self.__delta_time
 ```
 
-<input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the `base.py` file.
+<input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the `app.py` file.
 
 Now let's test the timekeeper variables with an application that calculates the triangle's position based on time. We could make the triangle move back and forth across the screen with simple linear equations, or we can use sine and cosine functions from trigonometry to make the triangle move more smoothly between $1$ and $-1$ values. Together, sine and cosine can calculate the $(x,y)$ coordinates of a circular path from a time variable $t$:
 
@@ -405,10 +409,10 @@ If the triangle's path has a radius of $1.0$, then it partially disappear off th
 <input type="checkbox" class="checkbox inline"> Inside `test_2_8.py` find the lines with the class definition, document string, and print statement then change them to the following:
 
 ```python
-class Test_2_8(Base):
+class Test_2_8(WindowApp):
     """Test using timekeeper variables to animate a triangle moving in a circle."""
-    def initialize(self):
-        print("Starting up Test 2-8")
+    def startup(self):
+        print("Starting up Test 2-8...")
 ```
 
 <input type="checkbox" class="checkbox inline"> On the last line of the file, change the code that runs the application to `Test_2_8().run()`.  
@@ -440,10 +444,10 @@ Color values must be in the range of $[0.0,1.0]$ but sine results are in the ran
 <input type="checkbox" class="checkbox inline"> Inside `test_2_9.py` find the lines with the class definition, document string, and print statement then change them to the following:
 
 ```python
-class Test_2_9(Base):
+class Test_2_9(WindowApp):
     """Test using timekeeper variables to animate shifting colors."""
-    def initialize(self):
-        print("Starting up Test 2-9")
+    def startup(self):
+        print("Starting up Test 2-9...")
 ```
 
 <input type="checkbox" class="checkbox inline"> On the last line of the file, change the code that runs the application to `Test_2_9().run()`.  
@@ -451,13 +455,13 @@ class Test_2_9(Base):
 
 ```python
         # update the baseColor red value based on time passed
-        self.baseColor.data[0] = 0.5 * (sin(self.time) + 1)
+        self.base_color.data[0] = 0.5 * (sin(self.time) + 1)
 ```
 
 <input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_2_9.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see the triangle fading from red to black and back again.  
 
-The green and blue values of the triangle color are stored in `self.baseColor.data[1]` and `self.baseColor.data[2]`, respectively. If we wanted to shift through a wider range of colors, we would need to update those values also. But the equations for the green and blue values would need to be different so they peak at different times. In order to visualize this, it may be helpful to see a graph. Desmos.com has a very useful graphing tool and I have prepared one to show oscillating RGB values [here](https://www.desmos.com/calculator/uymwhpwc7x){:target="_blank"}. Try playing with the expressions to see what different effects you can create!
+The green and blue values of the triangle color are stored in `self.base_color.data[1]` and `self.base_color.data[2]`, respectively. If we wanted to shift through a wider range of colors, we would need to update those values also. But the equations for the green and blue values would need to be different so they peak at different times. In order to visualize this, it may be helpful to see a graph. Desmos.com has a very useful graphing tool and I have prepared one to show oscillating RGB values [here](https://www.desmos.com/calculator/uymwhpwc7x){:target="_blank"}. Try playing with the expressions to see what different effects you can create!
 
 # Adding Interactivity
 
@@ -474,21 +478,21 @@ These Pygame events are *discrete*, which means they happen once in an instant o
 
 Each time we check for events in the `update` method, we will check the keyboard event type and then record the name of the key in lists that represent their state:  
 
-- The `keyDownList` will hold names of keys have just been pressed with a **keydown** event in the current update cycle. This is a *discrete* state, so we will empty the list at the start of each update cycle.
-- The `keyPressedList` will hold names of keys that have been pressed but are not released yet. This is a *continuous* state, so the values will remain in the list until a **keyup** event is received.
-- The `keyUpList` will hold names of keys that have just been released with a **keyup** event in the current update cycle. This is a *discrete* state, so we will empty the list at the start of each update cycle.
+- The `key_down_list` will hold names of keys have just been pressed with a **keydown** event in the current update cycle. This is a *discrete* state, so we will empty the list at the start of each update cycle.
+- The `key_pressed_list` will hold names of keys that have been pressed but are not released yet. This is a *continuous* state, so the values will remain in the list until a **keyup** event is received.
+- The `key_up_list` will hold names of keys that have just been released with a **keyup** event in the current update cycle. This is a *discrete* state, so we will empty the list at the start of each update cycle.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `input.py`.  
+<input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `app.py`.  
 <input type="checkbox" class="checkbox inline"> Look for the `__init__` method inside the `Input` class and add the following code at the end of `__init__`:  
 
 ```python
         # lists for the key states
         #   Down and Up are discrete states 
         #   Pressed states last continuously between Down and Up events
-        self.__keyDownList = []
-        self.__keyPressedList = []
-        self.__keyUpList = []
+        self.__key_down_list = []
+        self.__key_pressed_list = []
+        self.__key_up_list = []
 ```
 
 Again, we only want the `Input` class to manage these lists, so we name them with double underscores (`__`). But we will give read-only access from outside the class.
@@ -497,36 +501,36 @@ Again, we only want the `Input` class to manage these lists, so we name them wit
 
 ```python
     @property
-    def keyDownList(self):
-        return self.__keyDownList
+    def key_down_list(self):
+        return self.__key_down_list
 
     @property
-    def keyPressedList(self):
-        return self.__keyPressedList
+    def key_pressed_list(self):
+        return self.__key_pressed_list
 
     @property
-    def keyUpList(self):
-        return self.__keyUpList
+    def key_up_list(self):
+        return self.__key_up_list
 ```
 
-Now, it is common for applications to have a keyboard shortcut for closing the application. Currently, our `__quit` property is read-only so we cannot use it to close an application with the `Input` class. Let's add a **setter** property for `quit` to give some control back to the applications.
+Now, it is common for applications to have a keyboard shortcut for closing the application. Currently, our `quit` property is read-only so we cannot use it to close an application with the `Input` class. Let's add a **setter** property for `quit` to give some control back to the applications.
 
 <input type="checkbox" class="checkbox inline"> Just after the `quit` property inside the `Input` class, add a setter property with the code below.
 
 ```python
     @quit.setter
     def quit(self, value):
-        self.__quit = bool(value)
+        self._quit = bool(value)
 ```
 
-This will assign the Boolean value of the given `value` to `__quit`. This way we can make sure that the values assigned to the `__quit` variable will always be `True` or `False`.
+This will assign the Boolean value of the given `value` to `_quit`. This way we can make sure that the values assigned to the `_quit` variable will always be `True` or `False`.
 
 <input type="checkbox" class="checkbox inline"> Find the `update` method inside the `Input` class. Add the following code just before the `for` loop in the `update` method.  
 
 ```python
         # reset all the discrete states
-        self.__keyDownList = []
-        self.__keyUpList = []
+        self.__key_down_list = []
+        self.__key_up_list = []
 ```
 
 <input type="checkbox" class="checkbox inline"> Inside the `for` loop of the `update` method, add the following code at the end (after it handles quit events).  
@@ -536,31 +540,31 @@ This will assign the Boolean value of the given `value` to `__quit`. This way we
             #   keydown events initiate the pressed state
             #   keyup events terminate the pressed state
             if event.type == pygame.KEYDOWN:
-                keyName = pygame.key.name(event.key)
-                self.__keyDownList.append(keyName)
-                self.__keyPressedList.append(keyName)
+                key_name = pygame.key.name(event.key)
+                self.__key_down_list.append(key_name)
+                self.__key_pressed_list.append(key_name)
             if event.type == pygame.KEYUP:
-                keyName = pygame.key.name(event.key)
-                self.__keyUpList.append(keyName)
-                self.__keyPressedList.remove(keyName)
+                key_name = pygame.key.name(event.key)
+                self.__key_up_list.append(key_name)
+                self.__key_pressed_list.remove(key_name)
 ```
 
 <input type="checkbox" class="checkbox inline"> Finally, add three convenience methods inside the `Input` class for checking the state of a given key.  
 
 ```python
-    def isKeyDown(self, keyCode):
+    def iskeydown(self, key_code):
         """Checks the down state of the given key"""
-        return keyCode in self.__keyDownList
+        return key_code in self.__key_down_list
 
 
-    def isKeyPressed(self, keyCode):
+    def iskeypressed(self, key_code):
         """Checks the pressed state of the given key"""
-        return keyCode in self.__keyPressedList
+        return key_code in self.__key_pressed_list
 
 
-    def isKeyUp(self, keyCode):
+    def iskeyup(self, key_code):
         """Checks the up state of the given key"""
-        return keyCode in self.__keyUpList
+        return key_code in self.__key_up_list
 ```
 
 Now let's test our new `Input` features with a small program that outputs messages to the console about key states.
@@ -569,29 +573,30 @@ Now let's test our new `Input` features with a small program that outputs messag
 <input type="checkbox" class="checkbox inline"> Open `test_2_10.py` for editing and add the following code:  
 
 ```python
-from core.base import Base
+# test_2_10.py
+from core.app import WindowApp
 
-class Test_2_10(Base):
+class Test_2_10(WindowApp):
     """Test key functionality of the Input class."""
-    def initialize(self):
+    def startup(self):
         print("Starting up Test 2-10...")
 
     def update(self):
-        if len(self.input.keyDownList) > 0:
-            print(f"Keys down: {self.input.keyDownList}")
+        if len(self.input.key_down_list) > 0:
+            print(f"Keys down: {self.input.key_down_list}")
 
-        if len(self.input.keyPressedList) > 0:
-            print(f"Keys pressed: {self.input.keyPressedList}")
+        if len(self.input.key_pressed_list) > 0:
+            print(f"Keys pressed: {self.input.key_pressed_list}")
 
-        if len(self.input.keyUpList) > 0:
-            print(f"Keys up: {self.input.keyUpList}")
+        if len(self.input.key_up_list) > 0:
+            print(f"Keys up: {self.input.key_up_list}")
 
         # typical use case for key presses
-        if self.input.isKeyPressed("space"):
+        if self.input.iskeypressed("space"):
             print("The 'space' key is being pressed!!")
 
         # typical use case for keyboard shortcuts
-        if self.input.isKeyDown("escape"):
+        if self.input.iskeydown("escape"):
             print("The 'escape' key was pressed--Exiting the application!")
             self.input.quit = True
 
@@ -611,13 +616,13 @@ Now that we have an  `Input` class with working keyboard features, let's use the
 <input type="checkbox" class="checkbox inline"> Inside `test_2_11.py` find the lines with the class definition, document string, and print statement then change them to the following:
 
 ```python
-class Test_2_11(Base):
+class Test_2_11(WindowApp):
     """Test interactivity features by using the arrow keys to move a triangle."""
-    def initialize(self):
-        print("Starting up Test 2-11")
+    def startup(self):
+        print("Starting up Test 2-11...")
 ```
 
-<input type="checkbox" class="checkbox inline"> At the end of the `initialize` method, add an instance variable for the triangle's speed.  
+<input type="checkbox" class="checkbox inline"> At the end of the `startup` method, add an instance variable for the triangle's speed.  
 
 ```python
         # triangle speed in units per second
@@ -630,18 +635,18 @@ The speed is defined in the same units as the triangle and screen coordinates, s
 
 ```python
         # move the triangle based on its speed and the key being pressed
-        distance = self.speed * self.deltaTime
+        distance = self.speed * self.delta_time
         # left ← is the negative x direction
-        if self.input.isKeyPressed("left"):
+        if self.input.iskeypressed("left"):
             self.translation.data[0] -= distance
         # right → is the positive x direction
-        if self.input.isKeyPressed("right"):
+        if self.input.iskeypressed("right"):
             self.translation.data[0] += distance
         # down ↓ is the negative y direction
-        if self.input.isKeyPressed("down"):
+        if self.input.iskeypressed("down"):
             self.translation.data[1] -= distance
         # up ↑ is the positive y direction
-        if self.input.isKeyPressed("up"):
+        if self.input.iskeypressed("up"):
             self.translation.data[1] += distance
 ```
 

@@ -17,9 +17,9 @@ toc_sticky: false
 
 In the previous lesson, we looked at the overview of our scene graph framework and created many of the basic components, including `Object3D`, `Scene`, `Group`, `Camera`, and `Mesh`. At the time, we also created an empty `Geometry` class and `Material` class. This lesson covers those two classes in full detail along with some simple extensions of each one.
 
-![](/software-engineering-lab/assets/images/scene_graph_uml-2.png)
+![A class diagram shows Renderer, Geometry, Material, BoxGeometry, BasicMaterial, and SurfaceMaterial as the targets for this lesson.](/software-engineering-lab/assets/images/scene_graph_uml-2.png)
 
-The classes we make this time include a `BoxGeometry`, a `BasicMaterial`, and a `SurfaceMaterial` that will allow us to render a 3D box with sides of many colors. The `BasicMaterial` class maintains a reference to a basic shader program that renders vertices with a white base color if colors for specific vertices are not provided. The `BoxGeometry` class will define separate vertex colors so each side of the box will be a different color and we can see the box clearly. Extensions to the `BasicMaterial` class will manage render settings for different draw styles such as drawing points, lines, or surfaces.
+The classes we make this time include `BoxGeometry`, `BasicMaterial`, and `SurfaceMaterial` which will allow us to render a 3D box with sides of many colors. The `BasicMaterial` class maintains a reference to a basic shader program that renders vertices with a white base color if colors for specific vertices are not provided. The `BoxGeometry` class will define separate vertex colors so each side of the box will be a different color and we can see the box clearly. Extensions to the `BasicMaterial` class will manage render settings for different draw styles such as drawing points, lines, or surfaces.
 
 Finally, we will create the `Renderer` class that uses `Scene` and `Camera` to draw each `Mesh`. This will be the last component we need to draw a 3D box by combining the `BoxGeometry` and `SurfaceMaterial` in a test application. 
 
@@ -28,7 +28,7 @@ Finally, we will create the `Renderer` class that uses `Scene` and `Camera` to d
 The `Geometry` class contains a dictionary for each `Attribute` of a specified geometric object as well as the number of vertices. It is intended to hold only the common behavior among all geometry objects, so each one of its extensions will define a certain type of geometric object with specific vertex data and attributes.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Open your `geometry.py` file from the `geometry` folder inside your main working folder.  
+<input type="checkbox" class="checkbox inline"> Open your `__init__.py` file from the `geometry` folder inside your main working folder.  
 <input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Geometry` class.  
 <input type="checkbox" class="checkbox inline"> Add the following code to the `Geometry` class:  
 
@@ -36,41 +36,41 @@ The `Geometry` class contains a dictionary for each `Attribute` of a specified g
     """Store attribute data and their total number of vertices."""
     def  __init__(self):
         self._attributes = {}
-        self._vertexCount = None
+        self._vertex_count = None
 
     @property
     def attributes(self):
         return self._attributes
 
     @property
-    def vertexCount(self):
-        if self._vertexCount is None:
-            self.countVertices()
-        return self._vertexCount
+    def vertex_count(self):
+        if self._vertex_count is None:
+            self.count_vertices()
+        return self._vertex_count
 
-    def setAttribute(self, variableName, data, dataType=None):
+    def set_attribute(self, variable_name, data, data_type=None):
         """Add or update an attribute of this geometric object."""
-        if variableName in self._attributes.keys():
-            self._attributes[variableName].data = data
-            self._attributes[variableName].uploadData()
-        elif dataType is not None:
-            self._attributes[variableName] = Attribute(dataType, data)
+        if variable_name in self._attributes.keys():
+            self._attributes[variable_name].data = data
+            self._attributes[variable_name].upload_data()
+        elif data_type is not None:
+            self._attributes[variable_name] = Attribute(data_type, data)
         else:
             raise Exception("A new Geometry attribute must have a data type.")
     
-    def countVertices(self, variableName=None):
+    def count_vertices(self, variable_name=None):
         """Count the number of vertices as the length of an attribute's data."""
         if len(self._attributes) == 0:
-            self._vertexCount = 0
-        if variableName is not None:
-            self._vertexCount = len(self._attributes[variableName].data)
+            self._vertex_count = 0
+        if variable_name is not None:
+            self._vertex_count = len(self._attributes[variable_name].data)
         else:
-            self._vertexCount = len(list(self._attributes.values())[0].data)
+            self._vertex_count = len(list(self._attributes.values())[0].data)
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-The `setAttribute` method stores an instance of `Attribute` for the specified shader program variable, or updates an existing one. The name of the shader variable is also the key to accessing the `Attribute` in the dictionary. After attributes have been set, we can use the `countVertices` method to get the number of vertices. Here we use the single underscore naming convention with `_attributes` and `_vertexCount` to show that these variables are for internal use to the `Geometry` class. Then, the getter properties will return the variable values for external use. Properties are useful in this way because we can confirm that `self._vertexCount` has a value before returning it.
+The `set_attribute` method stores an instance of `Attribute` for the specified shader program variable, or updates an existing one. The name of the shader variable is also the key to accessing the `Attribute` in the dictionary. After attributes have been set, we can use the `count_vertices` method to get the number of vertices. Here we use the single underscore naming convention with `_attributes` and `_vertex_count` to show that these variables are for internal use to the `Geometry` class. Then, the getter properties will return the variable values for external use. Properties are useful in this way because we can confirm that `self._vertex_count` has a value before returning it.
 
 Now that we have the base `Geometry` defined, we can create specific geometric objects such as rectangles and boxes.
 
@@ -83,11 +83,12 @@ The first geometric object is a simple 2D rectangle with its origin at the cente
 Since OpenGL only provides triangles as a way to draw filled-in shapes, our rectangles will be drawn from two right triangles sharing the same hypotenuse. Because of this, we need to define our vertices in a way that draws each triangle as a separate group. That means our position data for each rectangle will have six vertices instead of four. Also, the vertices must be listed in counterclockwise order so that front sides of the triangles face in the positive $z$ direction.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In the `geometry` folder, create a new file called `rectangle_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open the `rectangle_geometry.py` file for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In the `geometry` folder, create a new file called `basic_geometries.py`.  
+<input type="checkbox" class="checkbox inline"> Open the `basic_geometries.py` file for editing and add the following code:  
 
 ```python
-from geometry.geometry import Geometry
+# geometry.basic_geometries.py
+from geometry import Geometry
 
 class RectangleGeometry(Geometry):
     """A rectangular geometric object centered at (0,0) with a given width and height."""
@@ -103,15 +104,15 @@ class RectangleGeometry(Geometry):
         # color data for white, red, green, and blue vertices
         C0, C1, C2, C3 = (1,1,1), (1,0,0), (0,1,0), (0,0,1)
 
-        positionData = (P0,P1,P3, # first triangle
+        position_data = (P0,P1,P3, # first triangle
                         P0,P3,P2) # second triangle
-        colorData = (C0,C1,C3, # first triangle
+        color_data = (C0,C1,C3, # first triangle
                      C0,C3,C2) # second triangle
 
-        self.setAttribute("vertexPosition", positionData, "vec3")
-        self.setAttribute("vertexColor", colorData, "vec3")
+        self.set_attribute("vertexPosition", position_data, "vec3")
+        self.set_attribute("vertexColor", color_data, "vec3")
 
-        self.countVertices()
+        self.count_vertices()
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -130,12 +131,9 @@ As before, we need to be careful about the ordering of the vertices. Each triang
 ![A net diagram visualizes the correct ordering of the vertices by unfolding the box.](/software-engineering-lab/assets/images/box_net_diagram.png)
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In the `geometry` folder, create a new file called `box_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open the `box_geometry.py` file for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In the `basic_geometries.py` file, add the following code after the `RectangleGeometry` class:  
 
 ```python
-from geometry.geometry import Geometry
-
 class BoxGeometry(Geometry):
     """A 3D box centered at the origin with given width, height, and depth."""
     def __init__(self, width=1, height=1, depth=1):
@@ -159,19 +157,19 @@ class BoxGeometry(Geometry):
         C5 = [(0,0,1)] * 6  # six blue vertices
         C6 = [(1,0,1)] * 6  # six magenta vertices
 
-        positionData = (P5,P1,P3, P5,P3,P7, # right side
-                        P0,P4,P6, P0,P6,P2, # left side
-                        P6,P7,P3, P6,P3,P2, # top side
-                        P0,P1,P5, P0,P5,P4, # bottom side
-                        P4,P5,P7, P4,P7,P6, # front side
-                        P1,P0,P2, P1,P2,P3) # back side
+        position_data = (P5,P1,P3, P5,P3,P7, # right side
+                         P0,P4,P6, P0,P6,P2, # left side
+                         P6,P7,P3, P6,P3,P2, # top side
+                         P0,P1,P5, P0,P5,P4, # bottom side
+                         P4,P5,P7, P4,P7,P6, # front side
+                         P1,P0,P2, P1,P2,P3) # back side
         
         # create a list of 36 RGB vertices
-        colorData = C1 + C2 + C3 + C4 + C5 + C6 
+        color_data = C1 + C2 + C3 + C4 + C5 + C6 
         
-        self.setAttribute("vertexPosition", positionData, "vec3")
-        self.setAttribute("vertexColor", colorData, "vec3")
-        self.countVertices()
+        self.set_attribute("vertexPosition", position_data, "vec3")
+        self.set_attribute("vertexColor", color_data, "vec3")
+        self.count_vertices()
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -187,62 +185,62 @@ While the `Geometry` objects manage geometric data concerning the shape, positio
 The base class of `Material` will compile and initialize the shader program, store and manage uniform objects in a dictionary, and handle OpenGL-specific settings with another dictionary.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Open your `material.py` file from the `material` folder inside your main working folder.  
+<input type="checkbox" class="checkbox inline"> Open your `__init__.py` file from the `material` folder inside your main working folder.  
 <input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Material` class.  
 <input type="checkbox" class="checkbox inline"> Add the following code to the `Material` class:  
 
 ```python
     """Stores a shader program reference, Uniform objects, and OpenGL render settings."""
-    def __init__(self, vertexShaderCode, fragmentShaderCode):
-        self._programRef = OpenGLUtils.initializeProgram(
-            vertexShaderCode, 
-            fragmentShaderCode
+    def __init__(self, vertex_shader_code, fragment_shader_code):
+        self._program_ref = OpenGLUtils.initialize_program(
+            vertex_shader_code, 
+            fragment_shader_code
         )
 
         self._uniforms = {}
 
         # common shader uniforms used in the render process
-        self.setUniform("modelMatrix", None, "mat4")
-        self.setUniform("viewMatrix", None, "mat4")
-        self.setUniform("projectionMatrix", None, "mat4")
+        self.set_uniform("modelMatrix", None, "mat4")
+        self.set_uniform("viewMatrix", None, "mat4")
+        self.set_uniform("projectionMatrix", None, "mat4")
 
         # OpenGL render settings
-        self._settings = {"drawStyle": GL_TRIANGLES}
+        self._settings = {"drawStyle": GL.GL_TRIANGLES}
 
     @property
-    def programRef(self):
-        return self._programRef
+    def program_ref(self):
+        return self._program_ref
 
-    def getSetting(self, setting_name):
+    def get_setting(self, setting_name):
         """Return a setting value if the setting exists; otherwise, return None."""
         return self._settings.get(setting_name, None)
 ```
 
-Subclasses of `Material` will need to provide the vertex and fragment shader code when calling their superclass `__init__` method. Then it is assumed that the program will have `modelMatrix`, `viewMatrix`, and `projectionMatrix` uniform variables defined. We create and store those uniform objects with a method called `setUniform` which we define below. We also provide a getter for the program reference which is necessary in the `Mesh` class to associate geometric attribute data with program variables and then draw each object.
+Subclasses of `Material` will need to provide the vertex and fragment shader code when calling their superclass `__init__` method. Then it is assumed that the program will have `modelMatrix`, `viewMatrix`, and `projectionMatrix` uniform variables defined. We create and store those uniform objects with a method called `set_uniform` which we define below. We also provide a getter for the program reference which is necessary in the `Mesh` class to associate geometric attribute data with program variables and then draw each object.
 
 <input type="checkbox" class="checkbox inline"> Next, add the following code for managing uniforms and settings to the `Material` class:  
 
 ```python
-    def setUniform(self, variableName, data, dataType=None):
+    def set_uniform(self, variable_name, data, data_type=None):
         """Set or add a Uniform object representing a property of this material."""
-        if variableName in self._uniforms.keys():
-            self._uniforms[variableName].data = data
-        elif dataType is not None:
-            self._uniforms[variableName] = Uniform(dataType, data)
-            self._uniforms[variableName].locateVariable(self._programRef, 
-                                                        variableName)
+        if variable_name in self._uniforms.keys():
+            self._uniforms[variable_name].data = data
+        elif data_type is not None:
+            self._uniforms[variable_name] = Uniform(data_type, data)
+            self._uniforms[variable_name].locate_variable(self._program_ref, 
+                                                          variable_name)
         else:
             raise Exception("A new Material property must have a dataType.")
 
-    def uploadData(self):
+    def upload_data(self):
         """Upload the data of all stored uniform variables."""
-        for uniformObject in self._uniforms.values():
-            uniformObject.uploadData()
+        for uniform_obj in self._uniforms.values():
+            uniform_obj.upload_data()
 
-    def updateRenderSettings(self):
+    def update_render_settings(self):
         pass
 
-    def setProperties(self, properties):
+    def set_properties(self, properties):
         """Set multiple uniform and setting values from a dictionary."""
         for name, data in properties.items():
             if name in self._uniforms.keys():
@@ -255,25 +253,28 @@ Subclasses of `Material` will need to provide the vertex and fragment shader cod
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-The `setUniform` method will update the data of an existing variable similar to the `setAttribute` method in the `Geometry` class. The difference here is that uniforms variables must be located in the program before their data can be uploaded, so the `setUniform` method immediately locates any new `Uniform` object it creates. Then, `Material` provides a separate `uploadData` method for updating all the uniform variable data linked in the program, which we control in the `Mesh` class after setting the appropriate matrix data.
+The `set_uniform` method will update the data of an existing variable similar to the `set_attribute` method in the `Geometry` class. The difference here is that uniforms variables must be located in the program before their data can be uploaded, so the `set_uniform` method immediately locates any new `Uniform` object it creates. Then, `Material` provides a separate `upload_data` method for updating all the uniform variable data linked in the program, which we control in the `Mesh` class after setting the appropriate matrix data.
 
-The `updateRenderSettings` method is empty here so that subclasses of `Material` can override it. The method will check for specific render settings in its `self._settings` dictionary and then call the relevant OpenGL functions based on the setting values.
+The `update_render_settings` method is empty here so that subclasses of `Material` can override it. The method will check for specific render settings in its `self._settings` dictionary and then call the relevant OpenGL functions based on the setting values.
 
 ## Basic Materials
 
 In our hierarchy of materials, the `BasicMaterial` class is a direct child of `Material` and its purpose is to provide the vertex shader code and fragment shader code for rendering points, lines, and surfaces. The shader program will be relatively simple with uniform variables for the projection matrix, view matrix, and model matrix along with attribute variables for the vertex position, and vertex color data. 
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In the `material` folder, create a new file called `basic_material.py`.  
-<input type="checkbox" class="checkbox inline"> Open `basic_material.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In the `material` folder, create a new file called `basic_materials.py`.  
+<input type="checkbox" class="checkbox inline"> Open `basic_materials.py` for editing and add the following code:  
 
 ```python
-from material.material import Material
+# material.basic_materials.py
+import OpenGL.GL as GL
+
+from material import Material
 
 class BasicMaterial(Material):
-    
+    """A simple material for rendering objects in a solid color or vertex colors."""
     def __init__(self):
-        vertexShaderCode = """
+        vertex_shader_code = """
         uniform mat4 projectionMatrix;
         uniform mat4 viewMatrix;
         uniform mat4 modelMatrix;
@@ -289,7 +290,7 @@ class BasicMaterial(Material):
         }
         """
 
-        fragmentShaderCode = """
+        fragment_shader_code = """
         uniform vec3 baseColor;
         uniform bool useVertexColors;
         
@@ -304,10 +305,10 @@ class BasicMaterial(Material):
         }
         """
 
-        super().__init__(vertexShaderCode, fragmentShaderCode)
+        super().__init__(vertex_shader_code, fragment_shader_code)
 
-        self.setUniform("baseColor", (1,1,1), "vec3")
-        self.setUniform("useVertexColors", False, "bool")
+        self.set_uniform("baseColor", (1,1,1), "vec3")
+        self.set_uniform("useVertexColors", False, "bool")
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -316,21 +317,16 @@ Here we define the program code for the vertex shader and fragment shader. Then 
 
 Notice that we provide a default color (white) with the `baseColor` uniform variable if vertex color data is not given. Our applications can set the `useVertexColors` uniform variable to `True` when we want the fragment shader to apply our given vertex color data instead of just using the default `baseColor`. 
 
-Now that the shader program is set, we can create subclasses to handle specific render settings by implementing the `updateRenderSettings` method.
+Now that the shader program is set, we can create subclasses to handle specific render settings by implementing the `update_render_settings` method.
 
 ### Point Material
 
 The first extension of our `BasicMaterial` class will render vertices as disconnected points. It will use setting properties for `drawStyle` and `pointSize` to call the appropriate OpenGL functions.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In the `material` folder, create a new file called `point_material.py`.  
-<input type="checkbox" class="checkbox inline"> Open `point_material.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Open `basic_materials.py` for editing and add the following code after the `BasicMaterial` class:  
 
 ```python
-from OpenGL.GL import *
-
-from material.basic_material import BasicMaterial
-
 class PointMaterial(BasicMaterial):
     """Manages render settings for drawing vertices as rounded points.
 
@@ -341,38 +337,33 @@ class PointMaterial(BasicMaterial):
     def __init__(self, properties={}):
         super().__init__()
 
-        self._settings["drawStyle"] = GL_POINTS
+        self._settings["drawStyle"] = GL.GL_POINTS
         self._settings["pointSize"] = 8
         self._settings["roundedPoints"] = True
 
-        self.setProperties(properties)
+        self.set_properties(properties)
 
-    def updateRenderSettings(self):
-        glPointSize(self._settings["pointSize"])
+    def update_render_settings(self):
+        GL.glPointSize(self._settings["pointSize"])
 
         if self._settings["roundedPoints"]:
-            glEnable(GL_POINT_SMOOTH)
+            GL.glEnable(GL.GL_POINT_SMOOTH)
         else:
-            glDisable(GL_POINT_SMOOTH)
+            GL.glDisable(GL.GL_POINT_SMOOTH)
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-The `drawStyle` setting is used by the `Mesh` class when it draws itself, but the `updateRenderSettings` method handles all other OpenGL settings. Here, it sets the point size with [`glPointSize`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} and enables smooth points with [`glEnable`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glEnable.xhtml){:target="_blank"}.
+The `drawStyle` setting is used by the `Mesh` class when it draws itself, but the `update_render_settings` method handles all other OpenGL settings. Here, it sets the point size with [`glPointSize`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} and enables smooth points with [`glEnable`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glEnable.xhtml){:target="_blank"}.
 
 ### Line Material
 
 The next extension will draw a few different types of lines. The "connected" type draws lines from through each vertex, from the first one to the last one. The "loop" type will additionally draw a final line from the last vertex back to the first one again, and the "segments" type will draw separate lines between each consecutive pair of vertices.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In the `material` folder, create a new file called `line_material.py`.  
-<input type="checkbox" class="checkbox inline"> Open `line_material.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Open `basic_materials.py` for editing and add the following code after the `PointMaterial` class:  
 
 ```python
-from OpenGL.GL import *
-
-from material.basic_material import BasicMaterial
-
 class LineMaterial(BasicMaterial):
     """Manages render settings for drawing lines between vertices.
 
@@ -384,18 +375,18 @@ class LineMaterial(BasicMaterial):
     def __init__(self, properties={}):
         super().__init__()
 
-        self._settings["drawStyle"] = GL_LINE_STRIP
+        self._settings["drawStyle"] = GL.GL_LINE_STRIP
         self._settings["lineType"] = "connected"
 
-        self.setProperties(properties)
+        self.set_properties(properties)
 
-    def updateRenderSettings(self):
+    def update_render_settings(self):
         if self._settings["lineType"] == "connected":
-            self._settings["drawStyle"] = GL_LINE_STRIP
+            self._settings["drawStyle"] = GL.GL_LINE_STRIP
         elif self._settings["lineType"] == "loop":
-            self._settings["drawStyle"] = GL_LINE_LOOP
+            self._settings["drawStyle"] = GL.GL_LINE_LOOP
         elif self._settings["lineType"] == "segments":
-            self._settings["drawStyle"] = GL_LINES
+            self._settings["drawStyle"] = GL.GL_LINES
         else:
             raise Exception("Unknown line type: must be one of [connected | loop | segments].")
 ```
@@ -409,14 +400,9 @@ We use the `lineType` setting to change the `drawStyle` so that the class is eas
 The last extension will draw a flat plane between every three vertices to create a triangular surface. The front side of a surface is the side in which the vertices appear to be listed in counterclockwise order. OpenGL will not render the back side of a surface by default, but we will create a control for that with the "doublSide" setting. Additionally, the "wireframe" setting will provide the option to only render the lines of the surfaces in color without any filling.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In the `material` folder, create a new file called `surface_material.py`.  
-<input type="checkbox" class="checkbox inline"> Open `surface_material.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Open `basic_materials.py` for editing and add the following code after the `LineMaterial` class:  
 
 ```python
-from OpenGL.GL import *
-
-from material.basic_material import BasicMaterial
-
 class SurfaceMaterial(BasicMaterial):
     """Manages render settings for drawing vertices as a colored surface.
 
@@ -427,22 +413,22 @@ class SurfaceMaterial(BasicMaterial):
     def __init__(self, properties={}):
         super().__init__()
 
-        self._settings["drawStyle"] = GL_TRIANGLES
+        self._settings["drawStyle"] = GL.GL_TRIANGLES
         self._settings["doubleSide"] = False
         self._settings["wireframe"] = False
 
-        self.setProperties(properties)
+        self.set_properties(properties)
 
-    def updateRenderSettings(self):
+    def update_render_settings(self):
         if self._settings.get("doubleSide", False):
-            glDisable(GL_CULL_FACE)
+            GL.glDisable(GL.GL_CULL_FACE)
         else:
-            glEnable(GL_CULL_FACE)
+            GL.glEnable(GL.GL_CULL_FACE)
 
         if self._settings.get("wireframe", False):
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+            GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
         else:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+            GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -458,19 +444,18 @@ The `Renderer` class is the last component for rendering 3D scenes. It will init
 <input type="checkbox" class="checkbox inline"> Open `renderer.py` for editing and add the following code:  
 
 ```python
-from OpenGL.GL import *
+# core.renderer.py
+import OpenGL.GL as GL
 
-from core.mesh import Mesh
-from core.camera import Camera
-from core.scene import Scene
+from core.scene_graph import Mesh, Camera, Scene
 
-class Renderer():
-
-    def __init__(self, clearColor=(0,0,0)):
+class Renderer:
+    """Manages the rendering of a given scene with basic OpenGL settings."""
+    def __init__(self, clear_color=(0,0,0)):
         """Initialize basic settings for depth testing, antialiasing and clear color."""
-        glEnable(GL_DEPTH_TEST)
-        glEnable(GL_MULTISAMPLE)
-        glClearColor(*clearColor, 1) # unpack clearColor to pass its values separately
+        GL.glEnable(GL.GL_DEPTH_TEST)
+        GL.glEnable(GL.GL_MULTISAMPLE)
+        GL.glClearColor(*clear_color, 1) # unpack clear_color to pass its values separately
 
     def render(self, scene, camera):
         """Render the given scene as viewed through the given camera."""
@@ -480,20 +465,20 @@ class Renderer():
             raise Exception("The given camera must be an instance of Camera.")
 
         # clear buffers
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         # update camera view
-        camera.updateViewMatrix()
+        camera.update_view_matrix()
 
         # draw all the viewable meshes
-        for mesh in scene.getDescendantList():
+        for mesh in scene.descendant_list:
             if isinstance(mesh, Mesh) and mesh.visible:
                 mesh.render(camera.view_matrix, camera.projection_matrix)
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-A `Renderer` object will enable depth testing and antialiasing when it is created as well as set the background color. Then an application will call `render` with a `Scene` and `Camera` object. Since the `Scene` is the root node of a scene graph, we can get every mesh in the scene with its `getDescendantList` method. Then for every visible mesh object, we call its `render` method and pass the camera's view matrix and projection matrix.
+A `Renderer` object will enable depth testing and antialiasing when it is created as well as set the background color. Then an application will call `render` with a `Scene` and `Camera` object. Since the `Scene` is the root node of a scene graph, we can get every mesh in the scene with its `descendant_list` property. Then for every visible mesh object, we call its `render` method and pass the camera's view matrix and projection matrix.
 
 Remember, each individual mesh handles the steps for rendering itself. These steps include:
 1. Specify the shader program in its material object to be used for rendering.
@@ -501,7 +486,7 @@ Remember, each individual mesh handles the steps for rendering itself. These ste
 3. Set its model, view, and projection matrices.
 4. Upload data to its uniform variables.
 5. Update OpenGL render settings.
-6. Draw with the draw style of its material object and vertex count of its geometry object.
+6. Draw the number of vertices in its goemetry object using the draw style of its material object.
 
 All these steps we already programmed into the `render` method of the `Mesh` class in the previous lesson. (See the final code snippet in [The Scene Graph](/software-engineering-lab/notes/scene_graph/#mesh).)
 
@@ -512,25 +497,24 @@ With the `Renderer` object complete, now we can finally render a 3D scene. Let's
 <input type="checkbox" class="checkbox inline"> Open `test_4_1.py` for editing and add the following code:  
 
 ```python
+# test_4_1.py
 from math import pi
 
-from core.base import Base
+from core.app import WindowApp
 from core.renderer import Renderer
-from core.scene import Scene
-from core.camera import Camera
-from core.mesh import Mesh
-from geometry.box_geometry import BoxGeometry
-from material.surface_material import SurfaceMaterial
+from core.scene_graph import Scene, Camera, Mesh
+from geometry.basic_geometries import BoxGeometry
+from material.basic_materials import SurfaceMaterial
 
-class Test_4_1(Base):
+class Test_4_1(WindowApp):
     """Test the basic scene graph elements by rendering a spinning cube."""
-    def initialize(self):
-        print("Starting up Test 4-1")
+    def startup(self):
+        print("Starting up Test 4-1...")
 
         self.renderer = Renderer()
         self.scene = Scene()
-        self.camera = Camera(aspectRatio=800/600)
-        self.camera.setPosition((0, 0, 4))
+        self.camera = Camera(aspect_ratio=800/600)
+        self.camera.position = (0, 0, 4)
 
         geometry = BoxGeometry()
         material = SurfaceMaterial({"useVertexColors": True})
@@ -541,13 +525,13 @@ class Test_4_1(Base):
         self.rotate_speed_X = 1/3 * pi
 
     def update(self):
-        self.mesh.rotateY(self.rotate_speed_Y * self.deltaTime)
-        self.mesh.rotateX(self.rotate_speed_X * self.deltaTime)
+        self.mesh.rotateY(self.rotate_speed_Y * self.delta_time)
+        self.mesh.rotateX(self.rotate_speed_X * self.delta_time)
 
         self.renderer.render(self.scene, self.camera)
 
 # initialize and run this test at 800 x 600 resolution
-Test_4_1(screenSize=(800,600)).run()
+Test_4_1(screen_size=(800,600)).run()
 ```
 
 <input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_4_1.py` in the terminal.  
@@ -555,6 +539,6 @@ Test_4_1(screenSize=(800,600)).run()
 
 Our test applications have become quite a bit shorter now that we encapsulated a lot of the rendering tasks in scene graph components! 
 
-The `initialize` method simply creates a `Renderer`, `Scene`, `Camera` with 4:3 aspect ratio, geometry, and material with different colored vertices. Then it creates a mesh object with the box geometry and surface material before adding the mesh to the scene graph. We also set different rotation speeds for rotating around the $y$-axis and $x$-axis.  
+The `startup` method simply creates a `Renderer`, `Scene`, `Camera` with 4:3 aspect ratio, geometry, and material with different colored vertices. Then it creates a mesh object with the box geometry and surface material before adding the mesh to the scene graph. We also set different rotation speeds for rotating around the $y$-axis and $x$-axis.  
 
 After everything is set up, the `update` method simply applies the rotations to the mesh before rendering the entire scene.

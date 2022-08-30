@@ -22,116 +22,131 @@ Recall from [`test_2_2.py`](/software-engineering-lab/notes/windows-points/#rend
 
 Here is an outline of the class and the OpenGL functions it will use:
 
-- First, we use [`glGenBuffers`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGenBuffers.xhtml){:target="_blank"} to get a reference to an available buffer for the attribute.
-- Then we need to bind the buffer by passing its reference to [`glBindBuffer`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml){:target="_blank"}.We also indicate that the the buffer is a vertex buffer by including the `GL_ARRAY_BUFFER` argument.
-- Next, we upload the attribute's data to the buffer with [`glBufferData`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBufferData.xhtml){:target="_blank"}. This function takes a binding target as a parameter, so passing `GL_ARRAY_BUFFER` will tell it to use the currently bound vertex buffer.
-- Once the vertex buffer contains data and the GPU program is compiled, we need to get a reference to the attribute's variable in the GPU program so we can associate it with the data. We do this with the [`glGetAttribLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetAttribLocation.xhtml){:target="_blank"} function, giving it a reference to the program and the name of the variable. (The variable will be declared with the `in` qualifier inside the vertex shader program.)
-- Then we can associate the variable to the bound buffer with [`glVertexAttribPointer`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml){:target="_blank"}. This function needs the variable reference, the data type, and the number of components in the data. Basic data types like `int` and `float` have just 1 component, but vectors will have 2, 3, or 4 components.
-- Finally, we enable the data to be read through this association by calling the [`glEnableVertexAttribArray`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml){:target="_blank"} function and giving it the reference to the variable.
+- First, we use [`glGenBuffers`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGenBuffers.xhtml){:target="_blank"} to get a reference to an available buffer for the attribute.
+- Then we need to bind the buffer by passing its reference to [`glBindBuffer`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml){:target="_blank"}.We also indicate that the the buffer is a vertex buffer by including the `GL_ARRAY_BUFFER` argument.
+- Next, we upload the attribute's data to the buffer with [`glBufferData`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferData.xhtml){:target="_blank"}. This function takes a binding target as a parameter, so passing `GL_ARRAY_BUFFER` will tell it to use the currently bound vertex buffer.
+- Once the vertex buffer contains data and the GPU program is compiled, we need to get a reference to the attribute's variable in the GPU program so we can associate it with the data. We do this with the [`glGetAttribLocation`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetAttribLocation.xhtml){:target="_blank"} function, giving it a reference to the program and the name of the variable. (The variable will be declared with the `in` qualifier inside the vertex shader program.)
+- Then we can associate the variable to the bound buffer with [`glVertexAttribPointer`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml){:target="_blank"}. This function needs the variable reference, the data type, and the number of components in the data. Basic data types like `int` and `float` have just 1 component, but vectors will have 2, 3, or 4 components.
+- Finally, we enable the data to be read through this association by calling the [`glEnableVertexAttribArray`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml){:target="_blank"} function and giving it the reference to the variable.
 
 ## The Attribute Class
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `attribute.py`.  
-<input type="checkbox" class="checkbox inline"> Open `attribute.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `openGL.py`.  
+<input type="checkbox" class="checkbox inline"> Open `openGL.py` for editing and add the following code:  
 
 ```python
-from OpenGL.GL import *
+# core.openGL.py
+import OpenGL.GL as GL
 import numpy
 
 class Attribute(object):
     """Manages a single attribute variable that uses data from a vertex buffer."""
-    def __init__(self, dataType, data):
+    def __init__(self, data_type, data):
         # data types can be int, float, vec2, vec3, or vec4
-        self.dataType = dataType
+        self.data_type = data_type
         self.data = data
         # get a reference to a vertex buffer 
-        self.bufferRef = glGenBuffers(1)
+        self.buffer_ref = GL.glGenBuffers(1)
 
         # send the data to the GPU buffer
-        self.uploadData()
+        self.upload_data()
 ```
 
-When we create a new vertex attribute, we give it data to store in a vertex buffer and specify the data type. The `Attribute` instance will get an available vertex buffer when it initializes and then immediately upload its data using the `uploadData` method below.
+When we create a new vertex attribute, we give it data to store in a vertex buffer and specify the data type. The `Attribute` instance will get an available vertex buffer when it initializes and then immediately upload its data using the `upload_data` method below.
 
-<input type="checkbox" class="checkbox inline"> Add the `uploadData` method to the `Attribute` class.  
+<input type="checkbox" class="checkbox inline"> Add the `upload_data` method to the `Attribute` class.  
 
 ```python
-    def uploadData(self):
+    def upload_data(self):
         # convert data to numpy array of 32-bit floating point numbers
         data = numpy.array(self.data).astype(numpy.float32)
 
         # bind the buffer for use
-        glBindBuffer(GL_ARRAY_BUFFER, self.bufferRef)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffer_ref)
 
         # store data in the currently bound buffer as a flat array
-        glBufferData(GL_ARRAY_BUFFER, data.ravel(), GL_STATIC_DRAW)
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, data.ravel(), GL.GL_STATIC_DRAW)
 ```
 
-By putting this code in a separate `uploadData` method, we can easily update the data multiple times without needing to create a new attribute, which is useful for animations and interactive applications. Before uploading the data, we need to make sure it is in the right format: a one-dimensional array of 32-bit floating point numbers. The `numpy` library is very useful here with its array implementation and `ravel` function.
+By putting this code in a separate `upload_data` method, we can easily update the data multiple times without needing to create a new attribute, which is useful for animations and interactive applications. Before uploading the data, we need to make sure it is in the right format: a one-dimensional array of 32-bit floating point numbers. The `numpy` library is very useful here with its array implementation and `ravel` function.
 
-<input type="checkbox" class="checkbox inline"> After the `uploadData` method, insert the `associateVariable` method below.
+<input type="checkbox" class="checkbox inline"> After the `upload_data` method, insert the `associate_variable` method below.
 
 ```python
-    def associateVariable(self, programRef, variableName):
+    def associate_variable(self, program_ref, variable_name, vao_ref=None):
         # get a reference for the program variable with the given name
-        variableRef = glGetAttribLocation(programRef, variableName)
+        variable_ref = GL.glGetAttribLocation(program_ref, variable_name)
 
         # stop if the program does not use the variable
-        if variableRef == -1:
+        if variable_ref == -1:
             return
 
         # select buffer used by the following functions
-        glBindBuffer(GL_ARRAY_BUFFER, self.bufferRef)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.buffer_ref)
+
+        # bind the vertex array object if it was given
+        if vao_ref is not None:
+            GL.glBindVertexArray(vao_ref)
 
         # specify how data will be read from the currently bound buffer 
         # into the specified variable. These associations are stored by
         # whichever VAO is bound before calling this method.
-        if self.dataType == "int":
-            glVertexAttribPointer(variableRef, 1, GL_INT, False, 0, None)
-        elif self.dataType == "float":
-            glVertexAttribPointer(variableRef, 1, GL_FLOAT, False, 0, None)
-        elif self.dataType == "vec2":
-            glVertexAttribPointer(variableRef, 2, GL_FLOAT, False, 0, None)
-        elif self.dataType == "vec3":
-            glVertexAttribPointer(variableRef, 3, GL_FLOAT, False, 0, None)
-        elif self.dataType == "vec4":
-            glVertexAttribPointer(variableRef, 4, GL_FLOAT, False, 0, None)
-        else:
-            raise Exception(
-                f"Attribute {variableName} has unknown type {self.dataType}"
+        if self.data_type == "int":
+            GL.glVertexAttribPointer(
+                variable_ref, 1, GL.GL_INT, False, 0, None
             )
+        elif self.data_type == "float":
+            GL.glVertexAttribPointer(
+                variable_ref, 1, GL.GL_FLOAT, False, 0, None
+            )
+        elif self.data_type == "vec2":
+            GL.glVertexAttribPointer(
+                variable_ref, 2, GL.GL_FLOAT, False, 0, None
+            )
+        elif self.data_type == "vec3":
+            GL.glVertexAttribPointer(
+                variable_ref, 3, GL.GL_FLOAT, False, 0, None
+            )
+        elif self.data_type == "vec4":
+            GL.glVertexAttribPointer(
+                variable_ref, 4, GL.GL_FLOAT, False, 0, None
+            )
+        else:
+            raise Exception(f"Attribute {variable_name} has unknown type {self.data_type}")
         
         # enable use of buffer data for this variable during rendering
-        glEnableVertexAttribArray(variableRef)
+        GL.glEnableVertexAttribArray(variable_ref)
 ```
 
-Notice that we bind the vertex buffer with `glBindBuffer` before calling `glVertexAttribPointer`. This will ensure that the current VAO will store data from the vertex buffer and associate it with the program variable. OpenGL manages the VAOs and associations, so we do not need to store things like the variable reference in our `Attribute` objects.
+Before calling `glVertexAttribPointer` we need to bind both a vertex buffer object and a vertex array object. We bind the the vertex buffer with `glBindBuffer` using the stored VBO reference. As for the vertex array object, the application may bind it before calling this method, or it may pass a reference to be associated with this instance of `Attribute`. In either case, binding both VBO and VAO will ensure that the current VAO will associate data from the vertex buffer with the program variable. OpenGL manages the VAOs and associations once they are created, so we do not need to do anything more with the variable reference.
 
 ## Hexagons, Triangles, and Squares
 
-Now we are ready to draw shapes on the screen with multiple vertices and lines. By default, OpenGL draws lines with only 1 pixel width, which can be hard to see on high resolution displays. We can use a function called `glLineWidth` to set the thickness of the lines drawn by OpenGL in pixels. The function call can go after uploading the shader programs in our `initialize` method.
+Now we are ready to draw shapes on the screen with multiple vertices and lines. By default, OpenGL draws lines with only 1 pixel width, which can be hard to see on high resolution displays. On **Windows**, we can use a function called `glLineWidth` to set the thickness of the lines drawn by OpenGL in pixels. (`glLineWidth` is deprecated in newer versions of OpenGL, and so **MacOS** forces an error when this function is used.)
 
 ### A Single Buffer Test
-Our first test application will use the `Attribute` class from above to draw lines between six points on the screen to create a hexagon. This time, the vertex shader program has a single variable `position` declared with the `in` qualifier so it will receive data from a vertex buffer. Instead of hardcoding the position data in the vertex buffer, we provide it through our own `positionData` variable and link that data with an instance of `Attribute`.
+Our first test application will use the `Attribute` class from above to draw lines between six points on the screen to create a hexagon. This time, the vertex shader program has a single variable `position` declared with the `in` qualifier so it will receive data from a vertex buffer. Instead of hardcoding the position data in the vertex buffer, we provide it through our own `position_data` variable and link that data with an instance of `Attribute`.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Make a new file in your main working folder called `test_2_3.py`.  
 <input type="checkbox" class="checkbox inline"> Open `test_2_3.py` and add the following test application source code.
 
 ```python
-from core.base import Base
-from core.openGLUtils import OpenGLUtils
-from core.attribute import Attribute
-from OpenGL.GL import *
+# test_2_3.py
+import OpenGL.GL as GL
 
-class Test_2_3(Base):
-    """Test core.Attribute by drawing lines between 6 points in a hexagon."""
-    def initialize(self):
-        print("Starting up Test 2-3")
+from core.app import WindowApp
+from core.openGLUtils import OpenGLUtils
+from core.openGL import Attribute
+
+class Test_2_3(WindowApp):
+    """Test the Attribute class by drawing lines between 6 points in a hexagon."""
+    def startup(self):
+        print("Starting up Test 2-3...")
 
         # the vertex shader will receive buffer data for its position variable
-        vsCode = """
+        vs_code = """
         in vec3 position;
         void main() {
             gl_Position = vec4(position.x, position.y, position.z, 1.0);
@@ -139,41 +154,41 @@ class Test_2_3(Base):
         """
 
         # fragment shader code
-        fsCode = """
+        fs_code = """
         out vec4 fragColor;
         void main() {
             fragColor = vec4(1.0, 1.0, 0.0, 1.0);
         }
         """
 
-        self.programRef = OpenGLUtils.initializeProgram(vsCode, fsCode)
+        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
 
-        # set a wider line width so it is easier to see
+        # **WINDOWS ONLY** set a wider line width so it is easier to see 
         glLineWidth(4)
 
         # create and bind the vertex array object (VAO)
-        vaoRef = glGenVertexArrays(1)
-        glBindVertexArray(vaoRef)
+        vao_ref = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(vao_ref)
 
         # initialize the vertex attribute data
-        positionData = [
-            [0.8, 0.0, 0.0], 
-            [0.4, 0.6, 0.0], 
-            [-0.4, 0.6, 0.0],
-            [-0.8, 0.0, 0.0],
-            [-0.4, -0.6, 0.0],
-            [0.4, -0.6, 0.0]
-        ]
+        position_data = (
+            (0.8, 0.0, 0.0), 
+            (0.4, 0.6, 0.0), 
+            (-0.4, 0.6, 0.0),
+            (-0.8, 0.0, 0.0),
+            (-0.4, -0.6, 0.0),
+            (0.4, -0.6, 0.0)
+        )
         # set the number of vertices to be used in the draw function
-        self.vertexCount = len(positionData)
+        self.vertex_count = len(position_data)
         # create and link an attribute for the position variable
-        positionAttribute = Attribute("vec3", positionData)
-        positionAttribute.associateVariable(self.programRef, "position")
+        position_attribute = Attribute("vec3", position_data)
+        position_attribute.associate_variable(self.program_ref, "position")
 
     def update(self):
-        glUseProgram(self.programRef)
+        GL.glUseProgram(self.program_ref)
         # use the line loop drawing mode to connect all the vertices
-        glDrawArrays(GL_LINE_LOOP, 0, self.vertexCount)
+        GL.glDrawArrays(GL.GL_LINE_LOOP, 0, self.vertex_count)
 
 # instantiate and run this test
 Test_2_3().run()
@@ -181,11 +196,11 @@ Test_2_3().run()
 <input type="checkbox" class="checkbox inline"> Run the application with the `python test_2_3.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that a yellow hexagon outline appears on your screen.  
 
-Notice that we create an `Attribute` instance with our `positionData` and and then link it to the vertex shader's `position` variable with the `associateVariable` method.
+Notice that we create an `Attribute` instance with our `position_data` and and then link it to the vertex shader's `position` variable with the `associate_variable` method.
 
-This time, the [`glDrawArrays`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml) function uses the `GL_LINE_LOOP` mode to draw lines from one vertex to the next and then connect the last vertex to the first one. Here we use `vertexCount` from the `initialize` method to tell exactly how many vertices it should draw.
+This time, the [`glDrawArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml){:target="_blank"} function uses the `GL_LINE_LOOP` mode to draw lines from one vertex to the next and then connect the last vertex to the first one. Here we use `vertex_count` from the `startup` method to tell exactly how many vertices it should draw.
 
-Now `glDrawArrays` can use a number of different [OpenGL primitives](https://www.khronos.org/opengl/wiki/Primitive) to render the lines in different ways. In `test_2_2.py`, we used `GL_POINTS` to render a single point. `GL_LINES` will draw a line between each pair of points, and `GL_LINE_STRIP` will connect each point to the next, stopping at the last point.
+Now `glDrawArrays` can use a number of different [OpenGL primitives](https://www.khronos.org/opengl/wiki/Primitive){:target="_blank"} to render the lines in different ways. In `test_2_2.py`, we used `GL_POINTS` to render a single point. `GL_LINES` will draw a line between each pair of points, and `GL_LINE_STRIP` will connect each point to the next, stopping at the last point.
 
 ![OpenGL primitives for point and line drawing modes](/software-engineering-lab/assets/images/point-and-line-primitives.png)
 
@@ -193,7 +208,7 @@ When we want to fill in the area between lines, we can use one of the triangle d
 
 ![OpenGL primitives for triangle drawing modes](/software-engineering-lab/assets/images/triangle-primitives.png)
 
-It is also possible to combine draw modes with the same set of vertices by simply calling `glDrawArrays` multiple times. For example, if the `update` method had the next two lines of code, it would draw the lines of the hexagon and each of the points as well. Although if you do this, don't forget to increase the point size with `glPointSize` so the points are easy to see!
+It is also possible to combine draw modes with the same set of vertices by simply calling `glDrawArrays` multiple times. For example, if the `update` method had the next two lines of code, it would draw the lines of the hexagon and each of the points as well. Although if you do this, the points will be lost inside the lines. You can increase the size of the points by calling [`glPointSize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} inside your `startup` method.
 
 ```python
         glDrawArrays(GL_LINE_LOOP, 0, self.vertexCount)
@@ -204,75 +219,79 @@ It is also possible to combine draw modes with the same set of vertices by simpl
 
 The `test_2_3.py` test application only uses a single buffer with a single set of vertices for a drawing a single shape. Drawing more than one shape will require more than one vertex buffer as demonstrated in the next test application which draws a triangle and a square at the same time. 
 
-Even though the position data for the triangle and square will be stored in separate buffers, we will use the same vertex shader and fragment shader code to draw both shapes. We can do this because the rendering process for a triangle is essentially the same as the rendering process for a square. The only difference is the postion data. In order to use the same programs with the same `position` variable, we will make and store references to two different vertex arrays. Since VAOs store associations between buffers and variables, one VAO will associate the `position` variable to the triangle's position data in the buffer while the other VAO will associate `position` with the square's position data in the buffer. Then, in the `update` method, we use the stored VAO references to bind the associated VAO before calling `glDrawArrays`.
+Even though the position data for the triangle and square will be stored in separate buffers, we will use the same vertex shader and fragment shader code to draw both shapes. We can do this because the rendering process for a triangle is essentially the same as the rendering process for a square. The only difference is the postion data. In order to use the same programs with the same `position` variable, we will make and store references to two different vertex arrays. Since VAOs store associations between buffers and variables, one VAO will associate the `position` variable to the triangle's position data while the other VAO will associate `position` with the square's position data. Then, in the `update` method, we use the stored VAO references to bind the associated VAO before calling `glDrawArrays`.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new file called `test_2_4.py`.  
 <input type="checkbox" class="checkbox inline"> Open `test_2_4.py` and add the following code.  
 
 ```python
-from core.base import Base
+# test_2_4.py
+import OpenGL.GL as GL
+
+from core.app import WindowApp
 from core.openGLUtils import OpenGLUtils
-from core.attribute import Attribute
-from OpenGL.GL import *
+from core.openGL import Attribute
 
-class Test_2_4(Base):
+class Test_2_4(WindowApp):
     """Test multiple VAOs by rendering a square and a triangle together."""
-    def initialize(self):
-        print("Starting up Test 2-4")
+    def startup(self):
+        print("Starting up Test 2-4...")
 
-        vsCode = """
+        vs_code = """
         in vec3 position;
         void main() {
             gl_Position = vec4(position.x, position.y, position.z, 1.0);
         }
         """
 
-        fsCode = """
+        fs_code = """
         out vec4 fragColor;
         void main() {
             fragColor = vec4(1.0, 1.0, 0.0, 1.0);
         }
         """
 
-        self.programRef = OpenGLUtils.initializeProgram(vsCode, fsCode)
+        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
 
         # get a reference to a vertex array object for the triangle
-        self.vaoTriangle = glGenVertexArrays(1)
-        glBindVertexArray(self.vaoTriangle)
-        posDataTriangle = [
-            [-0.5, 0.8, 0.0],
-            [-0.2, 0.2, 0.0],
-            [-0.8, 0.2, 0.0]
-        ]
-        self.vertexCountTriangle = len(posDataTriangle)
-        posAttributeTriangle = Attribute("vec3", posDataTriangle)
-        posAttributeTriangle.associateVariable(self.programRef, "position")
+        self.vao_triangle = GL.glGenVertexArrays(1)
+        pos_data_triangle = (
+            (-0.5, 0.8, 0.0),
+            (-0.2, 0.2, 0.0),
+            (-0.8, 0.2, 0.0)
+        )
+        self.vertex_count_triangle = len(pos_data_triangle)
+        pos_attribute_triangle = Attribute("vec3", pos_data_triangle)
+        pos_attribute_triangle.associate_variable(
+            self.program_ref, "position", self.vao_triangle
+        )
 
         # get a reference to a vertex array object for the square
-        self.vaoSquare = glGenVertexArrays(1)
-        glBindVertexArray(self.vaoSquare)
-        posDataSquare = [
-            [0.8, 0.8, 0.0],
-            [0.8, 0.2, 0.0],
-            [0.2, 0.2, 0.0],
-            [0.2, 0.8, 0.0]
-        ]
-        self.vertexCountSquare = len(posDataSquare)
-        posAttributeSquare = Attribute("vec3", posDataSquare)
-        posAttributeSquare.associateVariable(self.programRef, "position")
+        vao_square = GL.glGenVertexArrays(1)
+        pos_data_square = (
+            (0.8, 0.8, 0.0),
+            (0.8, 0.2, 0.0),
+            (0.2, 0.2, 0.0),
+            (0.2, 0.8, 0.0)
+        )
+        self.vertex_count_square = len(pos_data_square)
+        pos_attribute_square = Attribute("vec3", pos_data_square)
+        pos_attribute_square.associate_variable(
+            self.program_ref, "position", self.vao_square
+        )
 
     def update(self):
         # the same program renders both shapes
-        glUseProgram(self.programRef)
+        GL.glUseProgram(self.program_ref)
 
         # draw the triangle
-        glBindVertexArray(self.vaoTriangle)
-        glDrawArrays(GL_LINE_LOOP, 0, self.vertexCountTriangle)
+        GL.glBindVertexArray(self.vao_triangle)
+        GL.glDrawArrays(GL.GL_LINE_LOOP, 0, self.vertex_count_triangle)
 
         # draw the square
-        glBindVertexArray(self.vaoSquare)
-        glDrawArrays(GL_LINE_LOOP, 0, self.vertexCountSquare)
+        GL.glBindVertexArray(self.vao_square)
+        GL.glDrawArrays(GL.GL_LINE_LOOP, 0, self.vertex_count_square)
 
 # instantiate this test and run it
 Test_2_4().run()
@@ -280,6 +299,8 @@ Test_2_4().run()
 
 <input type="checkbox" class="checkbox inline"> Run the application with the `python test_2_4.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that a yellow triangle outline and a yellow square outline appear on your screen.  
+
+This time we let the `Attribute` class handle each VAO inside our `startup` method. Since we have a different VAO for the triangle and square, we pass each respective VAO reference to the `associate_variable` method so it can be properly bound before making the associations.
 
 ## Passing Data Between Shaders
 
@@ -294,6 +315,7 @@ In order to send color data from our application to be rendered by the fragment 
 Here is what our vertex shader will look like with the new variables:
 
 ```glsl
+# GLSL version 330
 in vec3 position;
 in vec3 vertexColor;
 out vec3 color;
@@ -308,6 +330,7 @@ Note that the vertex shader does not change the color data in any way. It only a
 Then, the fragment shader will look like this:
 
 ```glsl
+# GLSL version 330
 in vec3 color;
 out vec4 fragColor;
 void main() {
@@ -326,17 +349,19 @@ Now let's create one more test application to demonstrate color data passing thr
 <input type="checkbox" class="checkbox inline"> Open `test_2_5.py` and add the following source code:
 
 ```python
-from core.base import Base
+# test_2_5.py
+import OpenGL.GL as GL
+
+from core.app import WindowApp
 from core.openGLUtils import OpenGLUtils
-from core.attribute import Attribute
-from OpenGL.GL import *
+from core.openGL import Attribute
 
-class Test_2_5(Base):
+class Test_2_5(WindowApp):
     """Test passing color data between shaders with a colorful hexagon."""
-    def initialize(self):
-        print("Starting up Test 2-5")
+    def startup(self):
+        print("Starting up Test 2-5...")
 
-        vsCode = """
+        vs_code = """
         in vec3 position;
         in vec3 vertexColor;
         out vec3 color;
@@ -346,7 +371,7 @@ class Test_2_5(Base):
         }
         """
 
-        fsCode = """
+        fs_code = """
         in vec3 color;
         out vec4 fragColor;
         void main() {
@@ -354,45 +379,45 @@ class Test_2_5(Base):
         }
         """
 
-        self.programRef = OpenGLUtils.initializeProgram(vsCode, fsCode)
+        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
 
         # make points larger so they are easy to see
-        glPointSize(10)
+        GL.glPointSize(10)
 
         # create and bind a single VAO
-        vaoRef = glGenVertexArrays(1)
-        glBindVertexArray(vaoRef)
+        vao_ref = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(vao_ref)
 
         # position data for each of the six points
-        positionData = [
-            [0.8, 0.0, 0.0], 
-            [0.4, 0.6, 0.0], 
-            [-0.4, 0.6, 0.0],
-            [-0.8, 0.0, 0.0],
-            [-0.4, -0.6, 0.0],
-            [0.4, -0.6, 0.0]
-        ]
-        positionAttribute = Attribute("vec3", positionData)
-        positionAttribute.associateVariable(self.programRef, "position")
+        position_data = (
+            ( 0.8,  0.0, 0.0),
+            ( 0.4,  0.6, 0.0), 
+            (-0.4,  0.6, 0.0),
+            (-0.8,  0.0, 0.0),
+            (-0.4, -0.6, 0.0),
+            ( 0.4, -0.6, 0.0)
+        )
+        position_attribute = Attribute("vec3", position_data)
+        position_attribute.associate_variable(self.program_ref, "position")
 
         # color data for each of the six points
-        colorData = [
-            [0.5, 0.0, 0.0],
-            [1.0, 0.5, 0.0],
-            [1.0, 1.0, 0.0],
-            [0.0, 1.0, 0.0],
-            [0.0, 0.0, 1.0],
-            [0.5, 0.0, 1.0]
-        ]
-        colorAttribute = Attribute("vec3", colorData)
-        colorAttribute.associateVariable(self.programRef, "vertexColor")
+        color_data = (
+            (0.5, 0.0, 0.0),
+            (1.0, 0.5, 0.0),
+            (1.0, 1.0, 0.0),
+            (0.0, 1.0, 0.0),
+            (0.0, 0.0, 1.0),
+            (0.5, 0.0, 1.0)
+        )
+        color_attribute = Attribute("vec3", color_data)
+        color_attribute.associate_variable(self.program_ref, "vertexColor")
 
         # both position and color VBOs have the same number of vertices
-        self.vertexCount = len(positionData)
+        self.vertex_count = len(position_data)
 
     def update(self):
-        glUseProgram(self.programRef)
-        glDrawArrays(GL_POINTS, 0, self.vertexCount)
+        GL.glUseProgram(self.program_ref)
+        GL.glDrawArrays(GL.GL_POINTS, 0, self.vertex_count)
 
 # instantiate and run this test
 Test_2_5().run()
@@ -414,6 +439,6 @@ C_P &=0.5 \cdot C_1+0.5 \cdot C_2 \\
     &=[0.5, 0.0, 0.5]
 \end{aligned}$$
 
-The result of filling a shape with triangle draw modes will interpolate the colors between vertices, effectively creating a gradient effect. Now if we want all the points and the shape to be filled with the same color, we just need to change all the vertices of our `colorData` variable to store the same values. 
+The result of filling a shape with triangle draw modes will interpolate the colors between vertices, effectively creating a gradient effect. Now if we want all the points and the shape to be filled with the same color, we just need to change all the vertices of our `color_data` variable to store the same values. 
 
 Next time, we create a new class that makes it easy to create solid color shapes. This same class will also allow us to create animations and interactivity easily as well. Look forward to it!

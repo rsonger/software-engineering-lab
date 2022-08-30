@@ -12,9 +12,9 @@ classes: wide
 toc_sticky: false
 ---
 
-*This post adds more tools to our geometry toolset with the introduction of polygons, a  parametric geometry base class, and extensions for polygons, planes, ellipsoids, and cylindrical geometries.*  
+*This post adds more tools to our geometry toolset with the introduction of a polygon geometry class and a  parametric geometry base class. Extensions then add the capabilities to create various planes, ellipsoids, and cylindrical geometries.*  
 
-As we build 3D scenes, we will need to use a variety of different shapes and geometries. Up to now, we have created classes for rectangles and boxes in addition to extending the generic `Geometry` class to create custom shapes. However, there are numerous other shapes that would be helpful for building objects in a 3D scene, such as polygons, spheres, ellipsoids, cylinders, cones, prisms, and pyramids. This lesson introduces a `PolygonGeometry` class that can render shapes with any number of sides of equal lengths. Then, we create a `ParametricGeometry` class which can render 3D surfaces in segments calculated from a given function. The `ParametricGeometry` class provides a good foundation for creating ellipsoids, spheres, cylinders, prisms, pyraminds, and cones. We extend the `ParametricGeometry` class for each new type of geometry based on the function that calculates the points of its surface.
+As we build 3D scenes, we will need to use a variety of different shapes and geometries. Up to now, we have created classes for rectangles and boxes in addition to extending the generic `Geometry` class to create custom shapes. However, there are numerous other shapes that would be helpful for building objects in a 3D scene, such as polygons, spheres, ellipsoids, cylinders, cones, prisms, and pyramids. This lesson introduces a `PolygonGeometry` class that can render 2D shapes with any number of sides of equal lengths. Then, we create a `ParametricGeometry` class which allows us to define a function for rendering 3D surfaces in segments. The `ParametricGeometry` class provides a good foundation for creating ellipsoids, spheres, cylinders, prisms, pyraminds, and cones. Finally, we extend the `ParametricGeometry` class for each new type of geometry based on the function that calculates vertices along its surface.
 
 # Polygons
 
@@ -37,14 +37,15 @@ P_8 &= (r\cdot\cos(2\pi),r\cdot\sin(2\pi))
 Since we are drawing with trianlges in OpenGL, we need to list the vertices in sets of three and arrange them in counterclockwise order to indicate the front side for rendering. The initialization method for the `PolygonGeometry` class will do just that after it calculates all the vertices of a polygon from a given number of sides and radius.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `polygon_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `polygon_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, open the file called `basic_geometries.py` and add the following import statement to the top of it.
 
 ```python
 from math import sin, cos, pi
+```
 
-from geometry.geometry import Geometry
+<input type="checkbox" class="checkbox inline"> Scroll to the end of `basic_geometries.py` and add the following code after the `BoxGeometry` class:  
 
+```python
 class PolygonGeometry(Geometry):
     """Renders a regular polygon with the given number of sides and radius."""
     def __init__(self, sides=3, radius=1):
@@ -80,7 +81,7 @@ hexagon = PolygonGeometry(sides=6)
 pentagon = PolygonGeometry(sides=5)
 ```
 
-The `PolygonGeometry` class will become very useful later when we create cylinder and cone geometries.
+The `PolygonGeometry` class will become very useful later when we create the flat ends of cylinder and cone geometries.
 
 # Parametric Geometries
 
@@ -103,13 +104,14 @@ Here the simplest function for $S$ would be $S(u,v) = (u,v,0)$ which maps each v
 The images above show a plane, a sphere, and a cylinder drawn with triangles that are calculated from sampling the ranges of $u$ and $v$ at set intervals. Here, we call the number of samples taken in each range the *resolution* and the step in the range between samples is the *delta*. Each parametric geometry will take the start and stop values for the ranges $u$ and $v$ as well as their respective resolutions. It will also take a surface function that defines the shape of the surface. When initialized, the geometry will use its function to calculate all the points along its surface by calling the function with every pair of sample values in the ranges $u$ and $v$.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `parametric_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `parametric_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `parametric_geometries.py`.  
+<input type="checkbox" class="checkbox inline"> Open `parametric_geometries.py` for editing and add the following code:  
 
 ```python
+# geometry.parametric_geometries.py
 from numpy import linspace
 
-from geometry.geometry import Geometry
+from geometry import Geometry
 
 class ParametricGeometry(Geometry):
     """A geometric surface rendered with the given function for parameters u and v."""
@@ -151,9 +153,9 @@ This class imports the NumPy method [`linspace`](https://numpy.org/doc/stable/re
                 position_data += [P1,P2,P3, P1,P3,P4]
                 color_data += [C1,C2,C3, C4,C5,C6]
 
-        self.setAttribute("vertexPosition", position_data, "vec3")
-        self.setAttribute("vertexColor", color_data, "vec3")
-        self.countVertices()
+        self.set_attribute("vertexPosition", position_data, "vec3")
+        self.set_attribute("vertexColor", color_data, "vec3")
+        self.count_vertices()
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -169,12 +171,9 @@ A plane is the simplest parametric object as it uses the parametric function tha
 Let's create a `PlaneGeometry` class that renders a plane with its center at the origin. Here, we will refer to range $u$ as the width and range $v$ as the height for clarity.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `plane_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `plane_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `parametric_geometries.py` file, add the following code after the `ParametricGeometry` class:  
 
 ```python
-from geometry.parametric_geometry import ParametricGeometry
-
 class PlaneGeometry(ParametricGeometry):
     """A 2D plane divided into segments."""
     def __init__(self, width=1, height=1, width_segments=8, height_segments=8):
@@ -213,14 +212,15 @@ $$S(u,v) = \left( \sin(u)\cdot\cos(v), \sin(v), \cos(u)\cdot\cos(v) \right) \\
 Given that this function gives us the coordinates for a perfect sphere of radius $1$, we can create an ellipsoid by simply applying the three dimensions of width, height, and depth, to the $x$, $y$, and $z$ coordinates. Now let's write an `EllipsoidGeometry` class with its center at $(0,0,0)$ based on everything above.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `ellipsoid_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `ellipsoid_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `parametric_geometries.py` file, add the following import to the top of the file:  
 
 ```python
 from math import sin, cos, pi
+```
 
-from geometry.parametric_geometry import ParametricGeometry
+<input type="checkbox" class="checkbox inline"> Scroll to the end of the `parametric_geometries.py` file and add the following code after the `PlaneGeometry` class:  
 
+```python
 class EllipsoidGeometry(ParametricGeometry):
     """A unit sphere stretched by the given factors of width, height, and depth."""
     def __init__(self, width=1, height=1, depth=1, 
@@ -248,12 +248,9 @@ When we call the superclass `__init__` method, we give our values for $u$ and $v
 When we want to create a perfect sphere, it is useful to have a simpler interface than the one for an ellipsoid since the width, height, and depth of a sphere are all the same value.  
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `sphere_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `sphere_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `parametric_geometries.py` file, add the following code after the `EllipsoidGeometry` class:  
 
 ```python
-from geometry.ellipsoid_geometry import EllipsoidGeometry
-
 class SphereGeometry(EllipsoidGeometry):
     """A perfect sphere with the given radius."""
     def __init__(self, radius=1, radial_segments=32, height_segments=16):
@@ -277,16 +274,16 @@ Now, if we consider that the top of a cylindrical geometry can have a different 
 What if we also have a non-zero radius at the top of the cylindrical object? In that case, with a top radius $t$ and a bottom radius $s$, then the cross-section radius $r$ can be expressed as $r=v\cdot t + (1-v)\cdot s$ where $0 \le v \le 1$.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `cylindrical_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `cylindrical_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `parametric_geometries.py` folder, add the following import statements just before the `ParametricGeometry` class.  
 
 ```python
-from math import sin, cos, pi
-
-from geometry.parametric_geometry import ParametricGeometry
-from geometry.polygon_geometry import PolygonGeometry
+from geometry.basic_geometries import PolygonGeometry
 from core.matrix import Matrix
+```
 
+<input type="checkbox" class="checkbox inline"> Scroll to the end of the `parametric_geometries.py` file and add the following code after the `SphereGeometry` class:  
+
+```python
 class CylindricalGeometry(ParametricGeometry):
     """A cylindrical object with the given top and bottom radiuses."""
     def __init__(self, top_radius=1, bottom_radius=1, height=1,
@@ -310,16 +307,16 @@ First, we need the ability to transform the vertices of the geometry object. We 
 
 These are generic features that should not depend on the type of geometry, so let's add them to the `Geometry` class.
 
-<input type="checkbox" class="checkbox inline"> In the `geometry` folder, open `geometry.py` for editing.  
+<input type="checkbox" class="checkbox inline"> In the `geometry` folder, open `__init__.py` for editing.  
 <input type="checkbox" class="checkbox inline"> Scroll down to the bottom of the file and add the following method to the `Geometry` class:  
 
 ```python
-    def applyMatrix(self, matrix, variableName="vertexPosition"):
+    def apply_matrix(self, matrix, variable_name="vertexPosition"):
         """Transform the data in an attribute using the given matrix."""
-        if variableName not in self._attributes.keys():
-            raise Exception(f"Unable to apply matrix to unknown attribute: {variableName}")
+        if variable_name not in self._attributes.keys():
+            raise Exception(f"Unable to apply matrix to unknown attribute: {variable_name}")
 
-        old_position_data = self._attributes[variableName].data
+        old_position_data = self._attributes[variable_name].data
         new_position_data = []
 
         for old_pos in old_position_data:
@@ -333,7 +330,7 @@ These are generic features that should not depend on the type of geometry, so le
             new_pos = new_pos[:3]
             new_position_data.append(new_pos)
 
-        self.setAttribute(variableName, new_position_data)
+        self.setAttribute(variable_name, new_position_data)
 ```
 
 Remember that applying matrix transformations in 3D requires a fourth dimensional coordinate called the *homogeneous coordinate*. Since `Geometry` instances do not store vertex data in 4D, we need to add one before applying the matrix. In the code `old_pos + (1,)` we use a comma to indicate that we are creating a tuple with a single value. If there is no comma, then it will be treated simply as the value `1` instead of a tuple.
@@ -344,11 +341,11 @@ Remember that applying matrix transformations in 3D requires a fourth dimensiona
     def merge(self, other_geometry):
         """Merge data from attributes of other geometries into this object.
            Both geometries must share attributes with the same names."""
-        for variableName, attribute in self._attributes.items():
-            attribute.data += other_geometry.attributes[variableName].data
-            self.setAttribute(variableName, attribute.data)
+        for variable_name, attribute in self._attributes.items():
+            attribute.data += other_geometry.attributes[variable_name].data
+            self.set_attribute(variable_name, attribute.data)
 
-        self.countVertices()
+        self.count_vertices()
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -357,22 +354,22 @@ The `merge` method is pretty straightforward. It loops through each variable in 
 
 Now we can complete the `CylindricalGeometry` class to give it top and bottom surfaces.
 
-<input type="checkbox" class="checkbox inline"> Open the `cylindrical_geometry.py` file again and add the following code to the end of the `__init__` method:  
+<input type="checkbox" class="checkbox inline"> Open the `parametric_geometries.py` file again and add the following code to the end of the `__init__` method of the `CylindricalGeometry` class:  
 
 ```python
         # add polygons to the top and bottom if requested
         if top_closed:
             top_geometry = PolygonGeometry(radial_segments, top_radius)
-            rotation = Matrix.makeRotationY(-pi/2) @ Matrix.makeRotationX(-pi/2)
-            transform = Matrix.makeTranslation(0, height/2, 0) @ rotation
-            top_geometry.applyMatrix(transform)
+            rotation = Matrix.make_rotation_y(-pi/2) @ Matrix.make_rotation_x(-pi/2)
+            transform = Matrix.make_translation(0, height/2, 0) @ rotation
+            top_geometry.apply_matrix(transform)
             self.merge(top_geometry)
 
         if bottom_closed:
             bottom_geometry = PolygonGeometry(radial_segments, bottom_radius)
-            rotation = Matrix.makeRotationY(-pi/2) @ Matrix.makeRotationX(pi/2)
-            transform = Matrix.makeTranslation(0, -height/2, 0) @ rotation
-            bottom_geometry.applyMatrix(transform)
+            rotation = Matrix.make_rotation_y(-pi/2) @ Matrix.make_rotation_x(pi/2)
+            transform = Matrix.make_translation(0, -height/2, 0) @ rotation
+            bottom_geometry.apply_matrix(transform)
             self.merge(bottom_geometry)
 ```
 
@@ -385,12 +382,9 @@ We handle the top and bottom surfaces separately for maximum flexibility. For ea
 Now that all of the hard parts are complete, cylinders are really easy to make. The `CylinderGeometry` class restricts the interface to the `CylindricalGeometry` superclass to comply with the fact that a cylinder's radius is the same everywhere along its height.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `cylinder_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `cylinder_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `parametric_geometries.py` file, add the following code after the `CylindricalGeometry` class:  
 
 ```python
-from geometry.cylindrical_geometry import CylindricalGeometry
-
 class CylinderGeometry(CylindricalGeometry):
     "A cylindrical object with the same radius at the top and bottom."
     def __init__(self, radius=1, height=1, radial_segments=32,
@@ -412,12 +406,9 @@ Changing the `radial_segments` parameter to smaller values such as `8` or `3` wi
 Finally, we can extend the `CylindricalGeometry` class and give it specific parameters to create cone-shaped objects. A cone is unique in that its top radius is $0$ but its bottom radius can be any non-zero value. As with cylinders, we will simplify the construction of a `CylindricalGeometry` object in the `__init__` method of the `ConeGeometry` class.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `cone_geometry.py`.  
-<input type="checkbox" class="checkbox inline"> Open `cone_geometry.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `parametric_geometries.py` file, add the following code after the `CylinderGeometry` class:  
 
 ```python
-from geometry.cylindrical_geometry import CylindricalGeometry
-
 class ConeGeometry(CylindricalGeometry):
     """A cylindrical object that comes to a point at the top."""
     def __init__(self, radius=1, height=1, radial_segments=32,
@@ -429,4 +420,4 @@ class ConeGeometry(CylindricalGeometry):
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-The `ConeGeometry` class is also useful for creating pyramids. Simply make a new instance with `radial_segments` set to the number of sides you want (like 3 or 4), and your cone will become a pyramid!
+The `ConeGeometry` class is also useful for creating pyramids. Simply make a new instance with 3 or 4 `radial_segments` and the "cone" will actually be a pyramid!

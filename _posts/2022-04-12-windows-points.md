@@ -42,7 +42,7 @@ The graphics framework we begin building here will follow good software engineer
 
 In the **application stage**, we will use the Pygame library to create the application window.
 
-The first component of the graphics framework will be a `Base` class which handles the application lifecycle:
+The first component of the graphics framework will be a `WindowApp` class which handles the application lifecycle:
 - **Startup** where we load external files, initialize values, and create programming objects.
 - **Main Loop** which repeatedly checks input from the user, updates values of variables and objects, and renders graphics on the screen.
 - **Shutdown** which cancels any running processes and closes the window.
@@ -51,26 +51,27 @@ The first component of the graphics framework will be a `Base` class which handl
 
 Let's create our first Python package to hold the core components of the framework.
 
-## The `Base` Class
+## The `WindowApp` Class
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> First, make a folder on your computer to store all the source code. (I called mine `graphics` and put it inside a folder just for this class.) This will be your **main** working folder.  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new folder called `core`.  
 <input type="checkbox" class="checkbox inline"> Inside the `core` folder, create an empty file called `__init__.py` (with double underscores). This will let you import code from the `core` folder as Python modules.  
-<input type="checkbox" class="checkbox inline"> Create another file called `base.py` inside `core` and open the file for editing.  
-<input type="checkbox" class="checkbox inline"> Add the following code to the `base.py` file.
+<input type="checkbox" class="checkbox inline"> Create another file called `app.py` inside `core` and open the file for editing.  
+<input type="checkbox" class="checkbox inline"> Add the following code to the `app.py` file.
 
 ```python
-# core.base.py
+# core.app.py
 import pygame
 import sys
 
-class Base(object):
-    def __init__(self, screenSize=(512,512)):
+class WindowApp:
+    """A basic application window for rendering 3D graphics."""
+    def __init__(self, screen_size=(512, 512)):
         # initialize all pygame modules
         pygame.init()
         #indicate rendering details
-        displayFlags = pygame.OPENGL | pygame.DOUBLEBUF
+        display_flags = pygame.OPENGL | pygame.DOUBLEBUF
         # initialize buffers to perform antialiasing
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, 1)
         pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, 4)
@@ -78,7 +79,7 @@ class Base(object):
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, 
                                         pygame.GL_CONTEXT_PROFILE_CORE)
         # create and display the window
-        self.screen = pygame.display.set_mode(screenSize, displayFlags)
+        self.screen = pygame.display.set_mode(screen_size, display_flags)
         # set the text that appears in the title bar of the window
         pygame.display.set_caption("Graphics Window")
 
@@ -86,39 +87,39 @@ class Base(object):
         self.clock = pygame.time.Clock()
 ```
 
-This code creates an initialization method for our `Base` class which prepares the necessary Pygame modules with specific buffer settings before creating a window. The window size is set by the `screenSize` parameter which has a default 512 x 512 resolution. We create the screen with the `pygame.display.set_mode()` method and save a reference to it in the `self.screen` property. 
+This code creates an initialization method for our `WindowApp` class which prepares the necessary Pygame modules with specific buffer settings before creating a window. The window size is set by the `screen_size` parameter which has a default 512 x 512 resolution. We create the screen with the `pygame.display.set_mode()` method and save a reference to it in the `self.screen` property. 
 
-Additional options for the display screen are set by `displayFlags` which is currently set to create a display for OpenGL with double buffering. We can combine flags with the binary OR operator `|` when we want to use multiple options. For example, the following code would create an OpenGL display with double buffering that can change sizes:
+Additional options for the display screen are set by `display_flags` which is currently set to create a display for OpenGL with double buffering. We can combine flags with the binary OR operator `|` when we want to use multiple options. For example, the following code would create an OpenGL display with double buffering that can change sizes:
 
 ```python
-        displayFlags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE
+        display_flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE
 ```
 
-See the [`pygame.display`](https://www.pygame.org/docs/ref/display.html#pygame.display.set_mode){:target="_blank"} documentation for more display modes and their descriptions.
+(See the [`pygame.display`](https://www.pygame.org/docs/ref/display.html#pygame.display.set_mode){:target="_blank"} documentation for more display modes and their descriptions.)
 
 The `GL_MULTISAMPLEBUFFERS` and `GL_MULTISAMPLESAMPLES` attributes control *antialiasing*, which is a technique to make the edges of polygons appear smooth and not pixelated. The number of samples indicates how many times a pixel at the edge of a polygon is sampled. Sampling a pixel means we calculate the color of that pixel and each time we do it at a slight offset, so the pixel becomes a blend of the polygon color and other colors around it.
 
 Finally, the `pygame.time.Clock()` object will be used to manage the frames per second (FPS). The main loop of the program will render a new frame everytime it completes a cycle. As a result, the FPS can be really high on good hardware and use up all the CPU power. But most computer displays only run at 60 Hz which means the image updates only 60 times per second, so we should conserve our CPU and set the FPS of our application to 60 as well.
 
-Next, we will add two empty methods to the `Base` class. The intention of these methods is to implement the application lifecycle in classes that extend the `Base` class. 
+Next, we will add two empty methods to the `WindowApp` class. The intention of these methods is to implement the application lifecycle in classes that extend the `WindowApp` class. 
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Add the following code inside the `Base` class after the `__init__()` method.
+<input type="checkbox" class="checkbox inline"> Add the following code inside the `WindowApp` class after the `__init__()` method.
 
 ```python
-    def initialize(self):
+    def startup(self):
         pass
         
     def update(self):
         pass
 ```
 
-Every new application will extend these two methods in the `Base` class to define their behavior. By implementing `initialize` and `update`, an application can define its own **Startup** and **Update** processes in its lifecycle (as shown in the flowchart at the beginning of this section).
+Every new application will extend these two methods in the `WindowApp` class to define their behavior. By implementing `startup` and `update`, an application can define its own **Startup** and **Update** processes in its lifecycle (as shown in the flowchart at the beginning of this section).
 
-The last method we will add to `Base` is the one that will operate the entire application loop of startup, check input, update, and render.
+The last method we will add to `WindowApp` is the one that will operate the entire application loop of startup, check input, update, and render.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Add the following code inside the `Base` class.
+<input type="checkbox" class="checkbox inline"> Add the following code inside the `WindowApp` class.
 
 ```python
     def run(self):
@@ -126,7 +127,7 @@ The last method we will add to `Base` is the one that will operate the entire ap
         running = True
 
         # the "startup" process
-        self.initialize()
+        self.startup()
 
         # the main loop
         while running:
@@ -155,25 +156,22 @@ We will call this `run` method when we want to start a new application. It conta
 A separate class will handle inputs by implementing the default behavior for all applications. For now, that behavior is just to exit the program when the window closes.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In the `core` folder, create a new file called `input.py`.  
-<input type="checkbox" class="checkbox inline"> Open `input.py` and add the following source code:
+<input type="checkbox" class="checkbox inline"> In the `core` folder, open the file called `app.py`.  
+<input type="checkbox" class="checkbox inline"> Add the following source code to `app.py` **before** the `WindowApp` class:
 
 ```python
-import pygame
-
-class Input(object):
-
+class Input:
+    """Handles the inputs for an application, such as keys from the keyboard."""
     def __init__(self):
-
         # tells whether the user has closed the application
-        self.__quit = False
+        self._quit = False
 
     @property
     def quit(self):
-        return self.__quit
+        return self._quit
 ```
 
-Here we created a private attribute in the `Input` class called `__quit`. We want to keep control the of this Boolean's value inside the `Input` class, so we created a special method called a **getter** with the `@property` decorator. Now other classes cannot change `__quit` but they can read its value. The `Input` class will change the Boolean to `True` when it receives an event of type `pygame.QUIT` in the source code below.
+Here we created a private attribute in the `Input` class called `_quit`. We want to keep control the of this Boolean's value inside the `Input` class, so we created a special method called a **getter** with the `@property` decorator. Now other classes cannot change `_quit` but they can read its value. The `Input` class will change the Boolean to `True` when it receives an event of type `pygame.QUIT` in the source code below.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Add the following `update` method to the `Input` class.
@@ -184,18 +182,13 @@ Here we created a private attribute in the `Input` class called `__quit`. We wan
         for event in pygame.event.get():
             # clicking the close button will send an event of type QUIT
             if event.type == pygame.QUIT:
-                self.__quit = True
+                self._quit = True
 ```
 
-Next, we need to use an instance of `Input` in our `Base` class to implement the **check inputs** process and complete the **main loop**.
+Next, we need to use an instance of `Input` in our `WindowApp` class to implement the **check inputs** process and complete the **main loop**.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Open the `base.py` file again and add the following `import` statement to the top:  
-
-```python
-from core.input import Input
-```
-
+<input type="checkbox" class="checkbox inline"> In the `app.py` file, scroll down to the `WindowApp` class.  
 <input type="checkbox" class="checkbox inline"> At the end of the `__init__` method, create an instance of `Input` and save it to a class attribute.  
 
 ```python
@@ -214,21 +207,22 @@ from core.input import Input
                 break
 ```
 
-## Testing the `Base` and `Input` Classes
+## Testing the `WindowApp` and `Input` Classes
 
-Finally, let's check that everything is working together just fine with a simple test program. This program will only initialize the `Base` class and run it to make a window appear on the screen.
+Finally, let's check that everything is working together just fine with a simple test program. This program will only initialize the `WindowApp` class and run it to make a window appear on the screen.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a file called `test_2_1.py`.  
 <input type="checkbox" class="checkbox inline"> Inside that file, add the following source code:
 
 ```python
-from core.base import Base
+# test_2_1.py
+from core.app import WindowApp
 
-class Test_2_1(Base):
+class Test_2_1(WindowApp):
     """Tests a basic window for rendering content."""
-    def initialize(self):
-        print("Starting up Test 2-1")
+    def startup(self):
+        print("Starting up Test 2-1...")
 
     def update(self):
         pass
@@ -246,7 +240,7 @@ $ python test_2_1.py
 
 <input type="checkbox" class="checkbox inline"> Confirm that the program exits when you click the close button on the window.  
 
-In this test, the `initialize` and `update` methods don't really do anything. We included them here just to practice our approach of implementing those methods when developing applications with our framework. The next test we write will have much more interesting content for those two methods.
+In this test, the `startup` and `update` methods don't really do anything. We included them here just to practice our approach of implementing those methods when developing applications with our framework. The next test we write will have much more interesting content for those two methods.
 
 # 2.2 - Drawing a Point
 
@@ -258,21 +252,23 @@ With OpenGL, we render images on screen by running a program on the graphics pro
 
 Similar to Python, GLSL has all the basic control structures of `if` statements, loops, and functions with parameters. However, it uses arrays instead of lists and also provides structs for users to define their own data types.
 
-We can access values in a vector using either an index or dot notation. For example, with a `vec4` named `v`, each value can be indicated by its index in the array (`v[0]`, `v[1]`, `v[2]`, `v[3]`) or with dot notation: (`v.x`, `v.y`, `v.z`, `v.w`) or (`v.r`, `v.g`, `v.b`, `v.a`) or (`v.s`, `v.t`, `v.p`, `v.q`). As a programmer, you can freely decide how you want to access each value. Just remember that dot notation methods are semantically associated with position coordinates ($x$, $y$, $z$, $w$), colors ($r$, $g$, $b$, $a$), and texture coordinates ($s$, $t$, $p$, $q$).
+We can access values in a vector using either an index or dot notation. For example, with a `vec4` named `v`, each value can be indicated by its index in the array (`v[0]`, `v[1]`, `v[2]`, `v[3]`) or with dot notation: (`v.x`, `v.y`, `v.z`, `v.w`) or (`v.r`, `v.g`, `v.b`, `v.a`) or (`v.s`, `v.t`, `v.p`, `v.q`). As a programmer, you can freely decide how you want to access each value. Just remember that dot notation methods are semantically associated with position coordinates $(x, y, z, w)$, colors $(r, g, b, a)$, and texture coordinates $(s, t, p, q)$.
 
-Each program written in GLSL must have a `main` function to run, similar to C language. We always declare functions with a return type, which is `void` for the `main` function. An example of a simple GLSL program is the **vertex shader** for our first application. This program creates a single point on screen and saves its position to a global variable called [`gl_Position`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/gl_Position.xhtml){:target="_blank"}. This variable is defined by the OpenGL library and must be assigned a value in the vertex shader.
+Each program written in GLSL must have a `main` function to run, similar to C language. We always declare functions with a return type, which is `void` for the `main` function. An example of a simple GLSL program is the **vertex shader** for our first application. This program creates a single point on screen and saves its position to a global variable called [`gl_Position`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/gl_Position.xhtml){:target="_blank"}. This variable is defined by the OpenGL library and must be assigned a value in the vertex shader.
 
 ```glsl
+# GLSL version 330
 void main() {
     gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 }
 ```
 
-The position of our pixel is stored as a 4-dimensional vector with coordinates $x$, $y$, and $z$ associated with the respective axes. The $w$ coordinate is used for geometric transformations, but we don't need to worry about that now.
+The position of our pixel is stored as a 4-dimensional vector with coordinates $x$, $y$, $z$, and $w$. The $x$, $y$, and $z$ coordinates describe the pixel's position on the respective axes. The $w$ coordinate is used for geometric transformations, but we don't need to worry about that now.
 
 Next, our **fragment shader** simply sets the color of our pixel.
 
 ```glsl
+# GLSL version 330
 out vec4 fragColor;
 void main() {
     fragColor = vec4(1.0, 1.0, 0.0, 1.0);
@@ -289,46 +285,47 @@ This diagram shows how data can flow through the GPU program. The application pr
 
 ## Compiling GPU Programs
 
-Before we can create our first rendering of a yellow pixel, let's build some utilities to handle the common tasks of compiling and linking our shaders to create a GPU program. We will do this by creating *static methods* (methods that do not use an instance of their class) in a class called `OpenGLUtils`. These methods will load and compile shader code, link shaders, and compile the GPU program. We will use many OpenGL functions from the GL namespace which you can identify as those with `gl` at the beginning of their names.
+Before we can create our first rendering of a yellow pixel, let's build some utilities to handle the common tasks of compiling and linking our shaders to create a GPU program. We will do this by creating *static methods* (methods that do not use an instance of their class) in a class called `OpenGLUtils`. These methods will load and compile shader code, link shaders, and compile the GPU program. We will use many OpenGL functions from the `GL` namespace which have `gl` at the beginning of their names.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside your `core` folder, create a file called `openGLUtils.py`.  
 <input type="checkbox" class="checkbox inline"> Open `openGLUtils.py` and add the following code:
 
 ```python
-from OpenGL.GL import *
+# core.openGLUtils.py
+import OpenGL.GL as GL
 
-class OpenGLUtils(object):
+class OpenGLUtils:
     """Static methods to compile OpenGL shaders and link them to create GPU programs."""
     @staticmethod
-    def initializeShader(shaderCode, shaderType):
+    def initialize_shader(shader_code, shader_type):
         # specify required OpenGL_GLSL version
-        shaderCode = f"#version 330\n{shaderCode}"
+        shader_code = f"#version 330\n{shader_code}"
 
         # create an empty shader object and return its reference value
-        shaderRef = glCreateShader(shaderType)
+        shader_ref = GL.glCreateShader(shader_type)
         # load the source code into the shader
-        glShaderSource(shaderRef, shaderCode)
+        GL.glShaderSource(shader_ref, shader_code)
         # compile the shader
-        glCompileShader(shaderRef)
+        GL.glCompileShader(shader_ref)
 
         # check if the shader compile was successful
-        compileSuccess = glGetShaderiv(shaderRef, GL_COMPILE_STATUS)
-        if not compileSuccess:
+        compile_success = GL.glGetShaderiv(shader_ref, GL.GL_COMPILE_STATUS)
+        if not compile_success:
             # get an error message from the shader as a byte string
-            errorMessage = glGetShaderInfoLog(shaderRef)
+            error_message = GL.glGetShaderInfoLog(shader_ref)
             # convert the byte string to a character string
-            errorMessage = f"\n{errorMessage.decode('utf-8')}"
+            error_message = f"\n{error_message.decode('utf-8')}"
             # free memory used to store the shader program
-            glDeleteShader(shaderRef)
+            GL.glDeleteShader(shader_ref)
             # raise an exception to top running and print the error message
-            raise Exception(errorMessage)
+            raise Exception(error_message)
         
         # compilation was successful, so return the shader reference
-        return shaderRef
+        return shader_ref
 ```
 
-Here we use the `@staticmethod` decorator to make the `initializeShader` method static. Inside the method, we use [`glCreateShader`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glCreateShader.xhtml){:target="_blank"} to initialize a shader object and get its reference. Then, we load the source code into the shader with [`glShaderSource`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glShaderSource.xhtml){:target="_blank"} and compile the code with [`glCompileShader`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glCompileShader.xhtml){:target="_blank"}. We then check the compiler status to see if it failed with [`glGetShaderiv`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetShader.xhtml){:target="_blank"}. If compilation failed, we get the error message with [`glGetShaderInfoLog`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetShaderInfoLog.xhtml){:target="_blank"} before deleting the shader program with [`glDeleteShader`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDeleteShader.xhtml){:target="_blank"}. Otherwise, our method returns a reference to the shader object.
+Here we use the `@staticmethod` decorator to make the `initialize_shader` method static. Inside the method, we use [`glCreateShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCreateShader.xhtml){:target="_blank"} to initialize a shader object and get its reference. Then, we load the source code into the shader with [`glShaderSource`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glShaderSource.xhtml){:target="_blank"} and compile the code with [`glCompileShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCompileShader.xhtml){:target="_blank"}. We then check the compiler status to see if it failed with [`glGetShaderiv`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetShader.xhtml){:target="_blank"}. If compilation failed, we get the error message with [`glGetShaderInfoLog`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetShaderInfoLog.xhtml){:target="_blank"} before deleting the shader program with [`glDeleteShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDeleteShader.xhtml){:target="_blank"}. Otherwise, our method returns a reference to the shader object.
 
 Next we need a method for linking the shaders and compiling the GPU program.  
 
@@ -337,44 +334,44 @@ Next we need a method for linking the shaders and compiling the GPU program.
 
 ```python
     @staticmethod
-    def initializeProgram(vertexShaderCode, fragmentShaderCode):
+    def initialize_program(vertex_shader_code, fragment_shader_code):
         # use our previous method to load and compile the shaders
-        vertexShaderRef = OpenGLUtils.initializeShader(
-            vertexShaderCode, 
-            GL_VERTEX_SHADER
+        vertex_shader_ref = OpenGLUtils.initialize_shader(
+            vertex_shader_code, 
+            GL.GL_VERTEX_SHADER
         )
-        fragmentShaderRef = OpenGLUtils.initializeShader(
-            fragmentShaderCode, 
-            GL_FRAGMENT_SHADER
+        fragment_shader_ref = OpenGLUtils.initialize_shader(
+            fragment_shader_code, 
+            GL.GL_FRAGMENT_SHADER
         )
 
         # create an empty program object and get its reference value
-        programRef = glCreateProgram()
+        program_ref = GL.glCreateProgram()
 
         # attach the previously compiled shaders
-        glAttachShader(programRef, vertexShaderRef)
-        glAttachShader(programRef, fragmentShaderRef)
+        GL.glAttachShader(program_ref, vertex_shader_ref)
+        GL.glAttachShader(program_ref, fragment_shader_ref)
 
         # link the vertex shader to the fragment shader
-        glLinkProgram(programRef)
+        GL.glLinkProgram(program_ref)
 
         # check if the program link was successful
-        linkSuccess = glGetProgramiv(programRef, GL_LINK_STATUS)
-        if not linkSuccess:
+        link_success = GL.glGetProgramiv(program_ref, GL.GL_LINK_STATUS)
+        if not link_success:
             # get an error message from the program compiler
-            errorMessage = glGetProgramInfoLog(programRef)
+            error_message = GL.glGetProgramInfoLog(program_ref)
             # convert byte string to a character string
-            errorMessage = f"\n{errorMessage.decode('utf-8')}"
+            error_message = f"\n{error_message.decode('utf-8')}"
             # free memory used to store GPU program
-            glDeleteProgram(programRef)
+            GL.glDeleteProgram(program_ref)
             # raise an exception to stop running and print the error message
-            raise Exception(errorMessage)
+            raise Exception(error_message)
 
         # linking was successful, so return the program reference
-        return programRef
+        return program_ref
 ```
 
-This method uses our `initializeShader` method to load and compile the vertex shader and fragment shader from strings of their source code. Then we create an object for the GPU program with [`glCreateProgram`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glCreateProgram.xhtml){:target="_blank"} and attach the shaders to be linked with [`glAttachShader`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glAttachShader.xhtml){:target="_blank"}. Then, [`glLinkProgram`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glLinkProgram.xhtml){:target="_blank"} uses the shaders to create the GPU program. Linking the program may fail, so we check its status with [`glGetProgramiv`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetProgram.xhtml){:target="_blank"}, similar to the shaders. If it failed we use [`glGetProgramInfoLog`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetProgramInfoLog.xhtml){:target="_blank"} to get the error message before deleting the program with [`glDeleteProgram`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDeleteProgram.xhtml){:target="_blank"}. Otherwise, we return a reference to the program object.
+This method uses our `initialize_shader` method to load and compile the vertex shader and fragment shader from strings of their source code. Then we create an object for the GPU program with [`glCreateProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCreateProgram.xhtml){:target="_blank"} and attach the shaders to be linked with [`glAttachShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glAttachShader.xhtml){:target="_blank"}. Then, [`glLinkProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glLinkProgram.xhtml){:target="_blank"} uses the shaders to create the GPU program. Linking the program may fail, so we check its status with [`glGetProgramiv`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetProgram.xhtml){:target="_blank"}, similar to the shaders. If it failed we use [`glGetProgramInfoLog`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetProgramInfoLog.xhtml){:target="_blank"} to get the error message before deleting the program with [`glDeleteProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDeleteProgram.xhtml){:target="_blank"}. Otherwise, we return a reference to the program object.
 
 <!-- The last utility method prints information about the running system to tell which version of OpenGL/GLSL it supports.
 
@@ -403,31 +400,33 @@ A typical application will have the following steps within its **startup** proce
 3. Compile and load the shader source code.
 4. Link vertex data in VBOs to variables in the the vertex shader.
 
-In our applications, we do these steps in the `initialize` method which is defined in the `Base` class but implemented by each application. We will use special objects called *vertex array objects* (VAOs) that can hold multiple associations between VBOs and shader variables. OpenGL often requires at least one VAO. Our applications are simple and don't need to set up any buffers, so the vertex and color data will come straight from our code instead.
+In our applications, we do these steps in the `startup` method which is defined in the `WindowApp` class but implemented by each application. We will use special objects called *vertex array objects* (VAOs) that can hold multiple associations between VBOs and shader variables. OpenGL often requires at least one VAO. Our applications are simple and don't need to set up any buffers, so the vertex and color data will come straight from our code instead.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new file called `test_2_2.py`.  
 <input type="checkbox" class="checkbox inline"> Open the `test_2_2.py` file and add the following code:
 
 ```python
-from core.base import Base
-from core.openGLUtils import OpenGLUtils
-from OpenGL.GL import *
+# test_2_2.py
+import OpenGL.GL as GL
 
-class Test_2_2(Base):
+from core.app import WindowApp
+from core.openGLUtils import OpenGLUtils
+
+class Test_2_2(WindowApp):
     """Test GPU program compiling and linking by rendering a single point."""
-    def initialize(self):
-        print("Starting up Test 2-2")
+    def startup(self):
+        print("Starting up Test 2-2...")
 
         # vertex shader code as a character string
-        vsCode = """
+        vs_code = """
         void main() {
             gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
         }
         """
 
         # fragment shader code as a character string
-        fsCode = """
+        fs_code = """
         out vec4 fragColor;
         void main() {
             fragColor = vec4(1.0, 1.0, 0.0, 0.0);
@@ -435,21 +434,21 @@ class Test_2_2(Base):
         """
 
         # compile the GPU program and save its reference
-        self.__programRef = OpenGLUtils.initializeProgram(vsCode, fsCode)
+        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
 
         # create and bind vertex array object (VAO)
-        vaoRef = glGenVertexArrays(1)
-        glBindVertexArray(vaoRef)
+        vao_ref = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(vao_ref)
 
         # (optional) set point size (width and height in pixels)
-        glPointSize(10)
+        GL.glPointSize(10)
     
     def update(self):
         # select program to use when rendering
-        glUseProgram(self.__programRef)
+        GL.glUseProgram(self.program_ref)
 
         # render geometric objects using the selected program
-        glDrawArrays(GL_POINTS, 0, 1)
+        GL.glDrawArrays(GL.GL_POINTS, 0, 1)
 
 # instantiate and run this test
 Test_2_2().run()
@@ -464,10 +463,10 @@ $ python test_2_2.py
 
 <input type="checkbox" class="checkbox inline"> Confirm that the program displays a yellow dot in the center of the window.  
 
-This test application once again inherits from our `Base` class. It implements the `initialize` method for its startup process and the `update` method for its update process.
+This test application once again inherits from our `WindowApp` class. It implements the `startup` method for its startup process and the `update` method for its update process.
 
-The `initialize` method directly stores the source code for the shaders as multi-line strings and uses our `OpenGLUtils.initializeProgram` method to compile and link the GPU program. Then it gets a VAO with [`glGenVertexArrays`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGenVertexArrays.xhtml){:target="_blank"} and binds it for use with [`glBindVertexArray`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindVertexArray.xhtml){:target="_blank"}. The last line is to optionally change the rendering size of the point with [`glPointSize`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} so that it is easier to see. Here, the parameter of `10` means the point will be 10 pixels wide and 10 pixels tall.
+The `startup` method directly stores the source code for the shaders as multi-line strings and uses our `OpenGLUtils.initialize_program` method to compile and link the GPU program. Then it gets a VAO with [`glGenVertexArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGenVertexArrays.xhtml){:target="_blank"} and binds it for use with [`glBindVertexArray`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindVertexArray.xhtml){:target="_blank"}. The last line is to optionally change the rendering size of the point with [`glPointSize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} so that it is easier to see. Here, the parameter of `10` means the point will be 10 pixels wide and 10 pixels tall.
 
-In the `update` method, we indicate that the **render** process should use our program with [`glUseProgram`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUseProgram.xhtml){:target="_blank"} and then [`glDrawArrays`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml){:target="_blank"} draws the point on the screen using our program.
+In the `update` method, we indicate that the **render** process should use our program with [`glUseProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUseProgram.xhtml){:target="_blank"} and then [`glDrawArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml){:target="_blank"} draws the point on the screen using our program.
 
 It was a lot of work, but we now have a good foundation for building more complicated CG apps. Next time we will look at the basics of rendering 2-dimensional shapes with different colors.
