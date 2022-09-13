@@ -12,8 +12,8 @@ classes: wide
 toc_sticky: false
 ---
 
-*Chapter 2.4 "Working with Uniform Data" introduces uniform variables that can be accessed by both the vertex shader and the fragment shader, then uses them to animate a triangle moving across the screen.*  
-*Chapter 2.5 "Adding Interactivity" extends the `Input` class to handle various keyboard events and then uses the new features to give the user control of a triangle's movements.*
+*[Working with Uniform Data](#working-with-uniform-data) introduces uniform variables that can be accessed by both the vertex shader and the fragment shader, then uses them to animate a triangle moving across the screen.*  
+*[Adding Interactivity](#adding-interactivity) extends the `Input` class to handle various keyboard events and then uses the new features to give the user control of a triangle's movements.*
 
 With vertex array objects, we can associate position and color data to GPU program variables. However, the structure of VAOs means that we cannot share the same data between vertices. Instead, we need to repeat data when we want different vertices to be the same color, for example. This is not ideal. Repeating data multiple times in our source code lowers the **maintainability** and **extensibility** of our software. To change the color of a solid-color hexagon, we would need to change the data for six different vertices.
 
@@ -25,7 +25,7 @@ Uniform variables are useful when we want to send data directly from our applica
 
 ## The Uniform Class
 
-Similar to how we made the `Attribute` class for attribute variables in the previous chapter, now we will create a class that handles uniform variables called the `Uniform` class. The responsibilities of this class are to:
+Similar to how we made the `Attribute` class for attribute variables in the previous post, now we will create a class that handles uniform variables called the `Uniform` class. The responsibilities of this class are to:
 - store the data and data type of the uniform variable in the GPU program;
 - get and store a reference to the uniform variable that will load the data;
 - and load the data into the uniform variable as needed.

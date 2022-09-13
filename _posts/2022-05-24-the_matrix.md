@@ -12,7 +12,7 @@ classes: wide
 toc_sticky: false
 ---
 
-*Chapters 3.3 and 3.4 apply what we learned about calculating geometric transformations to build a `Matrix` class and integrate it with our CG framework.*
+*In this lesson, we apply what we learned about calculating geometric transformations to build a `Matrix` class and integrate it with our CG framework.*
 
 Now that we have learned about the usefulness of [matrix calculations](/software-engineering-lab/notes/ch3-1/) for [geometric transformations](/software-engineering-lab/notes/ch3-2/), we will create a new class in our CG framework that can create transformation matrices for us. Our framework will always use 4x4 matrices so we can easily handle 2D and 3D graphics. When rendering in 2D, we can simply use a value of $0.0$ for all the $z$ components so everything renders on the same plane.
 
@@ -153,7 +153,7 @@ Scaling can happen on any dimension, so we want to allow for scaling each dimens
         )).astype(float)
 ```
 
-This method definition provides values for a default perspective so we do not need to enter them in every application. The angle of view parameter uses degrees for its units, so we need to convert it into radians before applying it to the tangent function for calculating the distance between the projection window and the camera. The depth components `b` and `c` are calculated from the *near clipping distance* and *far clipping distance* as explained in the previous chapter.
+This method definition provides values for a default perspective so we do not need to enter them in every application. The angle of view parameter uses degrees for its units, so we need to convert it into radians before applying it to the tangent function for calculating the distance between the projection window and the camera. The depth components `b` and `c` are calculated from the *near clipping distance* and *far clipping distance* as explained in the previous lesson.
 
 Before we can use the `Matrix` class, we need to update our `Uniform` class so it can handle 4x4 matrix data for uniform variables in our shader programs.
 
@@ -292,7 +292,7 @@ The last line of the `startup` method is a function that enables OpenGL's depth 
         turn_amount = self.turn_speed * self.delta_time
 ```
 
-As we did in the [Animations](/software-engineering-lab/notes/animations/#animations) chapter, we first calculate distances based on the time that has passed between frames. This time we also have a rotation distance to calculate separately from the move distance.
+As we did in the [Animations](/software-engineering-lab/notes/animations/#animations) lesson, we first calculate distances based on the time that has passed between frames. This time we also have a rotation distance to calculate separately from the move distance.
 
 <input type="checkbox" class="checkbox inline"> Next, add code for global translations to the `update` method.  
 
@@ -356,7 +356,7 @@ This code is similar to global translations except we use `Matrix.make_rotation_
             self.model_matrix.data = self.model_matrix.data @ m
 ```
 
-Here we have changed from global coordinates to local coordinates. As discussed in the [Local Transformations](/software-engineering-lab/notes/ch3-2/#local-transformations) chapter, the only difference is the order in which we compose our model matrices. Local transformations are the reverse of global transformations so we apply the model matrix after the translation matrix.
+Here we have changed from global coordinates to local coordinates. As discussed in the [Local Transformations](/software-engineering-lab/notes/ch3-2/#local-transformations) lesson, the only difference is the order in which we compose our model matrices. Local transformations are the reverse of global transformations so we apply the model matrix after the translation matrix.
 
 <input type="checkbox" class="checkbox inline"> Now add the final code for local rotations to the `update` method.  
 

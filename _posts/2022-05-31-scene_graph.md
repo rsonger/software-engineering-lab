@@ -12,8 +12,8 @@ classes: wide
 toc_sticky: false
 ---
 
-*Chapter 4.1 explains the basic concepts for building a 3D scene using the scene graph.*  
-*Chapter 4.2 introduces the fundamental components for rendering the scene, 3D objects, and the camera to view it all.*
+*[The Scene Graph Framework](#the-scene-graph-framework) explains the basic concepts for building a 3D scene using the scene graph.*  
+*[3D Objects](#3d-objects) introduces the fundamental components for rendering the scene, 3D objects, and the camera to view it all.*
 
 # The Scene Graph Framework
 

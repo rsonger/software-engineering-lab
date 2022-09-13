@@ -12,7 +12,7 @@ classes: wide
 toc_sticky: false
 ---
 
-*Chapter 2.3 adds a class to our framework which makes use of vertex buffers and then shows how to use the class to draw shapes with multiple vertices.*
+*In this post, we add a class to our framework which makes use of vertex buffers and then shows how to use the class to draw shapes with multiple vertices.*
 
 Our [last application](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) drew a single point using a single vertex. Every vertex shader from this point on will use multiple vertices stored in an array of data called **vertex buffers**. Then we can draw more complicated shapes like triangles (3 vertices), squares (4 vertices), and hexagons (6 vertices).
 

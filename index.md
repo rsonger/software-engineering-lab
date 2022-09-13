@@ -25,6 +25,4 @@ Students will have an opportunity to practice the software engineering technique
 
 The class contents follow the textbook "Developing Graphics Frameworks with Python and OpenGL" which is available [for purchase](https://www.routledge.com/Developing-Graphics-Frameworks-with-Python-and-OpenGL/Stemkoski-Pascale/p/book/9780367721800) or [from open access](https://www.taylorfrancis.com/books/oa-mono/10.1201/9781003181378/developing-graphics-frameworks-python-opengl-lee-stemkoski-michael-pascale). The authors also have a video playlist of all the chapter contents on [YouTube](https://www.youtube.com/playlist?list=PLxpdybrffYlPqkCyvvLfvwsaB7CB1r0pV).
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/videoseries?list=PLxpdybrffYlPqkCyvvLfvwsaB7CB1r0pV" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-In addition to the textbook and author videos, this website provides notes from the instructor in the form of [Posts](./posts/). Each post will be available when the respective chapter is assigned.
+In addition to the textbook and author videos, this website provides notes from the instructor in the form of [Posts](./posts/). Each post is dated and made available in chronological order.

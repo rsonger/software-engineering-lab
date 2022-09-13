@@ -12,7 +12,7 @@ classes: wide
 toc_sticky: false
 ---
 
-*The remainder of Chapter 4 shows how to apply custom `Geometry` and `Material` objects in various ways, such as creating a visible grid and axes to help orient the viewer as they move through a 3D scene.*  
+*This post shows how to apply custom `Geometry` and `Material` objects in various ways, such as creating a visible grid and axes to help orient the viewer as they move through a 3D scene.*  
 
 With the addition of `Geometry` and `Material` objects in the [previous lesson](/software-engineering-lab/_posts/geometry_and_material), we now have all the components necessary for rendering basic objects in a 3D scene. Now let's practice using these base classes to create custom objects with various effects. After experimenting with geometries and materials a little bit, then we will create some extra components to help the user view a 3D scene: a visible grid, axes, and a movable camera.
 

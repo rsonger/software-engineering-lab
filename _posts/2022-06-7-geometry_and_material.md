@@ -12,8 +12,8 @@ classes: wide
 toc_sticky: false
 ---
 
-*Chapter 4.3 outlines the `Geometry` class and its extensions which store attribute data related to the vertices of different objects.*  
-*Chapter 4.4 outlines the `Material` class and its extensions which store the shader program, uniform data, and rendering settings related to the appearance of different objects.*
+*[Geometry Objects](#geometry-objects) outlines the `Geometry` class and its extensions which store attribute data related to the vertices of different objects.*  
+*[Material Objects](#material-objects) outlines the `Material` class and its extensions which store the shader program, uniform data, and rendering settings related to the appearance of different objects.*
 
 In the previous lesson, we looked at the overview of our scene graph framework and created many of the basic components, including `Object3D`, `Scene`, `Group`, `Camera`, and `Mesh`. At the time, we also created an empty `Geometry` class and `Material` class. This lesson covers those two classes in full detail along with some simple extensions of each one.
 

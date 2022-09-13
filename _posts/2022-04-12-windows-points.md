@@ -12,7 +12,7 @@ classes: wide
 toc_sticky: false
 ---
 
-*Chapters 2.1 and 2.2 introduce the basic framework components for creating an application window and rendering a point on the screen.*
+*This post introduces the basic framework components for creating an application window and rendering a point on the screen.*
 
 The graphics pipeline model we will follow has the following four stages:
 1. The **Application Stage** is where we create a window to display the rendered graphics and then send data to the GPU.
@@ -26,19 +26,19 @@ The tasks of the **Application Stage** include:
 - Run algorithms for physics simulations and collision detection.
 - **Send vertex attributes and shader source code to the GPU for rendering.**  
 
-The first two we accomplish with Pygame in chapter 2.1 while the fourth is addressed in chapter 2.2 below. 
+The first two we accomplish with Pygame in [Creating Windows with Pygame](#creating-windows-with-pygame) while the fourth is addressed in [Drawing a Point](#drawing-a-point) below.  
 
-Then in **Geometry Processing**, the **vertex shader** calculates transformations on geometric objects and gets their final coordinates for rendering.
+Then in **Geometry Processing**, the **vertex shader** calculates transformations on geometric objects and gets their final coordinates for rendering.  
 
 **Rasterization** then creates *fragments* (color data for each pixel) which includes their *raster position* (pixel coordinate).
 
 Finally, the **Pixel Processing** step applies the **fragment shader** program to calculate the final color of each pixel.
 
-The **vertex shader** we write in chapter 2.2 below will only render a single point while the **fragment shader** will set the pixel color to a fixed value, so we do not need to worry about **geometry processing** or **rasterization** for now.
+The **vertex shader** we write in [Drawing a Point](#drawing-a-point) below will only render a single point while the **fragment shader** will set the pixel color to a fixed value, so we do not need to worry about **geometry processing** or **rasterization** for now.
 
 The graphics framework we begin building here will follow good software engineering design practices, such as **reusability** and **extensibility**. Each component of the graphics framework is designed to have a single responsibility and be open to extensions.  
 
-# 2.1 - Creating Windows with Pygame
+# Creating Windows with Pygame
 
 In the **application stage**, we will use the Pygame library to create the application window.
 
@@ -242,9 +242,9 @@ $ python test_2_1.py
 
 In this test, the `startup` and `update` methods don't really do anything. We included them here just to practice our approach of implementing those methods when developing applications with our framework. The next test we write will have much more interesting content for those two methods.
 
-# 2.2 - Drawing a Point
+# Drawing a Point
 
-With OpenGL, we render images on screen by running a program on the graphics processing unit (GPU). The program is a combination of a **vertex shader** and a **fragment shader** written in the OpenGL Shading Language (GLSL). This chapter shows how to create simple shaders, link them, and compile them into a GPU program. After that, we extend our graphics framework with components for these tasks.
+With OpenGL, we render images on screen by running a program on the graphics processing unit (GPU). The program is a combination of a **vertex shader** and a **fragment shader** written in the OpenGL Shading Language (GLSL). Here we will learn how to create simple shaders, link them, and compile them into a GPU program. After that, we extend our graphics framework with components for these tasks.
 
 ## The OpenGL Shading Language (GLSL)
 
