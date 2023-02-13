@@ -312,7 +312,7 @@ class Test_2_7(WindowApp):
         self.base_color.locate_variable(self.program_ref, "baseColor")
 
         # specify the color to use for clearing the screen
-        glClearColor(0.0, 0.0, 0.0, 1.0)
+        GL.glClearColor(0.0, 0.0, 0.0, 1.0)
 
     def update(self):
         # update translation to move the triangle to the right

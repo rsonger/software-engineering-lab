@@ -164,7 +164,7 @@ class Test_2_3(WindowApp):
         self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
 
         # **WINDOWS ONLY** set a wider line width so it is easier to see 
-        glLineWidth(4)
+        GL.glLineWidth(4)
 
         # create and bind the vertex array object (VAO)
         vao_ref = GL.glGenVertexArrays(1)
@@ -211,8 +211,8 @@ When we want to fill in the area between lines, we can use one of the triangle d
 It is also possible to combine draw modes with the same set of vertices by simply calling `glDrawArrays` multiple times. For example, if the `update` method had the next two lines of code, it would draw the lines of the hexagon and each of the points as well. Although if you do this, the points will be lost inside the lines. You can increase the size of the points by calling [`glPointSize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} inside your `startup` method.
 
 ```python
-        glDrawArrays(GL_LINE_LOOP, 0, self.vertexCount)
-        glDrawArrays(GL_POINTS, 0, self.vertexCount)
+        GL.glDrawArrays(GL_LINE_LOOP, 0, self.vertexCount)
+        GL.glDrawArrays(GL_POINTS, 0, self.vertexCount)
 ```
 
 ### A Multi-Buffer Test
