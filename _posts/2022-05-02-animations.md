@@ -75,7 +75,7 @@ Here we use the [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL
             raise Exception("Unable to upload data. Must locate uniform variable first.")
 
         if self.data_type == "int":
-            GL.lUniform1i(
+            GL.glUniform1i(
                 self.variable_ref, 
                 self.data
             )
