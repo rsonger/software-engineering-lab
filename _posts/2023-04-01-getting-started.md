@@ -5,7 +5,7 @@ paginate: true
 
 # Jekyll
 title: "Getting Started"
-date: 2022-04-01
+date: 2023-04-01
 categories:
   - Guides
 ---
@@ -82,15 +82,15 @@ Before we can start using the virtual environment, we must be activate it. Fortu
 
 **MacOS**
 ```bash
-$ . .venv/bin/activate
+$ source .venv/bin/activate
 ```
 
 **Windows**
 ```bash
-$ . .venv/Scripts/activate
+$ source .venv/Scripts/activate
 ```
 
-:warning:**&nbsp;Notice the dot `.` and space at the beginning.&nbsp;**:warning:
+:warning:**&nbsp;Notice the space and dot `.` after `source`&nbsp;**:warning:
 
 Now you should see the name of your virtual environment in parentheses at the front of your command prompt. That means you are working inside the active virtual environment and any Python modules you install now will be exclusive to that environment. If you try the `pip list` command now, you will probably see that only the bare minimum packages are installed:
 
@@ -209,19 +209,19 @@ If that happens, open the [Visual Studio Downloads](https://visualstudio.microso
 
 ---
 
-If the `python` command in **Git Bash** freezes and never gives you a `>>>` prompt, then we need to use a program called [winpty](https://stackoverflow.com/questions/48199794/winpty-and-git-bash) to run the Python executable.
+If the `python` command in **Git Bash** freezes and never gives you a `>>>` prompt, then we need to use a program called [winpty](https://stackoverflow.com/questions/48199794/winpty-and-git-bash) to run the Python executable. This is the command for running Python with winpty:
 
 ```bash
 (.venv) $ winpty python.exe
 ```
 
-We can create an [alias](https://en.wikipedia.org/wiki/Alias_(command)) in our `.bashrc` file so this alias is always available. The `.bashrc` script runs every time we open the Git Bash, so it is a good place to put things like aliases that you want in every bash session.
+We can create an [alias](https://en.wikipedia.org/wiki/Alias_(command)) in our `.bashrc` file so that the `python` command always runs with winpty. The `.bashrc` script runs every time we open the Git Bash, so it is a good place to put things like aliases that you want to use every time. Type this command to add the alias to your `.bashrc` file:
 
 ```bash
 (.venv) $ echo "alias python='winpty python.exe'" >> ~/.bashrc
 ```
 
-This `alias` command assigns the `winpty python.exe` command to `python`. Here we use `echo` and `>>` to append the alias command to the end of the `.bashrc` file in the user's home directory. We can confirm the command is set by looking at the contents in the `~/.bashrc` file.
+Here, the `alias` command assigns the `winpty python.exe` command to `python`. Here we use `echo` and `>>` to append the alias command to the end of the `.bashrc` file in the user's home directory. We can confirm the command is set by looking at the contents in the `~/.bashrc` file.
 
 ```bash
 (.venv) $ tail ~/.bashrc

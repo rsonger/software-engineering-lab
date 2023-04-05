@@ -14,7 +14,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 title: "Software Engineering Lab"
-subtitle: "Academic Year 2022"
+subtitle: "Academic Year 2023"
 logo: "/assets/images/ict_logo.png"
 name: "Robert Songer"
 email: rsonger@neptune.kanazawa-it.ac.jp

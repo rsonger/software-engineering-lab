@@ -5,7 +5,7 @@ paginate: true
 
 # Jekyll
 title: "Vectors and Matrices"
-date: 2022-05-10
+date: 2023-05-10
 categories:
   - Notes
 classes: wide
