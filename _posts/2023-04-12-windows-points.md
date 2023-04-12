@@ -15,46 +15,45 @@ toc_sticky: false
 *This post introduces the basic framework components for creating an application window and rendering a point on the screen.*
 
 The graphics pipeline model we will follow has the following four stages:
-1. The **Application Stage** is where we create a window to display the rendered graphics and then send data to the GPU.
-2. **Geometry Processing** is where we create a *vertex shader* program to determine the positions of each vertex of each object to be rendered.
-3. **Rasterization** is where we determine which pixels will render which objects in the scene.
-4. **Pixel Processing** is where we create a *fragment shader* program to find the color of each pixel.
+1. The **Application** stage is where we create a window to display the rendered graphics and then send data to the GPU.
+2. The **Geometry Processing** stage is where we create a *vertex shader* program to determine the positions of each vertex of each object to be rendered.
+3. The **Rasterization** stage is where we determine which pixels will render which objects in the scene.
+4. The **Pixel Processing** stage is where we create a *fragment shader* program to find the color of each pixel.
 
-The tasks of the **Application Stage** include:  
+The tasks of the **Application** stage include:  
 - **Create a window to read from the GPU framebuffer and render graphics.**
 - **Maintain input-checking and animation loop.**
 - Run algorithms for physics simulations and collision detection.
 - **Send vertex attributes and shader source code to the GPU for rendering.**  
 
-The first two we accomplish with Pygame in [Creating Windows with Pygame](#creating-windows-with-pygame) while the fourth is addressed in [Drawing a Point](#drawing-a-point) below.  
+We will do the first two tasks with Pygame below in the section [Creating Windows with Pygame](#creating-windows-with-pygame) while the last task is in the section [Drawing a Point](#drawing-a-point).  
 
-Then in **Geometry Processing**, the **vertex shader** calculates transformations on geometric objects and gets their final coordinates for rendering.  
+In the **Geometry Processing** stage, the **vertex shader** calculates transformations on geometric objects and gets their final coordinates for rendering.  
 
-**Rasterization** then creates *fragments* (color data for each pixel) which includes their *raster position* (pixel coordinate).
+The **Rasterization** stage then creates *fragments* (color data for each pixel) which includes their *raster position* (pixel coordinate).
 
-Finally, the **Pixel Processing** step applies the **fragment shader** program to calculate the final color of each pixel.
+Finally, the **Pixel Processing** stage applies the **fragment shader** program to calculate the final color of each pixel.
 
-The **vertex shader** we write in [Drawing a Point](#drawing-a-point) below will only render a single point while the **fragment shader** will set the pixel color to a fixed value, so we do not need to worry about **geometry processing** or **rasterization** for now.
+In the section [Drawing a Point](#drawing-a-point), we only render a single point with a simple **vertex shader** program and then set its color with a simple **fragment shader** program. The point and color are fixed values for now, so we do not need to worry about **geometry processing** or **rasterization** this time.
 
 The graphics framework we begin building here will follow good software engineering design practices, such as **reusability** and **extensibility**. Each component of the graphics framework is designed to have a single responsibility and be open to extensions.  
 
 # Creating Windows with Pygame
 
-In the **application stage**, we will use the Pygame library to create the application window.
-
-The first component of the graphics framework will be a `WindowApp` class which handles the application lifecycle:
+In the **application stage**, we will use the Pygame library to create an application window. Here we will follow the *application lifecycle* which defines the flow of application logic from execution to termination.
+These are the main components of the application lifecycle:
 - **Startup** where we load external files, initialize values, and create programming objects.
 - **Main Loop** which repeatedly checks input from the user, updates values of variables and objects, and renders graphics on the screen.
 - **Shutdown** which cancels any running processes and closes the window.
 
 ![The interactive graphics application lifecycle](/software-engineering-lab/assets/images/igraphics-app-flow.png)
 
-Let's create our first Python package to hold the core components of the framework.
+The first component of the graphics framework to create is a `WindowApp` class. Let's create it inside a Python package that will hold the core components of the framework.
 
 ## The `WindowApp` Class
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> First, make a folder on your computer to store all the source code. (I called mine `graphics` and put it inside a folder just for this class.) This will be your **main** working folder.  
+<input type="checkbox" class="checkbox inline"> First, make a folder on your computer to store all the source code. (I put mine inside a folder just for this course and called it `graphics`.) This will be your **main** working folder.  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new folder called `core`.  
 <input type="checkbox" class="checkbox inline"> Inside the `core` folder, create an empty file called `__init__.py` (with double underscores). This will let you import code from the `core` folder as Python modules.  
 <input type="checkbox" class="checkbox inline"> Create another file called `app.py` inside `core` and open the file for editing.  
