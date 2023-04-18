@@ -4,7 +4,7 @@ theme: default
 paginate: true
 
 # Jekyll
-title: "Geometric Transformations"
+title: "6_Geometric Transformations"
 date: 2023-05-17
 categories:
   - Notes

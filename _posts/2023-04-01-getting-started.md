@@ -4,7 +4,7 @@ theme: default
 paginate: true
 
 # Jekyll
-title: "Getting Started"
+title: "1_Getting Started"
 date: 2023-04-01
 categories:
   - Guides

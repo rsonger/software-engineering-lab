@@ -4,7 +4,7 @@ theme: default
 paginate: true
 
 # Jekyll
-title: "Enter the Matrix"
+title: "7_Enter the Matrix"
 date: 2023-05-24
 categories:
   - Notes
@@ -199,11 +199,11 @@ void main() {
 Remember that the position vector stays the same and all of the transformations will apply to the `modelMatrix`. Then, the `projectionMatrix` will adjust the positions based on the perspective, which makes shapes look smaller as they move away from the camera.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_3.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_3.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_7.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_7.py` for editing and add the following code:  
 
 ```python
-# test_3.py
+# test_7.py
 from math import pi
 import OpenGL.GL as GL
 
@@ -212,11 +212,11 @@ from core.openGLUtils import OpenGLUtils
 from core.openGL import Attribute, Uniform
 from core.matrix import Matrix
 
-class Test_3(WindowApp):
+class Test_7(WindowApp):
     """Tests geometric transformations by moving a triangle around the screen."""
 
     def startup(self):
-        print("Starting up Test 3...")
+        print("Starting up Test 7...")
 
         vs_code = """
         in vec3 position;
@@ -239,7 +239,7 @@ class Test_3(WindowApp):
 
 Next, we create an `Attribute` object for the position data and two `Uniform` objects for the two uniform matrices in the shader program. We will use `make_translation` and `make_rotation_z` to update the model matrix whenever the user moves or rotates the triangle. The `make_perspective` method is only called once in our `startup` method since the perspective will always stay the same.
 
-<input type="checkbox" class="checkbox inline"> Inside the `startup` method of `test_3.py`, add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside the `startup` method of `test_7.py`, add the following code:  
 
 ```python
         # one VAO for the single triangle
@@ -283,7 +283,7 @@ The movement speed is set to units in world space. This means that the greater t
 
 The last line of the `startup` method is a function that enables OpenGL's depth testing feature. This app renders a 3D scene, so depth testing tells OpenGL to calculate whether objects in the scene will block each other from view. There is only one object in the scene for now, but we turn it on in case we want to add more objects later.
 
-<input type="checkbox" class="checkbox inline"> Now add the `update` method to the `Test_3` class with the following code:  
+<input type="checkbox" class="checkbox inline"> Now add the `update` method to the `Test_7` class with the following code:  
 
 ```python
     def update(self):
@@ -387,12 +387,12 @@ As local transformations, these rotations will apply to the object's local coord
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
 
 # instantiate and run this test
-Test_3().run()
+Test_7().run()
 ```
 
 Since we enabled depth testing, we want to reset the depth buffer every frame like we do with the color buffer. Then we can specify our shader program, upload the matrix data, and use it to draw the triangle. Don't forget to also include the last line for running this test application!
 
-<input type="checkbox" class="checkbox inline"> Save the file and run it with the `python test_3.py` command in the terminal.  
+<input type="checkbox" class="checkbox inline"> Save the file and run it with the `python test_7.py` command in the terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a yellow triangle on the screen.  
 <input type="checkbox" class="checkbox inline"> Test that the <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> keys move the triangle globally.  
 <input type="checkbox" class="checkbox inline"> Test that the <kbd>Q</kbd> and <kbd>E</kbd> keys rotate the triangle globally.  

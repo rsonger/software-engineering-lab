@@ -4,7 +4,7 @@ theme: default
 paginate: true
 
 # Jekyll
-title: "Polygons, Planes, Spheres, and Cylinders"
+title: "10_Polygons, Planes, Spheres, and Cylinders"
 date: 2023-06-14
 categories:
   - Notes

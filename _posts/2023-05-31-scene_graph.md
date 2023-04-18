@@ -4,7 +4,7 @@ theme: default
 paginate: true
 
 # Jekyll
-title: "The Scene Graph"
+title: "8_The Scene Graph"
 date: 2023-05-31
 categories:
   - Notes

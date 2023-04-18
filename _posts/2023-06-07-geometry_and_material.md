@@ -4,7 +4,7 @@ theme: default
 paginate: true
 
 # Jekyll
-title: "3D Scenes with Geometry and Material Objects"
+title: "9_3D Scenes with Geometry and Material Objects"
 date: 2023-06-07
 categories:
   - Notes
@@ -493,11 +493,11 @@ All these steps we already programmed into the `render` method of the `Mesh` cla
 With the `Renderer` object complete, now we can finally render a 3D scene. Let's make a simple spinning cube in the center of the screen using the `BoxGeometry` and `SurfaceMaterial` classes.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_4_1.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_4_1.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_9_1.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_9_1.py` for editing and add the following code:  
 
 ```python
-# test_4_1.py
+# test_9_1.py
 from math import pi
 
 from core.app import WindowApp
@@ -506,10 +506,10 @@ from core.scene_graph import Scene, Camera, Mesh
 from geometry.basic_geometries import BoxGeometry
 from material.basic_materials import SurfaceMaterial
 
-class Test_4_1(WindowApp):
+class Test_9_1(WindowApp):
     """Test the basic scene graph elements by rendering a spinning cube."""
     def startup(self):
-        print("Starting up Test 4-1...")
+        print("Starting up Test 9-1...")
 
         self.renderer = Renderer()
         self.scene = Scene()
@@ -531,10 +531,10 @@ class Test_4_1(WindowApp):
         self.renderer.render(self.scene, self.camera)
 
 # initialize and run this test at 800 x 600 resolution
-Test_4_1(screen_size=(800,600)).run()
+Test_9_1(screen_size=(800,600)).run()
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_4_1.py` in the terminal.  
+<input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_9_1.py` in the terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a spinning cube with each side a different color in the center of the screen.  
 
 Our test applications have become quite a bit shorter now that we encapsulated a lot of the rendering tasks in scene graph components! 
@@ -545,7 +545,7 @@ After everything is set up, the `update` method simply applies the rotations to 
 
 # Extra Components
 
-After learning about how to customize geometry and material objects, we can now think about how to use them to create objects that help render a 3D scene. All of our scenes so far have just been shapes floating in a black void. Let's change that by creating a structure to represent the coordinate axes and a grid to help orient the user. After rendering those in a scene, we will then create a special object that handles inputs and allows the user to explore the scene by moving the camera around.
+After learning about how to render shapes with geometry and material objects, we can now think about making special objects that help render a 3D scene. All of our scenes so far have just been shapes floating in a black void. Let's change that by creating a structure to represent the coordinate axes and a grid to help orient the user. After rendering those in a scene, we will then create a special object that handles inputs and allows the user to explore the scene by moving the camera around.
 
 ## Axes Helper
 
@@ -674,11 +674,11 @@ The `major_color` parameter sets the color for the two center lines while the `m
 Now let's make sure these two helper classes render correctly with a test application.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside your main working folder, create a new file called `test_4_6.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_4_6.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> Inside your main working folder, create a new file called `test_9_2.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_9_2.py` for editing and add the following code:  
 
 ```python
-# test_4_6.py
+# test_9_2.py
 from math import pi
 
 from core.app import WindowApp
@@ -686,10 +686,10 @@ from core.renderer import Renderer
 from core.scene_graph import Scene, Camera
 from extras.helpers import AxesHelper, GridHelper
 
-class Test_4_6(WindowApp):
+class Test_9_2(WindowApp):
     """Test rendering a grid and axes with helper classes."""
     def startup(self):
-        print("Starting up Test 4-6...")
+        print("Starting up Test 9-2...")
 
         # initialize renderer, scene, and camera
         self.renderer = Renderer()
@@ -712,10 +712,10 @@ class Test_4_6(WindowApp):
         self.renderer.render(self.scene, self.camera)
 
 # initialize and run this test
-Test_4_6(screen_size=(800,600)).run()
+Test_9_2(screen_size=(800,600)).run()
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_4_6.py` in the terminal.  
+<input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_9_2.py` in the terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a white and yellow grid stretching out in front of the camera with red, green, and blue axes in the center.  
 
 If all goes well, the application should show the following scene:
@@ -802,8 +802,8 @@ The `CameraRig` class uses an instance of `Input` from `core.app` to handle keyb
 
 Finally, let's make our last test application to try out the camera rig. 
 
-<input type="checkbox" class="checkbox inline"> Inside your main working folder, create a copy of the file called `test_4_6.py` and change its name to `test_4_7.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_4_7.py` for editing and add the following import statement just before the class definition:
+<input type="checkbox" class="checkbox inline"> Inside your main working folder, create a copy of the file called `test_9_2.py` and change its name to `test_9_3.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_9_3.py` for editing and add the following import statement just before the class definition:
 
 ```python
 from extras.camera_rig import CameraRig
@@ -832,7 +832,7 @@ from extras.camera_rig import CameraRig
         self.rig.update(self.input, self.delta_time)
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_4_7.py` in the terminal.  
+<input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_9_3.py` in the terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can move the camera in all directions in addition to panning it up and down.  
 
 :congratulations: **Congratulations!** :tada:  

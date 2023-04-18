@@ -4,7 +4,7 @@ theme: default
 paginate: true
 
 # Jekyll
-title: "Animation and Interactivity"
+title: "4_Animation and Interactivity"
 date: 2023-04-26
 categories:
   - Notes
@@ -151,21 +151,21 @@ This one is even simpler. Before drawing each triangle, we just upload its color
 In order to use the `translation` and `baseColor` uniform variables, our test application will create an instance of the `Uniform` class for each value we want to upload and store a reference to the respective variable. Then it will upload the data in the respective `Uniform` objects before drawing each triangle in the `update` method.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_2_6.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_2_6.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_4_1.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_4_1.py` for editing and add the following code:  
 
 ```python
-# test_2_6.py
+# test_4_1.py
 import OpenGL.GL as GL
 
 from core.app import WindowApp
 from core.openGL import Attribute, Uniform
 from core.openGLUtils import OpenGLUtils
 
-class Test_2_6(WindowApp):
+class Test_4_1(WindowApp):
     """Test Uniform by drawing the same triangles with different positions and colors."""
     def startup(self):
-        print("Starting up Test 2-6...")
+        print("Starting up Test 4-1...")
 
         # vertex shader code with a uniform variable
         vs_code = """
@@ -229,10 +229,10 @@ class Test_2_6(WindowApp):
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
 
 # instantiate and run this test
-Test_2_6().run()
+Test_4_1().run()
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_2_6.py` command in your terminal.  
+<input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_4_1.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a red triangle on the left side of the screen and a blue triangle on the right side.  
 
 In this application we create a new `Uniform` object and saves it to the application instance `self` for each value that we will want to use with a uniform variable. Then we can just reference the `Uniform` object and use its `upload_data` method when we want to apply its associated value in our `update` method. Note that the data MUST be uploaded BEFORE calling `glDrawArrays` or the shader program won't have access to it.
@@ -249,25 +249,25 @@ One of the fundamental techniques in computer animation is the process of cleari
 
 Our next test application will create an animation of a single triangle moving to the right across the screen. When it moves off screen completely, it will reposition itself on the left side of the screen and continue moving to the right. This is called a *wrap-around effect*.
 
-The source code is very similary to `test_2_6.py`, except this time we only use the red triangle and completely rewrite the `update` method. In the `update` method, we will increment the `translation` data representing the triangle's $x$-coordinates and clear the color buffer before redrawing the triangle.
+The source code is very similary to `test_4_1.py`, except this time we only use the red triangle and completely rewrite the `update` method. In the `update` method, we will increment the `translation` data representing the triangle's $x$-coordinates and clear the color buffer before redrawing the triangle.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_2_7.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_2_7.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_4_2.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_4_2.py` for editing and add the following code:  
 
 ```python
-# test_2_7.py
+# test_4_2.py
 import OpenGL.GL as GL
 
 from core.app import WindowApp
 from core.openGL import Attribute, Uniform
 from core.openGLUtils import OpenGLUtils
 
-class Test_2_7(WindowApp):
+class Test_4_2(WindowApp):
     """Test animations with uniform variables by moving a triangle across the screen."""
 
     def startup(self):
-        print("Starting up Test 2-7...")
+        print("Starting up Test 4-2...")
 
         # vertex shader code
         vs_code = """
@@ -332,10 +332,10 @@ class Test_2_7(WindowApp):
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
 
 # instantiate and run this test
-Test_2_7().run()
+Test_4_2().run()
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_2_7.py` command in your terminal.  
+<input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_4_2.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a red triangle moving to the right of the screen and then wrapping around to the left side.  
 
 This application only has one `Uniform` object for the `translation` variable and one for the `baseColor` variable. Here we use a list for each `Uniform` object's data because Python tuples are *immutable* (cannot be changed). If we used a tuple instead, we would not be able to change the data values (and would not be able to animate).
@@ -405,17 +405,17 @@ y &= r \cdot sin(t) + b
 If the triangle's path has a radius of $1.0$, then it partially disappear off the screen at the edges. So let's make the radius a little smaller with a value of $0.75$ instead.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Copy your `test_2_7.py` file and change its name to `test_2_8.py`.  
-<input type="checkbox" class="checkbox inline"> Inside `test_2_8.py` find the lines with the class definition, document string, and print statement then change them to the following:
+<input type="checkbox" class="checkbox inline"> Copy your `test_4_2.py` file and change its name to `test_4_3.py`.  
+<input type="checkbox" class="checkbox inline"> Inside `test_4_3.py` find the lines with the class definition, document string, and print statement then change them to the following:
 
 ```python
-class Test_2_8(WindowApp):
+class Test_4_3(WindowApp):
     """Test using timekeeper variables to animate a triangle moving in a circle."""
     def startup(self):
-        print("Starting up Test 2-8...")
+        print("Starting up Test 4-3...")
 ```
 
-<input type="checkbox" class="checkbox inline"> On the last line of the file, change the code that runs the application to `Test_2_8().run()`.  
+<input type="checkbox" class="checkbox inline"> On the last line of the file, change the code that runs the application to `Test_4_3().run()`.  
 <input type="checkbox" class="checkbox inline"> At the top of the file, add an `import` statement to get functions for sine and cosine:  
 
 ```python
@@ -430,27 +430,27 @@ from math import sin, cos
         self.translation.data[1] = 0.75 * cos(self.time)
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_2_8.py` command in your terminal.  
+<input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_4_3.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a red triangle moving in a circle around the center of the screen.  
 
 This application takes `self.time` as the number of radians in the sine and cosine calculations, so the triangle will complete one full revolution every $2 \pi$ (about 6.28) seconds.
 
-The last test application for animations will use our timekeeper variables to animate changing color. We will copy `test_2_8.py` and use the sine and cosine functions again, but this time we will change the red value of the `baseColor` variable instead of `translation`.
+The last test application for animations will use our timekeeper variables to animate changing color. We will copy `test_4_3.py` and use the sine and cosine functions again, but this time we will change the red value of the `baseColor` variable instead of `translation`.
 
 Color values must be in the range of $[0.0,1.0]$ but sine results are in the range $[-1.0,1.0]$, so we need to change our equation again. We can do this by shifting the results out of the negative values with $sin(t) + 1$ so the range becomes $[0.0,2.0]$. Then we just shorten the range of values by half to create the final equation $f(t) = 0.5(sin(t)+1)$.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Copy your `test_2_8.py` file and change its name to `test_2_9.py`.  
-<input type="checkbox" class="checkbox inline"> Inside `test_2_9.py` find the lines with the class definition, document string, and print statement then change them to the following:
+<input type="checkbox" class="checkbox inline"> Copy your `test_4_3.py` file and change its name to `test_4_4.py`.  
+<input type="checkbox" class="checkbox inline"> Inside `test_4_4.py` find the lines with the class definition, document string, and print statement then change them to the following:
 
 ```python
-class Test_2_9(WindowApp):
+class Test_4_4(WindowApp):
     """Test using timekeeper variables to animate shifting colors."""
     def startup(self):
-        print("Starting up Test 2-9...")
+        print("Starting up Test 4-4...")
 ```
 
-<input type="checkbox" class="checkbox inline"> On the last line of the file, change the code that runs the application to `Test_2_9().run()`.  
+<input type="checkbox" class="checkbox inline"> On the last line of the file, change the code that runs the application to `Test_4_4().run()`.  
 <input type="checkbox" class="checkbox inline"> Inside the `update` method, delete the code before `glClear(GL_COLOR_BUFFER_BIT)` and add the following code:  
 
 ```python
@@ -458,7 +458,7 @@ class Test_2_9(WindowApp):
         self.base_color.data[0] = 0.5 * (sin(self.time) + 1)
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_2_9.py` command in your terminal.  
+<input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_4_4.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see the triangle fading from red to black and back again.  
 
 The green and blue values of the triangle color are stored in `self.base_color.data[1]` and `self.base_color.data[2]`, respectively. If we wanted to shift through a wider range of colors, we would need to update those values also. But the equations for the green and blue values would need to be different so they peak at different times. In order to visualize this, it may be helpful to see a graph. Desmos.com has a very useful graphing tool and I have prepared one to show oscillating RGB values [here](https://www.desmos.com/calculator/uymwhpwc7x){:target="_blank"}. Try playing with the expressions to see what different effects you can create!
@@ -569,17 +569,17 @@ This will assign the Boolean value of the given `value` to `_quit`. This way we 
 
 Now let's test our new `Input` features with a small program that outputs messages to the console about key states.
 
-<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_2_10.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_2_10.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_4_5.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_4_5.py` for editing and add the following code:  
 
 ```python
-# test_2_10.py
+# test_4_5.py
 from core.app import WindowApp
 
-class Test_2_10(WindowApp):
+class Test_4_5(WindowApp):
     """Test key functionality of the Input class."""
     def startup(self):
-        print("Starting up Test 2-10...")
+        print("Starting up Test 4-5...")
 
     def update(self):
         if len(self.input.key_down_list) > 0:
@@ -601,27 +601,27 @@ class Test_2_10(WindowApp):
             self.input.quit = True
 
 # initiate and run this test
-Test_2_10().run()
+Test_4_5().run()
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_2_10.py` in the terminal.  
+<input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_4_5.py` in the terminal.  
 <input type="checkbox" class="checkbox inline"> Try pressing different keys, including **Space** and **Esc**, to see the different event behaviors.  
 
 ## Incorporating with Graphics Programs
 
-Now that we have an  `Input` class with working keyboard features, let's use them to control the movements of a triangle on the screen. We will begin with our first test application for animation `test_2_7.py` and change its `update` method to control the triangle's movement with keyboard input.
+Now that we have an  `Input` class with working keyboard features, let's use them to control the movements of a triangle on the screen. We will begin with our first test application for animation `test_4_2.py` and change its `update` method to control the triangle's movement with keyboard input.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Copy your `test_2_7.py` file and change its name to `test_2_11.py`.  
-<input type="checkbox" class="checkbox inline"> Inside `test_2_11.py` find the lines with the class definition, document string, and print statement then change them to the following:
+<input type="checkbox" class="checkbox inline"> Copy your `test_4_2.py` file and change its name to `test_4_6.py`.  
+<input type="checkbox" class="checkbox inline"> Inside `test_4_6.py` find the lines with the class definition, document string, and print statement then change them to the following:
 
 ```python
-class Test_2_11(WindowApp):
+class Test_4_6(WindowApp):
     """Test interactivity features by using the arrow keys to move a triangle."""
     def startup(self):
-        print("Starting up Test 2-11...")
+        print("Starting up Test 4-6...")
 ```
-
+<input type="checkbox" class="checkbox inline"> On the last line of the file, change the code that runs the application to `Test_4_6().run()`.  
 <input type="checkbox" class="checkbox inline"> At the end of the `startup` method, add an instance variable for the triangle's speed.  
 
 ```python
@@ -629,7 +629,7 @@ class Test_2_11(WindowApp):
         self.speed = 0.5
 ```
 
-The speed is defined in the same units as the triangle and screen coordinates, so it should take 4 seconds to move from one edge of the screen ($-1.0$) to the opposite edge ($1.0$).
+The speed is defined in the same units as the triangle and screen coordinates, so it should take 4 seconds to move from one edge of the screen $(-1.0)$ to the opposite edge $(1.0)$.
 
 <input type="checkbox" class="checkbox inline"> Inside the `update` method, delete the code before `glClear(GL_COLOR_BUFFER_BIT)` and add the following code:  
 
@@ -650,7 +650,7 @@ The speed is defined in the same units as the triangle and screen coordinates, s
             self.translation.data[1] += distance
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_2_11.py` in the terminal.  
+<input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_4_6.py` in the terminal.  
 <input type="checkbox" class="checkbox inline"> Try each of the arrow keys and confirm that the triangle moves in the correct direction.  
 
-:warning: **NOTE:** Different operating systems might use different strings for they key events. For example, `"left"` might be `"left arrow"` instead. Just run your `test_2_10.py` application anytime you want to check which string is associated with which key.
+:warning: **NOTE:** Different operating systems might use different strings for they key events. For example, `"left"` might be `"left arrow"` instead. Just run your `test_4_5.py` application anytime you want to check which string is associated with which key.

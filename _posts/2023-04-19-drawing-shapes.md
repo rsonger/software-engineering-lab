@@ -4,7 +4,7 @@ theme: default
 paginate: true
 
 # Jekyll
-title: "Drawing Shapes"
+title: "3_Drawing Shapes"
 date: 2023-04-19
 categories:
   - Notes
@@ -129,21 +129,21 @@ Now we are ready to draw shapes on the screen with multiple vertices and lines. 
 Our first test application will use the `Attribute` class from above to draw lines between six points on the screen to create a hexagon. This time, the vertex shader program has a single variable `position` declared with the `in` qualifier so it will receive data from a vertex buffer. Instead of hardcoding the position data in the vertex buffer, we provide it through our own `position_data` variable and link that data with an instance of `Attribute`.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Make a new file in your main working folder called `test_2_3.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_2_3.py` and add the following test application source code.
+<input type="checkbox" class="checkbox inline"> Make a new file in your main working folder called `test_3_1.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_3_1.py` and add the following test application source code.
 
 ```python
-# test_2_3.py
+# test_3_1.py
 import OpenGL.GL as GL
 
 from core.app import WindowApp
 from core.openGLUtils import OpenGLUtils
 from core.openGL import Attribute
 
-class Test_2_3(WindowApp):
+class Test_3_1(WindowApp):
     """Test the Attribute class by drawing lines between 6 points in a hexagon."""
     def startup(self):
-        print("Starting up Test 2-3...")
+        print("Starting up Test 3-1...")
 
         # the vertex shader will receive buffer data for its position variable
         vs_code = """
@@ -191,9 +191,9 @@ class Test_2_3(WindowApp):
         GL.glDrawArrays(GL.GL_LINE_LOOP, 0, self.vertex_count)
 
 # instantiate and run this test
-Test_2_3().run()
+Test_3_1().run()
 ```
-<input type="checkbox" class="checkbox inline"> Run the application with the `python test_2_3.py` command in your terminal.  
+<input type="checkbox" class="checkbox inline"> Run the application with the `python test_3_1.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that a yellow hexagon outline appears on your screen.  
 
 Notice that we create an `Attribute` instance with our `position_data` and and then link it to the vertex shader's `position` variable with the `associate_variable` method.
@@ -217,26 +217,26 @@ It is also possible to combine draw modes with the same set of vertices by simpl
 
 ### A Multi-Buffer Test
 
-The `test_2_3.py` test application only uses a single buffer with a single set of vertices for a drawing a single shape. Drawing more than one shape will require more than one vertex buffer as demonstrated in the next test application which draws a triangle and a square at the same time. 
+The `test_3_1.py` test application only uses a single buffer with a single set of vertices for a drawing a single shape. Drawing more than one shape will require more than one vertex buffer as demonstrated in the next test application which draws a triangle and a square at the same time. 
 
 Even though the position data for the triangle and square will be stored in separate buffers, we will use the same vertex shader and fragment shader code to draw both shapes. We can do this because the rendering process for a triangle is essentially the same as the rendering process for a square. The only difference is the postion data. In order to use the same programs with the same `position` variable, we will make and store references to two different vertex arrays. Since VAOs store associations between buffers and variables, one VAO will associate the `position` variable to the triangle's position data while the other VAO will associate `position` with the square's position data. Then, in the `update` method, we use the stored VAO references to bind the associated VAO before calling `glDrawArrays`.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your main folder, create a new file called `test_2_4.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_2_4.py` and add the following code.  
+<input type="checkbox" class="checkbox inline"> In your main folder, create a new file called `test_3_2.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_3_2.py` and add the following code.  
 
 ```python
-# test_2_4.py
+# test_3_2.py
 import OpenGL.GL as GL
 
 from core.app import WindowApp
 from core.openGLUtils import OpenGLUtils
 from core.openGL import Attribute
 
-class Test_2_4(WindowApp):
+class Test_3_2(WindowApp):
     """Test multiple VAOs by rendering a square and a triangle together."""
     def startup(self):
-        print("Starting up Test 2-4...")
+        print("Starting up Test 3-2...")
 
         vs_code = """
         in vec3 position;
@@ -294,10 +294,10 @@ class Test_2_4(WindowApp):
         GL.glDrawArrays(GL.GL_LINE_LOOP, 0, self.vertex_count_square)
 
 # instantiate this test and run it
-Test_2_4().run()
+Test_3_2().run()
 ```
 
-<input type="checkbox" class="checkbox inline"> Run the application with the `python test_2_4.py` command in your terminal.  
+<input type="checkbox" class="checkbox inline"> Run the application with the `python test_3_2.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that a yellow triangle outline and a yellow square outline appear on your screen.  
 
 This time we let the `Attribute` class handle each VAO inside our `startup` method. Since we have a different VAO for the triangle and square, we pass each respective VAO reference to the `associate_variable` method so it can be properly bound before making the associations.
@@ -345,21 +345,21 @@ The color data from the vertex shader is received with the `in` variable by the 
 Now let's create one more test application to demonstrate color data passing through atttribute variables alongside position data.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your main folder, create a new file called `test_2_5.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_2_5.py` and add the following source code:
+<input type="checkbox" class="checkbox inline"> In your main folder, create a new file called `test_3_3.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_3_3.py` and add the following source code:
 
 ```python
-# test_2_5.py
+# test_3_3.py
 import OpenGL.GL as GL
 
 from core.app import WindowApp
 from core.openGLUtils import OpenGLUtils
 from core.openGL import Attribute
 
-class Test_2_5(WindowApp):
+class Test_3_3(WindowApp):
     """Test passing color data between shaders with a colorful hexagon."""
     def startup(self):
-        print("Starting up Test 2-5...")
+        print("Starting up Test 3-3...")
 
         vs_code = """
         in vec3 position;
@@ -420,13 +420,13 @@ class Test_2_5(WindowApp):
         GL.glDrawArrays(GL.GL_POINTS, 0, self.vertex_count)
 
 # instantiate and run this test
-Test_2_5().run()
+Test_3_3().run()
 ```
 
-<input type="checkbox" class="checkbox inline"> Run the application with the `python test_2_4.py` command in your terminal.  
+<input type="checkbox" class="checkbox inline"> Run the application with the `python test_3_3.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see six different colored dots on your screen.  
 
-In `test_2_4.py`, we used two different vertex arrays to bind different buffers to the same program variable. This time we have two different program variables associated with two different buffers, so we can use a single VAO to store all the associations.
+In `test_3_2.py`, we used two different vertex arrays to bind different buffers to the same program variable. This time we have two different program variables associated with two different buffers, so we can use a single VAO to store all the associations.
 
 Now what happens if we change the draw mode from `GL_POINTS` to something like `GL_LINE_LOOP` or `GL_TRIANGLE_FAN`? In that case, we can see OpenGL's **rasterization** process in action as it *interpolates* the color values in between each vertex. Here, interpolation is a mathematical calculation of the RGB components for each pixel based on how far it is from the original vertices. It weighs the values of each component differently and combines them to get each pixel's final color.
 

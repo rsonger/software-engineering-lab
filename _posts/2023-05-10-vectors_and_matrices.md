@@ -4,7 +4,7 @@ theme: default
 paginate: true
 
 # Jekyll
-title: "Vectors and Matrices"
+title: "5_Vectors and Matrices"
 date: 2023-05-10
 categories:
   - Notes

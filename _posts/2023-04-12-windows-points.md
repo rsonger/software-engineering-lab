@@ -4,7 +4,7 @@ theme: default
 paginate: true
 
 # Jekyll
-title: "Windows and Points"
+title: "2_Windows and Points"
 date: 2023-04-12
 categories:
   - Notes
@@ -247,11 +247,11 @@ With OpenGL, we render images on screen by running a program on the graphics pro
 
 ## The OpenGL Shading Language (GLSL)
 
-**GLSL** is a programming language with similarities to both C and Python. Like C, we must declare data types for every variable, such as `bool`, `int`, and `float`. In addition to these basic data types, GLSL also has vector data types to store two, three, or four float values in a single variable. These vector types are `vec2`, `vec3`, and `vec4`, respectively. Vectors are useful for storing data related to colors ($r$,$g$, $b$) and coordinates ($x$, $y$, $z$). GLSL also has matrix data types which provide the data structure required for many important CG computations, such as transformations.
-
-Similar to Python, GLSL has all the basic control structures of `if` statements, loops, and functions with parameters. However, it uses arrays instead of lists and also provides structs for users to define their own data types.
+**GLSL** is a programming language with similarities to both C and Python. Like C, we must declare data types for every variable, such as `bool`, `int`, and `float`. In addition to these basic data types, GLSL also has vector data types to store two, three, or four float values in a single variable. These vector types are `vec2`, `vec3`, and `vec4`, respectively. Vectors are useful for storing data related to colors ($r$, $g$, $b$) and coordinates ($x$, $y$, $z$). GLSL also has matrix data types which provide the data structure required for many important CG computations, such as transformations.
 
 We can access values in a vector using either an index or dot notation. For example, with a `vec4` named `v`, each value can be indicated by its index in the array (`v[0]`, `v[1]`, `v[2]`, `v[3]`) or with dot notation: (`v.x`, `v.y`, `v.z`, `v.w`) or (`v.r`, `v.g`, `v.b`, `v.a`) or (`v.s`, `v.t`, `v.p`, `v.q`). As a programmer, you can freely decide how you want to access each value. Just remember that dot notation methods are semantically associated with position coordinates $(x, y, z, w)$, colors $(r, g, b, a)$, and texture coordinates $(s, t, p, q)$.
+
+Similar to Python, GLSL has all the basic control structures of `if` statements, loops, and functions with parameters. However, it uses arrays instead of lists and also provides structs for users to define their own data types.
 
 Each program written in GLSL must have a `main` function to run, similar to C language. We always declare functions with a return type, which is `void` for the `main` function. An example of a simple GLSL program is the **vertex shader** for our first application. This program creates a single point on screen and saves its position to a global variable called [`gl_Position`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/gl_Position.xhtml){:target="_blank"}. This variable is defined by the OpenGL library and must be assigned a value in the vertex shader.
 
