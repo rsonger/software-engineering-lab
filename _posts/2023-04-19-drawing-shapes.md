@@ -208,7 +208,7 @@ When we want to fill in the area between lines, we can use one of the triangle d
 
 ![OpenGL primitives for triangle drawing modes](/software-engineering-lab/assets/images/triangle-primitives.png)
 
-It is also possible to combine draw modes with the same set of vertices by simply calling `glDrawArrays` multiple times. For example, if the `update` method had the next two lines of code, it would draw the lines of the hexagon and each of the points as well. Although if you do this, the points will be lost inside the lines. You can increase the size of the points by calling [`glPointSize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} inside your `startup` method.
+It is also possible to combine draw modes with the same set of vertices by simply calling `glDrawArrays` multiple times. For example, if the `update` method has the next two lines of code, it will draw the lines first and then each of the points as well. (Although if you do this, the points will be lost inside the lines. You can increase the size of the points by calling [`glPointSize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} inside your `startup` method.)
 
 ```python
         GL.glDrawArrays(GL_LINE_LOOP, 0, self.vertexCount)
@@ -217,9 +217,9 @@ It is also possible to combine draw modes with the same set of vertices by simpl
 
 ### A Multi-Buffer Test
 
-The `test_3_1.py` test application only uses a single buffer with a single set of vertices for a drawing a single shape. Drawing more than one shape will require more than one vertex buffer as demonstrated in the next test application which draws a triangle and a square at the same time. 
+The `test_3_1.py` test application only uses a single buffer with a single set of vertices for drawing a single shape. Drawing more than one shape will require more than one vertex buffer. The next test application demonstrates this by drawing a triangle and a square at the same time. 
 
-Even though the position data for the triangle and square will be stored in separate buffers, we will use the same vertex shader and fragment shader code to draw both shapes. We can do this because the rendering process for a triangle is essentially the same as the rendering process for a square. The only difference is the postion data. In order to use the same programs with the same `position` variable, we will make and store references to two different vertex arrays. Since VAOs store associations between buffers and variables, one VAO will associate the `position` variable to the triangle's position data while the other VAO will associate `position` with the square's position data. Then, in the `update` method, we use the stored VAO references to bind the associated VAO before calling `glDrawArrays`.
+Even though the position data for the triangle and square will be stored in separate buffers, we will use the same vertex shader and fragment shader code to draw both shapes. We can do this because the rendering process for a triangle is essentially the same as the rendering process for a square. The only difference is the position data. In order to use the same programs with the same `position` variable, we will make and store references to two different vertex arrays. Since VAOs store associations between buffers and variables, one VAO will associate the `position` variable to the triangle's position data while the other VAO will associate `position` with the square's position data. Then, in the `update` method, we use the stored VAO references to bind the associated VAO before calling `glDrawArrays`.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new file called `test_3_2.py`.  
@@ -308,7 +308,7 @@ We can also use vertex buffers to hold color data in addition to position data. 
 
 Remember, in the [OpenGL Shading Language (GLSL)](/software-engineering-lab/notes/windows-points/#the-opengl-shading-language-glsl), variables have *type qualifiers*. In the vertex shader, `in` means the variable data comes from a vertex buffer and `out` means the data will go to the fragment shader. In the fragment shader, `in` means the data comes from the vertex shader and `out` means the data will be stored in another memory buffer.
 
-In order to send color data from our application to be rendered by the fragment shader, we need to send it through a variable in the vertex shader. So the vertex shader will declare a `vertexColor` variable with `in` and a `color` variable with `out`. Then, the fragment shader must also declare a variable with `in` using the exact same name and type as the `out` variable from the vertex shader.
+In order to send color data from our application to be rendered by the fragment shader, we need to send it through a variable in the vertex shader. So the vertex shader will declare an `in vertexColor` variable and an `out color` variable. Then, the fragment shader must also declare an `in` variable with the exact same name and type as the `out` variable from the vertex shader.
 
 ![Data flow between shaders and buffers](/software-engineering-lab/assets/images/buffer-shader-dataflow.png)
 
@@ -441,4 +441,4 @@ C_P &=0.5 \cdot C_1+0.5 \cdot C_2 \\
 
 The result of filling a shape with triangle draw modes will interpolate the colors between vertices, effectively creating a gradient effect. Now if we want all the points and the shape to be filled with the same color, we just need to change all the vertices of our `color_data` variable to store the same values. 
 
-Next time, we create a new class that makes it easy to create solid color shapes. This same class will also allow us to create animations and interactivity easily as well. Look forward to it!
+Next time, we will create a new class that we can use to easily create solid color shapes. The same class will also allow us to create animations and interactivity easily as well. Look forward to it!
