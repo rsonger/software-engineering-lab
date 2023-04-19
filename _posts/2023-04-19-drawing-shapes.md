@@ -12,22 +12,22 @@ classes: wide
 toc_sticky: false
 ---
 
-*In this post, we add a class to our framework which makes use of vertex buffers and then shows how to use the class to draw shapes with multiple vertices.*
+*In this lesson, we add a class to our framework which makes use of vertex buffers and then shows how to use the class to draw shapes with multiple vertices.*
 
-Our [last application](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) drew a single point using a single vertex. Every vertex shader from this point on will use multiple vertices stored in an array of data called **vertex buffers**. Then we can draw more complicated shapes like triangles (3 vertices), squares (4 vertices), and hexagons (6 vertices).
+Our [last application](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) drew a single point using a single vertex. Every vertex shader we make from now on will use multiple vertices stored in memory called **vertex buffers**. Then we can draw more complicated shapes like triangles (3 vertices), squares (4 vertices), and hexagons (6 vertices).
 
 ## Using Vertex Buffers
 
-Recall from [`test_2_2.py`](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) that the **application stage** of the graphics pipeline creates **vertex buffer objects** (VBOs) in memory, stores data in those buffers, and associates vertex buffers with shader variables. These associations are then stored in a bound **vertex array object** (VAO). We bound a single VAO in `test_2_2.py` but did not have any buffers for it. This time we will prepare an `Attribute` class which binds vertex buffers, uploads data to them, and links them to shader variables.
+Recall from [`test_2_2.py`](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) that the **application stage** of the graphics pipeline creates **vertex buffer objects** (VBOs) in memory, stores data in those buffers, and associates vertex buffers with shader variables. These associations are then stored in a bound **vertex array object** (VAO). We bound a single VAO in `test_2_2.py` but did not have any buffers for it. This time we will prepare an `Attribute` class which binds vertex buffers, uploads data to them, and links them to shader variables so the shader can access the data.
 
 Here is an outline of the class and the OpenGL functions it will use:
 
 - First, we use [`glGenBuffers`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGenBuffers.xhtml){:target="_blank"} to get a reference to an available buffer for the attribute.
-- Then we need to bind the buffer by passing its reference to [`glBindBuffer`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml){:target="_blank"}.We also indicate that the the buffer is a vertex buffer by including the `GL_ARRAY_BUFFER` argument.
+- Then we need to bind the buffer by passing its reference to [`glBindBuffer`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml){:target="_blank"}. We also indicate that the the buffer is a vertex buffer by including the `GL_ARRAY_BUFFER` argument.
 - Next, we upload the attribute's data to the buffer with [`glBufferData`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferData.xhtml){:target="_blank"}. This function takes a binding target as a parameter, so passing `GL_ARRAY_BUFFER` will tell it to use the currently bound vertex buffer.
 - Once the vertex buffer contains data and the GPU program is compiled, we need to get a reference to the attribute's variable in the GPU program so we can associate it with the data. We do this with the [`glGetAttribLocation`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetAttribLocation.xhtml){:target="_blank"} function, giving it a reference to the program and the name of the variable. (The variable will be declared with the `in` qualifier inside the vertex shader program.)
 - Then we can associate the variable to the bound buffer with [`glVertexAttribPointer`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml){:target="_blank"}. This function needs the variable reference, the data type, and the number of components in the data. Basic data types like `int` and `float` have just 1 component, but vectors will have 2, 3, or 4 components.
-- Finally, we enable the data to be read through this association by calling the [`glEnableVertexAttribArray`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml){:target="_blank"} function and giving it the reference to the variable.
+- Finally, we enable using the association to read the data by calling the [`glEnableVertexAttribArray`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml){:target="_blank"} function and giving it the reference to the variable.
 
 ## The Attribute Class
 
@@ -69,7 +69,7 @@ When we create a new vertex attribute, we give it data to store in a vertex buff
         GL.glBufferData(GL.GL_ARRAY_BUFFER, data.ravel(), GL.GL_STATIC_DRAW)
 ```
 
-By putting this code in a separate `upload_data` method, we can easily update the data multiple times without needing to create a new attribute, which is useful for animations and interactive applications. Before uploading the data, we need to make sure it is in the right format: a one-dimensional array of 32-bit floating point numbers. The `numpy` library is very useful here with its array implementation and `ravel` function.
+By putting this code in a separate `upload_data` method, we can easily update the data multiple times without needing to create a new attribute. That will become useful when creating animations and interactive applications. Before uploading the data, we need to make sure it is in the right format: a one-dimensional array of 32-bit floating point numbers. The `numpy` library is very useful here with its array implementation and `ravel` function.
 
 <input type="checkbox" class="checkbox inline"> After the `upload_data` method, insert the `associate_variable` method below.
 
@@ -126,7 +126,7 @@ Before calling `glVertexAttribPointer` we need to bind both a vertex buffer obje
 Now we are ready to draw shapes on the screen with multiple vertices and lines. By default, OpenGL draws lines with only 1 pixel width, which can be hard to see on high resolution displays. On **Windows**, we can use a function called `glLineWidth` to set the thickness of the lines drawn by OpenGL in pixels. (`glLineWidth` is deprecated in newer versions of OpenGL, and so **MacOS** forces an error when this function is used.)
 
 ### A Single Buffer Test
-Our first test application will use the `Attribute` class from above to draw lines between six points on the screen to create a hexagon. This time, the vertex shader program has a single variable `position` declared with the `in` qualifier so it will receive data from a vertex buffer. Instead of hardcoding the position data in the vertex buffer, we provide it through our own `position_data` variable and link that data with an instance of `Attribute`.
+Our first test application will use the `Attribute` class from above to draw lines between six points on the screen and create a hexagon. This time, the vertex shader program has a single variable `position` declared with the `in` qualifier so it will receive data from a vertex buffer. Instead of hardcoding the position data in the vertex buffer, we provide it through our own `position_data` variable and link that data with an instance of `Attribute`.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Make a new file in your main working folder called `test_3_1.py`.  
