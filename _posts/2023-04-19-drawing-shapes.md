@@ -12,7 +12,7 @@ classes: wide
 toc_sticky: false
 ---
 
-*In this lesson, we add a class to our framework which makes use of vertex buffers and then shows how to use the class to draw shapes with multiple vertices.*
+*In this lesson, we add a class to our framework which makes use of vertex buffers and then shows how to use the class to draw shapes with multiple vertices and colors.*
 
 Our [last application](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) drew a single point using a single vertex. Every vertex shader we make from now on will use multiple vertices stored in memory called **vertex buffers**. Then we can draw more complicated shapes like triangles (3 vertices), squares (4 vertices), and hexagons (6 vertices).
 
@@ -268,7 +268,7 @@ class Test_3_2(WindowApp):
         )
 
         # get a reference to a vertex array object for the square
-        vao_square = GL.glGenVertexArrays(1)
+        self.vao_square = GL.glGenVertexArrays(1)
         pos_data_square = (
             (0.8, 0.8, 0.0),
             (0.8, 0.2, 0.0),

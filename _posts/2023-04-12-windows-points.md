@@ -12,7 +12,7 @@ classes: wide
 toc_sticky: false
 ---
 
-*This post introduces the basic framework components for creating an application window and rendering a point on the screen.*
+*This lesson introduces the basic framework components for creating an application window and rendering a point on the screen.*
 
 The graphics pipeline model we will follow has the following four stages:
 1. The **Application** stage is where we create a window to display the rendered graphics and then send data to the GPU.

@@ -12,22 +12,23 @@ classes: wide
 toc_sticky: false
 ---
 
-*[Working with Uniform Data](#working-with-uniform-data) introduces uniform variables that can be accessed by both the vertex shader and the fragment shader, then uses them to animate a triangle moving across the screen.*  
-*[Adding Interactivity](#adding-interactivity) extends the `Input` class to handle various keyboard events and then uses the new features to give the user control of a triangle's movements.*
+*In this lesson, we introduce uniform data for creating animations and keyboard events for greater interaction with the application.*
+
+In the section [Working with Uniform Data](#working-with-uniform-data), we introduce uniform variables that can be accessed by both the vertex shader and the fragment shader, then use them to animate a triangle moving across the screen. Then in the section [Adding Interactivity](#adding-interactivity), we extend the `Input` class to handle various keyboard events and give the user control of the triangle's movements.  
 
 With vertex array objects, we can associate position and color data to GPU program variables. However, the structure of VAOs means that we cannot share the same data between vertices. Instead, we need to repeat data when we want different vertices to be the same color, for example. This is not ideal. Repeating data multiple times in our source code lowers the **maintainability** and **extensibility** of our software. To change the color of a solid-color hexagon, we would need to change the data for six different vertices.
 
-There must be an easier way! Actually, there is. In situations like this we can use global variables called *uniform variables* that store values in a way that makes them uniformly accessible. That means both shaders use them for every vertex in the array.
+There must be an easier way! Actually, there is. In situations like this we can use a special kind of global variable called a *uniform variable* because it stores values in a uniformly accessible way. That means both shaders can use them for every vertex in the array.
 
 # Working with Uniform Data
 
-Uniform variables are useful when we want to send data directly from our application to variables in the GPU program. They do not store data in vertex buffers, and we do not need VAOs to manage their associations. Instead, we just get a reference to the uniform variable inside the GPU program with [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} and then assign a value to it with one of the many [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions. The `glUniform` function we use will depend on the data type with the number in the function name being the number of values and the letter (either `f` or `i`) being `float` or `int`. For example, sending a single integer (or Boolean value) would require `glUniform1i` but sending a `vec3` would require `glUniform3f`. Then the shader programs will reference that data for every draw.
+Uniform variables are useful when we want to send data directly from our application to variables in the GPU program. They do not store data in vertex buffers, and we do not need VAOs to manage their associations. Instead, we just use [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} to get a reference to the uniform variable inside the GPU program and then assign a value to it with one of the many [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions. The `glUniform` function we use will depend on the data type and number of values as indicated in the function name. For example, sending a single integer (or Boolean value) would use `glUniform1i` (here `i` means `int`) but sending a `vec3` would require `glUniform3f` (and `f` means `float`). Then the shader programs will reference that data for every draw.
 
 ## The Uniform Class
 
 Similar to how we made the `Attribute` class for attribute variables in the previous post, now we will create a class that handles uniform variables called the `Uniform` class. The responsibilities of this class are to:
 - store the data and data type of the uniform variable in the GPU program;
-- get and store a reference to the uniform variable that will load the data;
+- get and store a reference to the uniform variable in the GPU program that will load the data;
 - and load the data into the uniform variable as needed.
 
 :heavy_check_mark: ***Try it!***  
@@ -47,11 +48,11 @@ class Uniform:
         # data to be sent to uniform variable
         self.data = data
 
-        # reference for variable location in program
+        # reference for variable location in shader
         self.variable_ref = None
 ```
 
-The `Uniform` class introduces some strict type checking that we didn't have in `Attribute`. It defines the valid data types with a tuple and raises an exception if the given data type is not one of them. This will make it easier to debug your code if you have a typo in your application code or try to use a type that we do not handle in our `upload_data` method later.
+The `Uniform` class introduces some strict type checking that we didn't have in `Attribute`. It defines the valid data types with a tuple and raises an exception if the given data type is not one of them. This will make it easier to debug your code if you have a typo in your application code or try to use a type that we do not handle in our `upload_data` method later. (Adding this same check to the `Attribute` class would surely improve the integrity of our framework, so give it a try if you like!)
 
 <input type="checkbox" class="checkbox inline"> Now add the `locate_variable` method to the `Uniform` class.  
 
@@ -72,7 +73,7 @@ Here we use the [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL
         """Store data in a previously located uniform variable."""
         if self.variable_ref == None:
             # the variable has not been located in a program
-            raise Exception("Unable to upload data. Must locate uniform variable first.")
+            raise Exception("No uniform variable reference. Set with locate_variable() before uploading data.")
 
         if self.data_type == "int":
             GL.glUniform1i(
@@ -133,7 +134,7 @@ void main() {
 ```
 There are a couple of things to notice here. First, the `translation` variable has the `uniform` qualifier which defines it as a uniform variable. We will use our `Uniform` class to upload data to `translation` in the test application.
 
-Second, `gl_Position` (which defines the location of each vertex) is the combination of `position` and `translation`. The `position` variable will reference three vertices centered around the origin that together represent the triangle's shape. The `translation` variable will receive values representing the change in position for each triangle. Combining `position` and `translation` will effectively move the center of the triangle before drawing it. The left triangle will move $-0.5$ units and the right triangle will move $0.5$ units along the $x$-axis.
+Second, `gl_Position` (which defines the location of each vertex) is the combination of `position` and `translation`. The `position` variable will reference three vertices centered around the origin that together represent the triangle's shape. The `translation` variable associates with values representing the change in position for each triangle. Combining `position` and `translation` will effectively move the center of the triangle before drawing it. We will use this to make the left triangle move $-0.5$ units and the right triangle move $0.5$ units along the $x$-axis.
 
 The new fragment shader program will look like this:
 
@@ -146,7 +147,7 @@ void main() {
 }
 ```
 
-This one is even simpler. Before drawing each triangle, we just upload its color to the `baseColor` uniform variable. The left triangle will be red and the right triangle will be blue.
+This one is even simpler. Before drawing each triangle, we just upload its color to the `baseColor` uniform variable. We will make the left triangle red and the right triangle blue.
 
 In order to use the `translation` and `baseColor` uniform variables, our test application will create an instance of the `Uniform` class for each value we want to upload and store a reference to the respective variable. Then it will upload the data in the respective `Uniform` objects before drawing each triangle in the `update` method.
 
