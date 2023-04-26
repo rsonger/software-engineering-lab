@@ -298,7 +298,9 @@ Test_3_2().run()
 ```
 
 <input type="checkbox" class="checkbox inline"> Run the application with the `python test_3_2.py` command in your terminal.  
-<input type="checkbox" class="checkbox inline"> Confirm that a yellow triangle outline and a yellow square outline appear on your screen.  
+<input type="checkbox" class="checkbox inline"> Confirm that a yellow triangle outline and a yellow square outline appear on your screen like in the screenshot below. (**NOTE**: On MacOS, the background may be red instead of black.)
+
+![Yellow outlines of a triangle and a square on a black background](/software-engineering-lab/assets/images/shape_outlines.png)
 
 This time we let the `Attribute` class handle each VAO inside our `startup` method. Since we have a different VAO for the triangle and square, we pass each respective VAO reference to the `associate_variable` method so it can be properly bound before making the associations.
 
