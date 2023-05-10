@@ -22,7 +22,7 @@ There must be an easier way! Actually, there is. In situations like this we can 
 
 # Working with Uniform Data
 
-Uniform variables are useful when we want to send data directly from our application to variables in the GPU program. They do not store data in vertex buffers, and we do not need VAOs to manage their associations. Instead, we just use [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} to get a reference to the uniform variable inside the GPU program and then assign a value to it with one of the many [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions. The `glUniform` function we use will depend on the data type and number of values as indicated in the function name. For example, sending a single integer (or Boolean value) would use `glUniform1i` (here `i` means `int`) but sending a `vec3` would require `glUniform3f` (and `f` means `float`). Then the shader programs will reference that data for every draw.
+Uniform variables are useful when we want to send data directly from our application to variables in the GPU program. They do not store data in vertex buffers, and we do not need VAOs to manage their associations. Instead, we just use [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} to get a reference to the uniform variable inside the GPU program and then assign a value to it with one of the many [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions. The `glUniform` function we use will depend on the data type and number of values as indicated in the function name. For example, sending a single integer (or Boolean value) would use `glUniform1i` (here `i` means `int`) but sending a `vec3` would require `glUniform3f` (and `f` means `float`). Then the shader programs will reference that data every time it draws a frame.
 
 ## The Uniform Class
 
@@ -236,15 +236,15 @@ Test_4_1().run()
 <input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_4_1.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a red triangle on the left side of the screen and a blue triangle on the right side.  
 
-In this application we create a new `Uniform` object and saves it to the application instance `self` for each value that we will want to use with a uniform variable. Then we can just reference the `Uniform` object and use its `upload_data` method when we want to apply its associated value in our `update` method. Note that the data MUST be uploaded BEFORE calling `glDrawArrays` or the shader program won't have access to it.
+In this application we create a new `Uniform` object and save it to the application instance `self` for each value that we will want to use with a uniform variable. Then we can just reference the `Uniform` object and use its `upload_data` method when we want to apply its associated value in our `update` method. Note that the data MUST be uploaded BEFORE calling `glDrawArrays` or the shader program won't have access to it.
 
 ## Animations
 
-Until now, all of our test applications have used the `update` method to draw still images, which it does 60 times a second. Remember that in the application runtime lifecycle, the `update` method runs in a continuous loop that updates data and renders the image at 60 FPS (see the `run` method in the `WindowApp` class). With static images, we get no real benefit from structuring our application in that way. The benefit comes when the images change in some way over time, which we will now learn how to do by creating animations.
+Until now, all of our test applications have used the `update` method to draw still images, which it does 60 times a second. Remember that in the application runtime lifecycle, the `update` method runs in a continuous loop that updates data and renders the image at 60 FPS (see the `run` method in the `WindowApp` class). With static images, we get no real benefit from structuring our application in this way. The benefit comes when the images change in some way over time, which we will now learn how to do by creating animations.
 
 ### Clearing the Screen
 
-One of the fundamental techniques in computer animation is the process of clearing the screen in between frames. If we do not clear the screen, then the images drawn in the previous frame will remain on the screen and the new images will draw on top of them. Clearing the screen will effectively erase the previously drawn image and prepare the screen for drawing the current frame. OpenGL provides two functions for this:  
+One of the essential steps in computer animation is to clear the screen in between frames. If we do not clear the screen, then the images drawn in the previous frame will remain on the screen and the new images will draw on top of them. Clearing the screen will effectively erase the previously drawn image and prepare the screen for drawing the new frame. OpenGL provides two functions for this:  
 - The [`glClearColor`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glClearColor.xhtml){:target="_blank"} function sets a RGBA color to use when clearing the color buffer. The color provided will effectively become the background color for the new frame.
 - The [`glClear`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glClear.xhtml){:target="_blank"} function resets a buffer specified by the parameter. OpenGL constants can be used for the parameters, such as `GL_COLOR_BUFFER_BIT`, `GL_DEPTH_BUFFER_BIT`, `GL_STENCIL_BUFFER_BIT`, or any combination of these using the bitwise OR `|` operator.
 
@@ -345,7 +345,7 @@ In the `update` method, we directly set the new data for the $x$-coordinate tran
 
 ### Keeping Time
 
-Another fundamental technique in computer animation is to calculate movements based on the amount of time that has passed since the previous frame. We will prepare two new instance variables for keeping track of time:
+Another essential technique in computer animation is to calculate movements based on the amount of time that has passed since the previous frame. We will prepare two new instance variables for keeping track of time:
 - The `time` variable will count the total number of seconds that the application has been running.
 - The `delta_time` variable will store the number of seconds that have passed since the last interation of the run loop.
 
@@ -353,7 +353,7 @@ These variables will go in the `WindowApp` class so they can be inherited into e
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `app.py`.  
-<input type="checkbox" class="checkbox inline"> Look for the `__init__` method inside the `WindowApp` class and add the following code at the end of `__init__`:  
+<input type="checkbox" class="checkbox inline"> Look inside the `WindowApp` class and add the following code inside the `__init__` method at the end of it:  
 
 ```python
         # timekeeper variables
@@ -361,7 +361,7 @@ These variables will go in the `WindowApp` class so they can be inherited into e
         self.__delta_time = 0
 ```
 
-Here, the double underscores in the variable names will give complete control of the variable access to the `WindowApp` class. That means our applications can create their own `__time` and `__delta_time` variables without overwriting the timekeeper features from `WindowApp`.
+Here, the double underscores in the variable names will give complete control of the variable to the `WindowApp` class. That means our applications could create their own `__time` and `__delta_time` variables without overwriting the timekeeper features in `WindowApp`.
 
 <input type="checkbox" class="checkbox inline"> Inside the `WindowApp` class, add two `@property` definitions for the `time` and `delta_time` variables.  
 
@@ -396,14 +396,14 @@ x&=cos(t) \\
 y&=sin(t)
 \end{aligned}$$
 
-This creates a circle centered at the origin $(0,0)$ with a radius of $1.0$. We can change the radius $r$ and the center $(a,b)$ by altering the equations a little bit:
+This creates a circle centered at the origin $(0,0)$ with a radius of $1.0$. We can change the radius to some value $r$ and the center to some coordinate $(a,b)$ by altering the equations a little bit:
 
 $$\begin{aligned}
 x &= r \cdot cos(t) + a \\
 y &= r \cdot sin(t) + b
 \end{aligned}$$
 
-If the triangle's path has a radius of $1.0$, then it partially disappear off the screen at the edges. So let's make the radius a little smaller with a value of $0.75$ instead.
+If the triangle's path has a radius of $1.0$, then it will partially disappear off the screen at the edges. So let's make the radius a little smaller with a value of $0.75$ instead.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Copy your `test_4_2.py` file and change its name to `test_4_3.py`.  
@@ -470,18 +470,20 @@ Up to now, our applications have only allowed one kind of input&mdash;closing th
 
 ## Keyboard Input with Pygame
 
-With our current framework design, we handle input events in the `update` method of the `Input` class. We use Pygame's event features to detect input events and handle quit type events. This section will add keyboard events to be handled by our `Input` class. There are two types of keyboard events that Pygame recognizes:
+With our current framework design, we handle input events in the `update` method of the `Input` class. We use Pygame to detect input events and handle quit type events. This section will add keyboard events to be handled by our `Input` class. There are two types of keyboard events that Pygame recognizes:
 
 - **Keydown events** happen when a key is first pressed down.
 - **Keyup events** happen when a pressed key is released.
 
-These Pygame events are *discrete*, which means they happen once in an instant of time. However, some user actions are *continuous* which means they happen over a period of time (such as holding down an arrow key or doing click-and-drag actions). In order to handle *continuous* keyboard inputs in addition to *discrete* ones, we will use lists to keep track of a key's state.
+These Pygame events are *discrete*, which means they happen once in an instant of time. However, some user actions are *continuous* which means they happen over a period of time (such as holding down an arrow key or doing click-and-drag actions). In order to handle *continuous* keyboard inputs in addition to *discrete* ones, we will use lists to keep track of a key's state.  
 
 Each time we check for events in the `update` method, we will check the keyboard event type and then record the name of the key in lists that represent their state:  
 
-- The `key_down_list` will hold names of keys have just been pressed with a **keydown** event in the current update cycle. This is a *discrete* state, so we will empty the list at the start of each update cycle.
-- The `key_pressed_list` will hold names of keys that have been pressed but are not released yet. This is a *continuous* state, so the values will remain in the list until a **keyup** event is received.
-- The `key_up_list` will hold names of keys that have just been released with a **keyup** event in the current update cycle. This is a *discrete* state, so we will empty the list at the start of each update cycle.
+- The `key_down_list` will hold names of keys that have just been pressed with a **keydown** event in the current update cycle.  
+- The `key_pressed_list` will hold names of keys that have been pressed but are not released yet.  
+- The `key_up_list` will hold names of keys that have just been released with a **keyup** event in the current update cycle.  
+
+The **keydown** and **keyup** events represent *discrete* states, so we will empty their lists at the start of each update cycle. The `key_pressed_list` holds keys in a *continuous* state, so their names will remain in the list until their **keyup** event is received.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `app.py`.  
@@ -524,7 +526,7 @@ Now, it is common for applications to have a keyboard shortcut for closing the a
         self._quit = bool(value)
 ```
 
-This will assign the Boolean value of the given `value` to `_quit`. This way we can make sure that the values assigned to the `_quit` variable will always be `True` or `False`.
+Here we convert the given `value` to a `Boolean` type and assign it to `_quit`. This way we can make sure that the values assigned to the `_quit` variable will always be `True` or `False`.
 
 <input type="checkbox" class="checkbox inline"> Find the `update` method inside the `Input` class. Add the following code just before the `for` loop in the `update` method.  
 
@@ -614,7 +616,7 @@ Now that we have an  `Input` class with working keyboard features, let's use the
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Copy your `test_4_2.py` file and change its name to `test_4_6.py`.  
-<input type="checkbox" class="checkbox inline"> Inside `test_4_6.py` find the lines with the class definition, document string, and print statement then change them to the following:
+<input type="checkbox" class="checkbox inline"> Inside `test_4_6.py` find the lines with the class definition, docstring, and print statement then change them to the following:
 
 ```python
 class Test_4_6(WindowApp):
@@ -630,7 +632,7 @@ class Test_4_6(WindowApp):
         self.speed = 0.5
 ```
 
-The speed is defined in the same units as the triangle and screen coordinates, so it should take 4 seconds to move from one edge of the screen $(-1.0)$ to the opposite edge $(1.0)$.
+The speed is defined in the same units as the screen coordinates, so it should take 4 seconds to move from one edge of the screen (at $-1.0$) to the opposite edge (at $1.0$).
 
 <input type="checkbox" class="checkbox inline"> Inside the `update` method, delete the code before `glClear(GL_COLOR_BUFFER_BIT)` and add the following code:  
 
@@ -654,4 +656,4 @@ The speed is defined in the same units as the triangle and screen coordinates, s
 <input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_4_6.py` in the terminal.  
 <input type="checkbox" class="checkbox inline"> Try each of the arrow keys and confirm that the triangle moves in the correct direction.  
 
-:warning: **NOTE:** Different operating systems might use different strings for they key events. For example, `"left"` might be `"left arrow"` instead. Just run your `test_4_5.py` application anytime you want to check which string is associated with which key.
+:warning: **NOTE:** Different operating systems might use different strings for their key events. For example, `"left"` might be `"left arrow"` instead. You can run your `test_4_5.py` application and check its output anytime you want to know which string is associated with which key.
