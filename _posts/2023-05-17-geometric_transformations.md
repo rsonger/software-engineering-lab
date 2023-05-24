@@ -127,8 +127,8 @@ Graphically, we can represent a rotation of angle $\theta$ around the $x$-axis b
 Now we can rewrite $F(j)=\langle a,b \rangle$ and $F(k)=\langle -b,a \rangle$ in terms of $\theta$ to get our transformation matrix:
 $$A_x=\begin{bmatrix}
     1 & 0 & 0 \\
-    0 & a & b \\
-    0 & -b & a
+    0 & a & -b \\
+    0 & b & a
 \end{bmatrix} = \begin{bmatrix}
     1 & 0 & 0 \\
     0 & \cos(\theta) & -\sin(\theta) \\
