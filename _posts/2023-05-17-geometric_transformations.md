@@ -131,8 +131,8 @@ $$A_x=\begin{bmatrix}
     0 & -b & a
 \end{bmatrix} = \begin{bmatrix}
     1 & 0 & 0 \\
-    0 & \cos(\theta) & \sin(\theta) \\
-    0 & -\sin(\theta) & \cos(\theta)
+    0 & \cos(\theta) & -\sin(\theta) \\
+    0 & \sin(\theta) & \cos(\theta)
 \end{bmatrix}$$
 
 ## $y$-Axis Rotation
