@@ -11,7 +11,7 @@ categories:
 classes: wide
 ---
 
-*In this post we review the mathematical foundations that make geometric transformations possible in computer graphics: vectors and matrices.*
+*In this lesson we review the mathematical foundations that make geometric transformations possible in computer graphics: vectors and matrices.*
 
 # Introduction
 

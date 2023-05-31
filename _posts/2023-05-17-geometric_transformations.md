@@ -10,7 +10,7 @@ categories:
   - Notes
 ---
 
-*This post explains the mathematical concepts behind matrix calculations for common transformations in computer graphics, including scaling, rotation, translation, and projection.*
+*This lesson explains the mathematical concepts behind matrix calculations for common transformations in computer graphics, including scaling, rotation, translation, and projection.*
 
 # Overview
 
