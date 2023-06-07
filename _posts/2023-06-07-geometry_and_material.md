@@ -12,25 +12,23 @@ classes: wide
 toc_sticky: false
 ---
 
-*[Geometry Objects](#geometry-objects) outlines the `Geometry` class and its extensions which store attribute data related to the vertices of different objects.*  
-*[Material Objects](#material-objects) outlines the `Material` class and its extensions which store the shader program, uniform data, and rendering settings related to the appearance of different objects.*
+*In this lesson, we outline and extend the classes `Geometry` and `Material` for handling attributes, vertices, shader programs, uniform data, and rendering settings of different 3D objects. Then we introduce some extra components to our framework that help design and develop 3D scenes.*  
 
-In the previous lesson, we looked at the overview of our scene graph framework and created many of the basic components, including `Object3D`, `Scene`, `Group`, `Camera`, and `Mesh`. At the time, we also created an empty `Geometry` class and `Material` class. This lesson covers those two classes in full detail along with some simple extensions of each one.
+In the previous lesson, we looked at the overview of our scene graph framework and created many of the basic components, including `Object3D`, `Scene`, `Group`, `Camera`, and `Mesh`. At the time, we also created an empty `Geometry` class and `Material` class. The first part of this lesson covers those two classes in full detail along with some simple extensions of each one.
 
 ![A class diagram shows Renderer, Geometry, Material, BoxGeometry, BasicMaterial, and SurfaceMaterial as the targets for this lesson.](/software-engineering-lab/assets/images/scene_graph_uml-2.png)
 
-The classes we make this time include `BoxGeometry`, `BasicMaterial`, and `SurfaceMaterial` which will allow us to render a 3D box with sides of many colors. The `BasicMaterial` class maintains a reference to a basic shader program that renders vertices with a white base color if colors for specific vertices are not provided. The `BoxGeometry` class will define separate vertex colors so each side of the box will be a different color and we can see the box clearly. Extensions to the `BasicMaterial` class will manage render settings for different draw styles such as drawing points, lines, or surfaces.
+The classes we make this time include `BoxGeometry`, `BasicMaterial`, and `SurfaceMaterial` which will allow us to render a 3D box with sides of many colors. The `BasicMaterial` class maintains a reference to a basic shader program that renders vertices with a white base color by default. The `BoxGeometry` class will define vertex colors separately so each side of the box will be a different color. This makes it easier to see the box clearly. Extensions to the `BasicMaterial` class will manage render settings for different draw styles such as drawing points, lines, or surfaces.
 
-Finally, we will create the `Renderer` class that uses `Scene` and `Camera` to draw each `Mesh`. This will be the last component we need to draw a 3D box by combining the `BoxGeometry` and `SurfaceMaterial` in a test application. 
+Finally, we will create the `Renderer` class that uses `Scene` and `Camera` to draw each `Mesh`. This will be the last component we need to draw a 3D box with `BoxGeometry` and `SurfaceMaterial` in a test application. 
 
 # Geometry Objects
 
-The `Geometry` class contains a dictionary for each `Attribute` of a specified geometric object as well as the number of vertices. It is intended to hold only the common behavior among all geometry objects, so each one of its extensions will define a certain type of geometric object with specific vertex data and attributes.
+The `Geometry` class contains a dictionary for each `Attribute` of a geometric object as well as the number of vertices. It is intended to hold only the common behavior among all geometry objects, so specific details about certain types of geometric object vertex data and attributes will be managed by different extensions of `Geometry`.  
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Open your `__init__.py` file from the `geometry` folder inside your main working folder.  
-<input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Geometry` class.  
-<input type="checkbox" class="checkbox inline"> Add the following code to the `Geometry` class:  
+<input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Geometry` class and add the following code:  
 
 ```python
     """Store attribute data and their total number of vertices."""
@@ -62,7 +60,7 @@ The `Geometry` class contains a dictionary for each `Attribute` of a specified g
         """Count the number of vertices as the length of an attribute's data."""
         if len(self._attributes) == 0:
             self._vertex_count = 0
-        if variable_name is not None:
+        elif variable_name is not None and self._attributes.get(variable_name):
             self._vertex_count = len(self._attributes[variable_name].data)
         else:
             self._vertex_count = len(list(self._attributes.values())[0].data)
