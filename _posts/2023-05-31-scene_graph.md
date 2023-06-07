@@ -12,8 +12,7 @@ classes: wide
 toc_sticky: false
 ---
 
-*[The Scene Graph Framework](#the-scene-graph-framework) explains the basic concepts for building a 3D scene using the scene graph.*  
-*[3D Objects](#3d-objects) introduces the fundamental components for rendering the scene, 3D objects, and the camera to view it all.*
+*This lesson explains the scene graph which is a useful structure for a 3D scene that contains many objects and relationships. Then, the [3D Objects](#3d-objects) section introduces fundamental components for the CG framework to render the scene, 3D objects in the scene, and a camera to view it all.*
 
 # The Scene Graph Framework
 
@@ -25,9 +24,9 @@ For example, if we wanted to model the Sun and planets, the scene graph might lo
 
 The **scene** itself is the root node and the Sun is its direct child. All the planets revolve around the Sun, so they are children of the Sun node. We can further add moons to the scene graph and their parent nodes would be the planets around which they revolve. In a scene graph, the *ancestor nodes* of a node are everything from the node's parent up to and including the root node. Likewise, the *descendants* of a node are all the nodes that extend from it. In this example, the ancestors of the Moon are the Earth, Sun, and Scene. Meanwhile the descendants of the Sun include all of the planets and moons.
 
-Remember that the transformation of an object is calculated by accumulating all the individual scaling, rotation, and translations applied to the object and stored in its *model matrix*. In a scene graph, we can store the model matrix of a node relative to its parent node. Then, we can calculate the transformation of the object relative to the world as the product of all its ancestor model matrices with its own model matrix. For example, the Moon's model matrix would be a rotation matrix relative to the Earth while the Earth's model matrix would be a rotation matrix relative to the Sun. We can then calculate the world transform of the Moon by multiplying the model matrices of the Moon, Earth, and Sun. How convenient!
+Remember that the transformation of an object is calculated by accumulating all the individual scaling, rotation, and translations applied to the object and stored in its *model matrix*. In a scene graph, we can store the model matrix of a node relative to its parent node. Then, we can calculate the global transformation of the object relative as the product of all its ancestor model matrices with its own model matrix. For example, the Moon's model matrix would be a rotation matrix relative to the Earth while the Earth's model matrix would be a rotation matrix relative to the Sun. We can then calculate the world transform of the Moon by multiplying the model matrices of the Moon, Earth, and Sun. How convenient!
 
-We can also **group** together nodes in a scene graph when we want to collectively transform them. For example, a basic table might be a long, flat box for the surface and four tall, narrow boxes for the legs. Then we can arrange these five boxes relative to each other in a "table" group and apply transforms to the table as a whole.
+We can also **group** together nodes in a scene graph when we want to collectively transform them. For example, a basic table might be a long, flat box for the surface and four tall, narrow boxes for the legs. Then we can arrange these five boxes relative to each other in a "table" group and apply transformations to the table as a whole.
 
 ![A table is just a large flat box and four long, narrow boxes](/software-engineering-lab/assets/images/simple_table_3d.png)
 
@@ -35,21 +34,21 @@ Now let's take a look at the classes we will use to construct our scene graph!
 
 ## Overview of Class Structure
 
-The base class for every node will be called `Object3D` as it represents an object in three-dimensional space. The class will hold the object's model matrix (as `transform`), a reference to its `parent` object, and a list of references to `children` objects.
+The base class for every node will be called `Object3D` since it represents any object in three-dimensional space. The class will hold the object's model matrix (as `transform`), a reference to its `parent` object, and a list of references to `children` objects.
 
 ![A class diagram showing all the components of our scene graph framework](/software-engineering-lab/assets/images/scene_graph_uml.png)
 
-Then, the `Scene`, `Camera`, `Group`, and `Mesh` classes all extend the `Object3D` class. While `Scene` will enforce a no-parent rule, the `Group` class has no additional functionality compared to `Object3D` and we only create it to use its name.
+Then, the `Scene`, `Camera`, `Group`, and `Mesh` classes all extend the `Object3D` class. The `Scene` class will enforce a no-parent rule so it will always be the root node of the scene graph. The `Group` class actually has no additional functionality compared to `Object3D`. We only create it to so we can have nodes called "group".
 
-The `Mesh` class represents objects that can be rendered. It will keep information about its vertices and other geometric attributes as well as uniform and OpenGL setting data related to its own appearance. The `Geometry` class will manage a mesh's vertex data in `Attribute` objects which we have already been using for the past few lessons. On the other hand, a `Material` class will manage `Uniform` objects and OpenGL render settings for the mesh. In a later lesson, we will create a `BoxGeometry` class and a `SurfaceMaterial` class from these base classes to render a spinning cube and demonstrate how all these things work together.
+The `Mesh` class represents objects that can be rendered. It will keep geometric data about its vertices, appearance data such as its shader program, and a vertex array object to bind its geometric data to its shader program. Later we will implement the `Geometry` class to manage a mesh's vertex data in `Attribute` objects. Another class called `Material` will manage `Uniform` objects and OpenGL render settings for the mesh. In a later lesson, we will create a `BoxGeometry` class and a `SurfaceMaterial` class from these base classes to render a spinning cube and demonstrate how all these things work together.
 
-Finally, the `Renderer` class puts together the `Scene`, the `Camera`, and all the `Mesh` objects to render the final images. In addition to rendering each mesh in the scene through the camera, it also manages OpenGL settings for depth testing, antialiasing, and the clear color.
+Finally, the `Renderer` class puts together the `Scene`, the `Camera`, and all the `Mesh` objects to render the final image. In addition to rendering every viewable mesh in the scene through the camera, `Renderer` also manages OpenGL settings for depth testing, antialiasing, and the clear color.
 
 Now let's start coding these classes!
 
 # 3D Objects
 
-The `Object3D` class makes the tree graph structure possible. As a node in the graph, it must have the ability to add and remove other nodes as children. At the same time it will manage a one-parent-only rule when its own parent is assigned.
+The `Object3D` class makes the tree graph structure possible. As a node in the graph, it must have the ability to add and remove other nodes as children. It will also have a one-parent-only rule when its own parent is assigned.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `scene_graph.py`.  
@@ -76,7 +75,7 @@ class Object3D:
         if not isinstance(node, Object3D):
             raise Exception("Parent node must be an instance of Object3D.")
         if self._parent is not None and node is not None:
-            raise Exception("Cannot add a child of another node.")
+            raise Exception("Cannot replace an existing parent.")
         self._parent = node
 
     def add(self, child):
@@ -223,9 +222,9 @@ class Group(Object3D):
 
 ## Camera
 
-In the real world, a camera is a physical object with its own position and orientation relative to the world around it. However, in 3D CG this relationship between the camera and the world is a little different. The camera itself is not rendered, but instead it represents the perspective of the viewer. From the viewer's perspective, camera movements can appear as if the entire world is moving and the viewer is staying still. Indeed, since the computer screen doesn't move, we can think of camera movements as inverted global transformations applied to the entire scene. 
+In the real world, a camera is a physical object with its own position and orientation relative to the world around it. However, in 3D CG this relationship between the camera and the world is a little different. The camera itself is not rendered, but instead it represents the perspective of the viewer. From the viewer's perspective, camera movements can appear as if the entire world is moving and the viewer is staying still. Indeed, since the computer screen doesn't move, we can think of camera movements as global transformations applied to the entire scene. 
 
-For example, if the camera moves two units to the right, all of the objects in the world appear to move two units to the left. Or when the camera rotates 90° clockwise, the rest of the world appears to rotate 90° counterclockwise.
+But these global transformations representing the camera must be inverted. For example, if the camera moves two units to the right, all of the objects in the world appear to move two units to the left. Or when the camera rotates 90° clockwise, the rest of the world appears to rotate 90° counterclockwise.
 
 So, we apply the position and orientation of the camera as the inverse of the camera's global transform and store it in a *view matrix*. In addition to the view matrix, we will also manage the projection matrix for the scene with our newly created `Camera` class.
 
@@ -265,7 +264,7 @@ class Camera(Object3D):
 
 ## Mesh
 
-The `Mesh` class represents objects that can be rendered in the scene. It stores vertex data in another class called `Geometry` and appearance data in another class called `Material`. We will complete those two classes in a later lesson, so for now let's make empty classes to avoid interpreter errors.
+The `Mesh` class represents objects that can be rendered in the scene. It stores vertex data in a class called `Geometry` and appearance data in another class called `Material`. We will complete those two classes in a later lesson, but for now let's make empty classes to avoid errors.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new folder called `geometry`.  
@@ -310,7 +309,7 @@ from material import Material
 
 ```python
 class Mesh(Object3D):
-    """A visible object in the scene with geometric and appearance data."""
+    """A visible object in the scene with geometry and appearance data."""
     def __init__(self, geometry, material):
         super().__init__()
 
@@ -345,9 +344,9 @@ class Mesh(Object3D):
 
 Since this class very heavily relies on the interfaces we will create in `Geometry` and `Material`, we use the `__init__()` method to make sure that we get instances of those two classes. We also make a `visible` property so we can easily indicate that this object should be rendered. 
 
-The shader program will be stored in `Material` but the vertex attributes are stored in `Geometry`. The `Mesh` class manages both for this object, so naturally we should also maintain the vertex array object (VAO) that associates attribute data to shader program variables. With the `self._vao_ref` property, we can easily keep track of which VAO binds to which 3D object and that makes it a lot easier to draw multiple shapes on the screen.
+The shader program will be stored in `Material` but the vertex attributes are stored in `Geometry`. The `Mesh` class manages both for one 3D object, so naturally we should also maintain the vertex array object (VAO) that associates attribute data to shader program variables. With the `self._vao_ref` property, we can easily keep track of which VAO has the bindings for to which 3D object and it becomes a lot easier to draw multiple shapes on the screen.
 
-<input type="checkbox" class="checkbox inline"> Next, add code to `mesh.py` for drawing the 3D object.  
+<input type="checkbox" class="checkbox inline"> Next, add the following code to `mesh.py` for rendering the 3D object.  
 
 ```python
     def render(self, view_matrix, projection_matrix):
@@ -372,4 +371,4 @@ The shader program will be stored in `Material` but the vertex attributes are st
 
 The `render()` method will apply the model matrix, view matrix, and projection matrix before updating OpenGL render settings and drawing the object. It relies heavily on the interfaces of `Material` and `Geometry` which we will complete next time. For now, we can see that `Mesh` controls the VAO and render process for drawing this object while `Material` handles the shader program, uniform matrix variables, and OpenGL render settings such as draw style. 
 
-There is still much more we need to add before we can render a 3D object, so look forward to it next time!
+There is still much more we need to add next time before we can render a 3D object, so look forward to it!
