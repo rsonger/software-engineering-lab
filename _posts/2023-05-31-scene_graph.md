@@ -346,7 +346,7 @@ Since this class very heavily relies on the interfaces we will create in `Geomet
 
 The shader program will be stored in `Material` but the vertex attributes are stored in `Geometry`. The `Mesh` class manages both for one 3D object, so naturally we should also maintain the vertex array object (VAO) that associates attribute data to shader program variables. With the `self._vao_ref` property, we can easily keep track of which VAO has the bindings for to which 3D object and it becomes a lot easier to draw multiple shapes on the screen.
 
-<input type="checkbox" class="checkbox inline"> Next, add the following code to `mesh.py` for rendering the 3D object.  
+<input type="checkbox" class="checkbox inline"> Next, add the following code to the `Mesh` class for rendering the 3D object.  
 
 ```python
     def render(self, view_matrix, projection_matrix):
