@@ -74,11 +74,11 @@ Now that we have the base `Geometry` defined, we can create specific geometric o
 
 ## Rectangles
 
-The first geometric object is a simple 2D rectangle with its origin at the center. The `RectangleGeometry` class will take two parameters&mdash;the width and height as they define two perpendicular sides of the rectangle. Then, with its origin at the center, we can get the $x$ and $y$ coordinates of the four points by halving the height and width values.
+The first geometric object is a simple 2D rectangle with its origin at the center. The `RectangleGeometry` class will take two parameters&mdash;the width and height as they define two perpendicular sides of the rectangle. Since its origin is at the center, we can get the $x$ and $y$ coordinates of its four vertices by halving the height and width values.
 
 ![A rectangle is drawn from two triangles defined by its width and height.](/software-engineering-lab/assets/images/rectangle_geometry.png)
 
-Since OpenGL only provides triangles as a way to draw filled-in shapes, our rectangles will be drawn from two right triangles sharing the same hypotenuse. Because of this, we need to define our vertices in a way that draws each triangle as a separate group. That means our position data for each rectangle will have six vertices instead of four. Also, the vertices must be listed in counterclockwise order so that front sides of the triangles face in the positive $z$ direction.
+OpenGL only provides triangles as a way to draw filled-in shapes, so our rectangles will be drawn from two right triangles sharing the same hypotenuse. Because of this, we need to define our vertices in a way that draws each triangle as a separate group. That means our position data for each rectangle will have six vertices instead of four. Also, the vertices must be listed in counterclockwise order so that the front sides of the triangles face in the positive $z$ direction.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In the `geometry` folder, create a new file called `basic_geometries.py`.  
@@ -102,10 +102,10 @@ class RectangleGeometry(Geometry):
         # color data for white, red, green, and blue vertices
         C0, C1, C2, C3 = (1,1,1), (1,0,0), (0,1,0), (0,0,1)
 
-        position_data = (P0,P1,P3, # first triangle
-                        P0,P3,P2) # second triangle
-        color_data = (C0,C1,C3, # first triangle
-                     C0,C3,C2) # second triangle
+        position_data = (P0,P1,P3,  # first triangle
+                         P0,P3,P2)  # second triangle
+        color_data = (C0,C1,C3,  # first triangle
+                      C0,C3,C2)  # second triangle
 
         self.set_attribute("vertexPosition", position_data, "vec3")
         self.set_attribute("vertexColor", color_data, "vec3")
@@ -119,8 +119,7 @@ The color vertices are listed in the same order as the position vertices. This w
 
 ## Boxes
 
-Our first three-dimensional shape will be a box with eight points and six sides.
-Since each side must be drawn as two rectangles, we must group our vertices to form a total of 12 triangles. And since each triangle is a collection of three points, the position and color data will have a total of 36 vertices each. As with the rectangle, our `BoxGeometry` class will only take the shape's dimensions as parameters&mdash;the width, height, and depth as they define the lengths of the sides parellel to the $x$, $y$, and $z$ axes respectively. Again, we need to halve the values of each to get the $x$, $y$, and $z$ coordinates of the points since the center of the box will be at $(0,0,0)$.
+Our first three-dimensional shape will be a box with eight points and six sides. Since each side must be drawn as two triangles, we must group our vertices to form a total of 12 triangles. And since each triangle is a collection of three points, the position and color data will have a total of 36 vertices each. As with the rectangle, our `BoxGeometry` class will only take the shape's dimensions as parameters&mdash;the width, height, and depth as they define the lengths of the sides parellel to the $x$, $y$, and $z$ axes respectively. Again, we need to halve the values of each to get the $x$, $y$, and $z$ coordinates of the points since the center of the box will be at $(0,0,0)$.
 
 ![A box is drawn with eight points and six sides.](/software-engineering-lab/assets/images/box_geometry.png)
 
@@ -172,28 +171,25 @@ class BoxGeometry(Geometry):
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-Again, the order of the vertex color data will decide the color of each side. The six red vertices are first, so they are assigned to the right side. Then yellow vertices for the left side, green for the top side, cyan for the bottom side, blue for the front, and magenta for the back. These sides will be solid colors, so we could take advantage of the `*` operator for lists and create six copies of each color vertex. If we wanted to see color gradients on each side, we would need to write out each color vertex similar to the way we write out the position vertices. 
+Again, the order of the vertex color data will decide the color of each side. The six red vertices are first, so they are assigned to the right side. Then yellow vertices for the left side, green for the top side, cyan for the bottom side, blue for the front, and magenta for the back. These sides will be solid colors, so all six vertices on each side must be the same color. We took advantage of the `*` operator to multiply the lists and create six copies of each color vertex. If we wanted to see color gradients on each side, we would need to write out each color vertex similar to the way we write out each position vertex. 
 
 # Material Objects
 
-While the `Geometry` objects manage geometric data concerning the shape, position, and color of an object's vertices, the `Material` objects manage data related to rendering the object including the shader program itself, `Uniform` objects, and OpenGL render settings. 
+While the `Geometry` object manages geometric data concerning the shape, position, and color of an object's vertices, the `Material` object manages data related to rendering the object including the shader program itself, `Uniform` objects, and OpenGL render settings. 
 
-## Base Class
+## Material Class
 
 The base class of `Material` will compile and initialize the shader program, store and manage uniform objects in a dictionary, and handle OpenGL-specific settings with another dictionary.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Open your `__init__.py` file from the `material` folder inside your main working folder.  
-<input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Material` class.  
-<input type="checkbox" class="checkbox inline"> Add the following code to the `Material` class:  
+<input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Material` class and add the following code:  
 
 ```python
     """Stores a shader program reference, Uniform objects, and OpenGL render settings."""
     def __init__(self, vertex_shader_code, fragment_shader_code):
         self._program_ref = OpenGLUtils.initialize_program(
-            vertex_shader_code, 
-            fragment_shader_code
-        )
+            vertex_shader_code, fragment_shader_code)
 
         self._uniforms = {}
 
@@ -214,7 +210,7 @@ The base class of `Material` will compile and initialize the shader program, sto
         return self._settings.get(setting_name, None)
 ```
 
-Subclasses of `Material` will need to provide the vertex and fragment shader code when calling their superclass `__init__` method. Then it is assumed that the program will have `modelMatrix`, `viewMatrix`, and `projectionMatrix` uniform variables defined. We create and store those uniform objects with a method called `set_uniform` which we define below. We also provide a getter for the program reference which is necessary in the `Mesh` class to associate geometric attribute data with program variables and then draw each object.
+Subclasses of `Material` will need to provide the vertex and fragment shader code when calling their superclass `__init__` method. Then it is assumed that the shader program will need associations for its `modelMatrix`, `viewMatrix`, and `projectionMatrix` uniform variables. We create and store those uniform objects with a method called `set_uniform` which we define below. We also provide a getter for the program reference which will be necessary for the `Mesh` class to associate geometric attribute data with program variables and then draw each object.
 
 <input type="checkbox" class="checkbox inline"> Next, add the following code for managing uniforms and settings to the `Material` class:  
 
@@ -228,7 +224,7 @@ Subclasses of `Material` will need to provide the vertex and fragment shader cod
             self._uniforms[variable_name].locate_variable(self._program_ref, 
                                                           variable_name)
         else:
-            raise Exception("A new Material property must have a dataType.")
+            raise Exception("New Material properties must have a dataType.")
 
     def upload_data(self):
         """Upload the data of all stored uniform variables."""
@@ -251,7 +247,7 @@ Subclasses of `Material` will need to provide the vertex and fragment shader cod
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-The `set_uniform` method will update the data of an existing variable similar to the `set_attribute` method in the `Geometry` class. The difference here is that uniforms variables must be located in the program before their data can be uploaded, so the `set_uniform` method immediately locates any new `Uniform` object it creates. Then, `Material` provides a separate `upload_data` method for updating all the uniform variable data linked in the program, which we control in the `Mesh` class after setting the appropriate matrix data.
+The `set_uniform` method will update the data of an existing variable similar to the `set_attribute` method in the `Geometry` class. The difference here is that uniforms variables must be located in the program before their data can be uploaded, so the `set_uniform` method immediately locates any new `Uniform` object it creates. Then, the separate `upload_data` method updates all the uniform variable data linked in the program, which we will call from the `Mesh` class after setting the appropriate matrix data.
 
 The `update_render_settings` method is empty here so that subclasses of `Material` can override it. The method will check for specific render settings in its `self._settings` dictionary and then call the relevant OpenGL functions based on the setting values.
 
