@@ -249,8 +249,8 @@ class Test_4_4(WindowApp):
         # animate the spinning cube
         y_distance = self.delta_time * self.rotate_speed_y
         x_distance = self.delta_time * self.rotate_speed_x
-        self.mesh.rotateY(y_distance)
-        self.mesh.rotateX(x_distance)
+        self.mesh.rotate_y(y_distance)
+        self.mesh.rotate_x(x_distance)
 
         # render the scene
         self.renderer.render(self.scene, self.camera)
