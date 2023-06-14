@@ -12,29 +12,29 @@ classes: wide
 toc_sticky: false
 ---
 
-*This post adds more tools to our geometry toolset with the introduction of a polygon geometry class and a  parametric geometry base class. Extensions then add the capabilities to create various planes, ellipsoids, and cylindrical geometries.*  
+*In this lesson, we add more tools to our geometry toolset with the introduction of a polygon geometry class and a  parametric geometry base class. Then, we extend their capabilities to create various planes, ellipsoids, and cylindrical geometries.*  
 
-As we build 3D scenes, we will need to use a variety of different shapes and geometries. Up to now, we have created classes for rectangles and boxes in addition to extending the generic `Geometry` class to create custom shapes. However, there are numerous other shapes that would be helpful for building objects in a 3D scene, such as polygons, spheres, ellipsoids, cylinders, cones, prisms, and pyramids. This lesson introduces a `PolygonGeometry` class that can render 2D shapes with any number of sides of equal lengths. Then, we create a `ParametricGeometry` class which allows us to define a function for rendering 3D surfaces in segments. The `ParametricGeometry` class provides a good foundation for creating ellipsoids, spheres, cylinders, prisms, pyraminds, and cones. Finally, we extend the `ParametricGeometry` class for each new type of geometry based on the function that calculates vertices along its surface.
+As we build 3D scenes, we will need to use a variety of different shapes and geometries. Last time we created classes for basic rectangles and boxes, but these along will not be enough. Other types of objects such as polygons, spheres, ellipsoids, cylinders, cones, prisms, and pyramids are useful for complicated 3D scenes. This lesson introduces a `PolygonGeometry` class that can render 2D shapes from any number of sides with equal lengths. Then, we create a `ParametricGeometry` class which allows us to render 3D surfaces in segments defined by a parametric function. The `ParametricGeometry` class provides a good foundation for creating ellipsoids, spheres, cylinders, prisms, pyramids, and cones. Finally, we extend the `ParametricGeometry` class for each of those types of geometry by defining the parametric function that calculates vertices along its surface.
 
 # Polygons
 
 Our `PolygonGeometry` class will provide the ability to render *regular polygons* which are 2D shapes where all sides and angles are equal. Regular polygons include equilateral triangles (3 sides), squares (4 sides), pentagons (5 sides), hexagons (6 sides), heptagons (7 sides), octogons (8 sides), and so on.
 
-We can calculate the points of a polygon with radius $r$ as equally spaced points along the circumference of a circle with the same radius $r$. Recall that the parametric equations for the circumference of a circle are $x=r\cdot\cos(t)$ and $y=r\cdot\sin(t)$ where $t$ is the number of radians for each point drawn along the circle's circumference. When the number of points is small, we get hexagons (6 points) and octogons (8 points). As as the number of points increases, we get shapes that look closer and closer to a circle (imagine 32 points, for example).
+We can calculate the points of a polygon with radius $r$ as equally spaced points along the circumference of a circle with the same radius $r$. Recall that previously we defined the circular path of a moving triangly by using $x=r\cdot\cos(t)$ and $y=r\cdot\sin(t)$ where $t$ is the number of radians. Together, these are the parametric equations for specifying points along the circumference of a circle. When the number of points is small and we draw straight lines between each consecutive point, we get common polygons such as hexagons (6 points) and octogons (8 points). As as the number of points increases, we get shapes that look closer and closer to a circle (imagine 32 points, for example).
 
-As the image below shows, a polygon can be drawn with triangles by dividing $2\pi$ radians into equal angles. The number of divisions is the same as the number of sides for the polygon which is also the same as the number of vertices. The polygon pictured below is an octogon, so $\theta=\frac{2\pi}{8}=\frac{\pi}{4}$. Then, the equations for the circumference of a circle give us the vertices,
+The image below demonstrates how to draw a polygon with triangles by dividing $2\pi$ radians into equal angles. The number of divisions is the same as the number of sides for the polygon which is also the same as the number of vertices. The polygon pictured below is an octogon, so $\theta=\frac{2\pi}{8}=\frac{\pi}{4}$. Then, the equations for the circumference of a circle give us the vertices,
 
 $$\begin{aligned}
-P_1 &= (r\cdot\cos(\frac{\pi}{4}),r\cdot\sin(\frac{\pi}{4})) \\
-P_2 &= (r\cdot\cos(\frac{\pi}{2}),r\cdot\sin(\frac{\pi}{2})) \\
-P_3 &= (r\cdot\cos(\frac{3\pi}{4}),r\cdot\sin(\frac{3\pi}{4})) \\
+P_0 &= (r\cdot\cos(\frac{\pi}{4}),r\cdot\sin(\frac{\pi}{4})) \\
+P_1 &= (r\cdot\cos(\frac{\pi}{2}),r\cdot\sin(\frac{\pi}{2})) \\
+P_2 &= (r\cdot\cos(\frac{3\pi}{4}),r\cdot\sin(\frac{3\pi}{4})) \\
 ... \\
-P_8 &= (r\cdot\cos(2\pi),r\cdot\sin(2\pi))
+P_7 &= (r\cdot\cos(2\pi),r\cdot\sin(2\pi))
 \end{aligned}$$
 
 ![A regular polygon is made up of triangles sharing the same point in the center.](/software-engineering-lab/assets/images/polygon_vertices.png)
 
-Since we are drawing with trianlges in OpenGL, we need to list the vertices in sets of three and arrange them in counterclockwise order to indicate the front side for rendering. The initialization method for the `PolygonGeometry` class will do just that after it calculates all the vertices of a polygon from a given number of sides and radius.
+Since we are drawing with triangles in OpenGL, we need to list the vertices in sets of three and arrange them in counterclockwise order to indicate the front side for rendering. The initialization method for the `PolygonGeometry` class will do that after calculating all the vertices of the polygon from the given number of sides and radius.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, open the file called `basic_geometries.py` and add the following import statement to the top of it.
@@ -74,7 +74,7 @@ class PolygonGeometry(Geometry):
 
 The `PolygonGeometry` class inherits from the `Geometry` class, so it has everything it needs to manage its own `Attribute` objects. After calculating the vertices, we set attribute data for the `vertexPosition` and `vertexColor` shader variables to use when rendering this polygon.
 
-Since the `__init__` method has the parameters `sides` and `radius`, it is easy to create any kind of regular polygon we like. For example, a hexagon would use the argument `6`, but a pentagon would use `5` instead. In code, this might look like the following:
+Since the `__init__` method has the parameters `sides` and `radius`, it is easy to create any kind of regular polygon we like. For example, `sides=6` will create a hexagon, but `sides=5` will create a pentagon instead. In code, this might look like the following:
 
 ```python
 hexagon = PolygonGeometry(sides=6)
@@ -85,11 +85,11 @@ The `PolygonGeometry` class will become very useful later when we create the fla
 
 # Parametric Geometries
 
-Similar to the way we calculate polygon vertices above, we can use functions to calculate a variety of different surfaces in 3D. The simplest surface is a plane with $z$ coordinates calculated from the $x$ and $y$ coordinates of each vertex as expressed by $z=f(x,y)$. However, there is no function for $f$ in this expression that would produce vertex coordinates for shapes like spheres and cylinders. Shapes like that have multiple vertices that share the same $x$ and $y$ coordinates, so we cannot calculate $z$ coordinates from them alone. Instead, we will use two variables $u$ and $v$, each with a set range, to define the coordinates $x$, $y$, and $z$. That is,
+Similar to the way we calculate polygon vertices above, we can use parametric functions to calculate a variety of different surfaces in 3D. A simple surface is a plane where the $z$ coordinates of each vertex are calculated directly from the $x$ and $y$ coordinates, as expressed by $z=f(x,y)$. However, there is no function $f$ that can produce $z$ coordinates for the vertices of shapes like spheres and cylinders. Those shapes have multiple vertices sharing the same $x$ and $y$ coordinates, so we cannot calculate $z$ coordinates from them alone. Instead, we will use two variables $u$ and $v$ with fixed ranges to define the coordinates $x$, $y$, and $z$. That is,
 
 $$x=f(u,v) \text{,} \hspace{1cm} y=g(u,v) \text{,} \hspace{1cm} z=h(u,v)$$
 
-Putting this together, we can say the *parametric function* $S$ graphs output values $(x,y,z)$ from a rectangular region defined by the range of $u$ and $v$ values.
+Combined, we can say the *parametric function* $S$ graphs output values $(x,y,z)$ from a region of inputs defined by the ranges of $u$ and $v$ values.
 
 $$S(u,v) = (x,y,z) = \left( f(u,v), g(u,v), h(u,v) \right)$$
 
@@ -97,11 +97,11 @@ So we can think of $u$ and $v$ as vectors that define a rectangle, and different
 
 ![Vectors u and v define the range of points on a rectangular plane.](/software-engineering-lab/assets/images/uv_plane.png)
 
-Here the simplest function for $S$ would be $S(u,v) = (u,v,0)$ which maps each value of $u$ and $v$ directly to $x$ and $y$ coordinates of the same value and gives vertices for a flat 2D plane. However, more complicated functions are necessary to map the same values of $u$ and $v$ to the vertices of spheres and cylinders, for example.  
+Here the simplest function for $S$ would be $S(u,v) = (u,v,0)$ which maps each value of $u$ and $v$ directly to $x$ and $y$ coordinates, giving vertices for a flat 2D plane. More complicated functions are necessary to map the same values of $u$ and $v$ to the vertices of more complicated shapes such as spheres and cylinders.  
 
 ![A 2D plane mapped by different functions can produce surfaces for spheres and cylinders.](/software-engineering-lab/assets/images/spheres_and_cylinders.png)
 
-The images above show a plane, a sphere, and a cylinder drawn with triangles that are calculated from sampling the ranges of $u$ and $v$ at set intervals. Here, we call the number of samples taken in each range the *resolution* and the step in the range between samples is the *delta*. Each parametric geometry will take the start and stop values for the ranges $u$ and $v$ as well as their respective resolutions. It will also take a surface function that defines the shape of the surface. When initialized, the geometry will use its function to calculate all the points along its surface by calling the function with every pair of sample values in the ranges $u$ and $v$.
+The images above showing a plane, a sphere, and a cylinder are drawn with triangles calculated from sampling the ranges of $u$ and $v$ at set intervals. Here, we call the number of samples taken in each range the *resolution* and the step in between samples is the *delta*. Each parametric geometry will take the start and stop values for the ranges $u$ and $v$ as well as their respective resolutions. It will also take a surface function that defines the shape of the surface. When initialized, the geometry will use its function to calculate all the points along its surface by executing the function with every pair of sample values in the ranges $u$ and $v$.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside the `geometry` folder, create a new file called `parametric_geometries.py`.  
@@ -119,7 +119,7 @@ class ParametricGeometry(Geometry):
                        v_start, v_stop, v_resolution, surface_function):
         super().__init__()
         
-        # generate a matrix of vertex points for all values of (u,v)
+        # generate a matrix of point vertices for all (u,v) values in range
         point_matrix = []
         for u in linspace(u_start, u_stop, u_resolution + 1):
             matrix_row = []
@@ -128,9 +128,9 @@ class ParametricGeometry(Geometry):
             point_matrix.append(matrix_row)
 ```
 
-The `__init__` class accepts the minimum and maximum values for each range $u$ and $v$, defined by `u_start`, `u_stop`, `v_start`, and `v_stop`. In Python, we can store functions in variables and pass them around like any other value. This means we can define a parameter `surface_function` as a Python function that calculates vertex coordinates from $u$ and $v$ values when we call it like any other function with `surface_function(u,v)`.  
+The `__init__` class accepts the minimum and maximum values for each range $u$ and $v$, defined by `u_start`, `u_stop`, `v_start`, and `v_stop`. In Python, we can store functions in variables and pass them around like any other value. This means we can define the parameter `surface_function` as a Python function that calculates vertex coordinates from $u$ and $v$ values. Then we can call it like any other function with `surface_function(u,v)`.  
 
-This class imports the NumPy method [`linspace`](https://numpy.org/doc/stable/reference/generated/numpy.linspace.html) which is very convenient for producing the range of sample values we need for $u$ and $v$. We use a nested `for` loop to run through every pair of $(u,v)$ sample values. These values are passed as parameters to the surface function and the result is stored in a 2D matrix of coordinate data that corresponds with each pair of $(u,v)$ values.
+This class imports the function [`linspace`](https://numpy.org/doc/stable/reference/generated/numpy.linspace.html) from NumPy which gives us the range of sample values for $u$ and $v$ with their given resolutions. We use a nested `for` loop to run through every pair of $(u,v)$ sample values. These values are passed as parameters to the surface function and the result is stored in a 2D matrix of coordinate data that corresponds with each pair of $(u,v)$ values.
 
 <input type="checkbox" class="checkbox inline"> Next add the following code to the `__init__` method of the `ParametricGeometry` class:  
 
@@ -146,10 +146,10 @@ This class imports the NumPy method [`linspace`](https://numpy.org/doc/stable/re
         # store vertices for each rectangular segment as a pair of triangles
         for n in range(u_resolution):
             for m in range(v_resolution):
-                P1 = point_matrix[n + 0][m + 0].copy()
-                P2 = point_matrix[n + 1][m + 0].copy()
-                P3 = point_matrix[n + 1][m + 1].copy()
-                P4 = point_matrix[n + 0][m + 1].copy()
+                P1 = point_matrix[n + 0][m + 0]
+                P2 = point_matrix[n + 1][m + 0]
+                P3 = point_matrix[n + 1][m + 1]
+                P4 = point_matrix[n + 0][m + 1]
                 position_data += [P1,P2,P3, P1,P3,P4]
                 color_data += [C1,C2,C3, C4,C5,C6]
 
@@ -160,7 +160,7 @@ This class imports the NumPy method [`linspace`](https://numpy.org/doc/stable/re
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-This part of the `__init__` method defines vertices for each rectangular segment of the surface as a pair of triangles. We do this in a way similar to the [`RectangleGeometry`](/software-engineering-lab/notes/geometry_and_material/#rectangles) class from the "Geometry and Material Objects" lesson. This time, the vertex data for each rectangle is stored in the `point_matrix` in the order that they will be drawn on the surface of the object. Here we use the `copy` method to get an exact copy of the Python list of each point and avoid getting a reference instead.
+This part of the `__init__` method defines vertices for each rectangular segment of the surface as a pair of triangles. We do this in a way similar to the [`RectangleGeometry`](/software-engineering-lab/notes/geometry_and_material/#rectangles) class from the previous lesson. This time, the vertex data for each rectangle is stored in the `point_matrix` in the order that they will be drawn on.  
 
 Now we have a strong foundation for creating parametric geometries. Every new geometry we make from this point on will just require us to define a surface function and tweak the parameters as necessary.
 
@@ -179,7 +179,7 @@ class PlaneGeometry(ParametricGeometry):
     def __init__(self, width=1, height=1, width_segments=8, height_segments=8):
         
         # The surface function S(u,v) = (u,v,0)
-        surface_function = lambda u,v: [u, v, 0]
+        surface_function = lambda u,v: (u, v, 0)
         
         super().__init__( -width/2, width/2, width_segments, 
                           -height/2, height/2, height_segments, 
@@ -227,11 +227,11 @@ class EllipsoidGeometry(ParametricGeometry):
                        radial_segments=32, height_segments=16):
 
         # calculates points on the surface
-        surface_function = lambda u,v: [
+        surface_function = lambda u,v: (
             width/2 * sin(u) * cos(v),
             height/2 * sin(v),
             depth/2 * cos(u) * cos(v)
-        ]
+        )
 
         super().__init__(0, 2*pi, radial_segments, 
                          -pi/2, pi/2, height_segments, surface_function)
@@ -291,11 +291,11 @@ class CylindricalGeometry(ParametricGeometry):
                        top_closed=True, bottom_closed=True):
         
         # calculates points on the surface
-        surface_function = lambda u,v: [
+        surface_function = lambda u,v: (
             (v * top_radius + (1-v) * bottom_radius) * sin(u),
             height * (v - 0.5),
             (v * top_radius + (1-v) * bottom_radius) * cos(u)
-        ]
+        )
 
         super().__init__(0, 2*pi, radial_segments, 
                          0, 1, height_segments, surface_function)
