@@ -177,7 +177,7 @@ Again, the order of the vertex color data will decide the color of each side. Th
 
 While the `Geometry` object manages geometric data concerning the shape, position, and color of an object's vertices, the `Material` object manages data related to rendering the object including the shader program itself, `Uniform` objects, and OpenGL render settings. 
 
-## Material Class
+## The Material Class
 
 The base class of `Material` will compile and initialize the shader program, store and manage uniform objects in a dictionary, and handle OpenGL-specific settings with another dictionary.
 
@@ -324,18 +324,19 @@ The first extension of our `BasicMaterial` class will render vertices as disconn
 class PointMaterial(BasicMaterial):
     """Manages render settings for drawing vertices as rounded points.
 
-    drawStyle: GL_POINTS to draw vertices without any connecting lines
-    pointSize: 8 pixels default width and height of each point
-    roundedPoints: True to render points with smooth corners
+    :drawStyle=GL_POINTS: draws vertices without any connecting lines
+    :pointSize=8: default width and height of each point in pixels
+    :roundedPoints=True: renders points with smooth corners
     """
-    def __init__(self, properties={}):
+    def __init__(self, properties=None):
         super().__init__()
 
         self._settings["drawStyle"] = GL.GL_POINTS
         self._settings["pointSize"] = 8
         self._settings["roundedPoints"] = True
 
-        self.set_properties(properties)
+        if properties:
+            self.set_properties(properties)
 
     def update_render_settings(self):
         GL.glPointSize(self._settings["pointSize"])
@@ -352,7 +353,7 @@ The `drawStyle` setting is used by the `Mesh` class when it draws itself, but th
 
 ### Line Material
 
-The next extension will draw a few different types of lines. The "connected" type draws lines from through each vertex, from the first one to the last one. The "loop" type will additionally draw a final line from the last vertex back to the first one again, and the "segments" type will draw separate lines between each consecutive pair of vertices.
+The next extension will draw a few different types of lines. The "connected" type draws lines through each vertex, from the first one to the last one. The "loop" type will additionally draw a final line from the last vertex back to the first one again, and the "segments" type will draw separate lines between each consecutive pair of vertices.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Open `basic_materials.py` for editing and add the following code after the `PointMaterial` class:  
@@ -361,18 +362,19 @@ The next extension will draw a few different types of lines. The "connected" typ
 class LineMaterial(BasicMaterial):
     """Manages render settings for drawing lines between vertices.
 
-    drawStyle: GL_LINE_STRIP by default, changes according to lineType
-    lineType: "connected" to draw through all vertices from first to last.
-    lineType: "loop" to draw through all vertices and connect last to first.
-    lineType: "segments" to draw separate lines between each pair of vertices.
+    :drawStyle=GL_LINE_STRIP: changes according to lineType
+    :lineType="connected": draws through all vertices from first to last.
+    :lineType="loop": draws through all vertices and connect last to first.
+    :lineType="segments": draws separate lines between each pair of vertices.
     """
-    def __init__(self, properties={}):
+    def __init__(self, properties=None):
         super().__init__()
 
         self._settings["drawStyle"] = GL.GL_LINE_STRIP
         self._settings["lineType"] = "connected"
 
-        self.set_properties(properties)
+        if properties:
+            self.set_properties(properties)
 
     def update_render_settings(self):
         if self._settings["lineType"] == "connected":
@@ -391,7 +393,7 @@ We use the `lineType` setting to change the `drawStyle` so that the class is eas
 
 ### Surface Material
 
-The last extension will draw a flat plane between every three vertices to create a triangular surface. The front side of a surface is the side in which the vertices appear to be listed in counterclockwise order. OpenGL will not render the back side of a surface by default, but we will create a control for that with the "doublSide" setting. Additionally, the "wireframe" setting will provide the option to only render the lines of the surfaces in color without any filling.
+The last extension will draw a flat plane between every three vertices to create a surface of triangles. The front side of a surface is the side from which the vertices are listed in counterclockwise order. OpenGL will not render the back side of a surface by default, but we will create a control parameter for that with the "doublSide" setting. Additionally, the "wireframe" setting will provide the option to only render the lines of the surfaces without filling in the space between them.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Open `basic_materials.py` for editing and add the following code after the `LineMaterial` class:  
@@ -400,18 +402,19 @@ The last extension will draw a flat plane between every three vertices to create
 class SurfaceMaterial(BasicMaterial):
     """Manages render settings for drawing vertices as a colored surface.
 
-    drawStyle: GL_TRIANGLES to draw triangles between sets of 3 vertices
-    doubleSide: False to render only the side where the vertices are in counterclockwise order
-    wireframe: False to render triangles instead of lines between the vertices
+    :drawStyle=GL_TRIANGLES: draws triangles between sets of 3 vertices
+    :doubleSide=False: renders only the side where the vertices are in counterclockwise order
+    :wireframe=False: renders filled-in triangles instead of just their outlines
     """
-    def __init__(self, properties={}):
+    def __init__(self, properties=None):
         super().__init__()
 
         self._settings["drawStyle"] = GL.GL_TRIANGLES
         self._settings["doubleSide"] = False
         self._settings["wireframe"] = False
 
-        self.set_properties(properties)
+        if properties:
+            self.set_properties(properties)
 
     def update_render_settings(self):
         if self._settings.get("doubleSide", False):
@@ -431,7 +434,7 @@ Now that we have some geometry and material classes, we have all the information
 
 # Rendering Scenes with the Framework
 
-The `Renderer` class is the last component for rendering 3D scenes. It will initialize all the necessary components of the scene including the camera and mesh objects. Then it sets up and manages general tasks for the whole scene such as depth testing, antialiasing, and clearing each frame.
+The `Renderer` class is the last necessary component for rendering 3D scenes. It will initialize all the components of the scene including the camera and mesh objects. Then it sets up and manages general processes for the scene such as depth testing, antialiasing, and clearing each frame.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In the `core` folder, create a new file called `renderer.py`.  
@@ -472,13 +475,13 @@ class Renderer:
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-A `Renderer` object will enable depth testing and antialiasing when it is created as well as set the background color. Then an application will call `render` with a `Scene` and `Camera` object. Since the `Scene` is the root node of a scene graph, we can get every mesh in the scene with its `descendant_list` property. Then for every visible mesh object, we call its `render` method and pass the camera's view matrix and projection matrix.
+A `Renderer` object will enable depth testing and antialiasing when it is created as well as set the background color. Then an application will call `render` with a `Scene` and `Camera` object. Since the `Scene` is the root node of a scene graph, we can get every mesh in the scene with its `descendant_list` property. Then for every visible mesh object, we call its `render` method with the camera's view matrix and projection matrix.
 
 Remember, each individual mesh handles the steps for rendering itself. These steps include:
 1. Specify the shader program in its material object to be used for rendering.
-2. Bind the VAO object that handles its attribute data.
+2. Bind the VAO that handles its attribute data.
 3. Set its model, view, and projection matrices.
-4. Upload data to its uniform variables.
+4. Upload data to its uniform variables (such as matrices).
 5. Update OpenGL render settings.
 6. Draw the number of vertices in its goemetry object using the draw style of its material object.
 
@@ -501,13 +504,13 @@ from geometry.basic_geometries import BoxGeometry
 from material.basic_materials import SurfaceMaterial
 
 class Test_9_1(WindowApp):
-    """Test the basic scene graph elements by rendering a spinning cube."""
+    """Test basic scene graph elements by rendering a spinning cube."""
     def startup(self):
         print("Starting up Test 9-1...")
 
         self.renderer = Renderer()
         self.scene = Scene()
-        self.camera = Camera(aspect_ratio=800/600)
+        self.camera = Camera(aspect_ratio=4/3)
         self.camera.position = (0, 0, 4)
 
         geometry = BoxGeometry()
@@ -533,17 +536,17 @@ Test_9_1(screen_size=(800,600)).run()
 
 Our test applications have become quite a bit shorter now that we encapsulated a lot of the rendering tasks in scene graph components! 
 
-The `startup` method simply creates a `Renderer`, `Scene`, `Camera` with 4:3 aspect ratio, geometry, and material with different colored vertices. Then it creates a mesh object with the box geometry and surface material before adding the mesh to the scene graph. We also set different rotation speeds for rotating around the $y$-axis and $x$-axis.  
+The `startup` method creates a `Renderer`, `Scene`, `Camera` with 4:3 aspect ratio, geometry, and material with different colored vertices. Then it creates a mesh object with the box geometry and surface material before adding the mesh to the scene graph. We also set different rotation speeds for rotating around the $y$-axis and $x$-axis.  
 
 After everything is set up, the `update` method simply applies the rotations to the mesh before rendering the entire scene.
 
 # Extra Components
 
-After learning about how to render shapes with geometry and material objects, we can now think about making special objects that help render a 3D scene. All of our scenes so far have just been shapes floating in a black void. Let's change that by creating a structure to represent the coordinate axes and a grid to help orient the user. After rendering those in a scene, we will then create a special object that handles inputs and allows the user to explore the scene by moving the camera around.
+Now that all the necessary components for rendering basic shapes are complete, we can think about special objects that make it easier to design a 3D scene. All of our scenes so far have just been shapes floating in a black void. Let's change that by creating a structure to represent the global coordinate axes and a grid to orient the user. After rendering these objects in a scene, we will also create a special object allows the user to explore the scene by handling input for moving the camera.
 
 ## Axes Helper
 
-The coordinate axes will include three box geometries&mdash;one for each axis. Using the box geometry allows us to give a thickness to the axes without worrying about platform compatibility. (Line width cannot be changed with `glLineWidth` on MacOS.) Here we can use our `Group` class for the base mesh and add to it each of the separate axis meshes as child nodes.
+The coordinate axes will include three box geometries&mdash;one for each axis. Using the box geometry allows us to give a thickness to the axes without worrying about platform compatibility. (Line width cannot be changed with `glLineWidth` on MacOS.) Here we can use our `Group` class for the base mesh and add children to it for each of the separate axis meshes.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside your main working folder, create a new folder called `extras`.  
@@ -595,7 +598,7 @@ class AxesHelper:
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-Each axis is its own mesh with a `BoxGeometry` and a `SurfaceMaterial`. We use `length` for the size of the dimension that corresponds to the given axis while the other two dimensions take the `thickness` value. We use the `baseColor` attribute instead of `vertexColors` for the material since all the vertices will be the same color. Then we translate each mesh so it extends along the positive direction of its axis. All three axes are added to the group node stored in `self.mesh`, which we will use later in our applications.  
+Each axis is its own mesh with a `BoxGeometry` and a `SurfaceMaterial`. We use `length` for the size of the dimension that corresponds to the given axis while the other two dimensions take the `thickness` value. We use the `baseColor` attribute instead of `vertexColors` for the material since all the vertices will be the same color. Then we translate each mesh so it extends along the positive direction of its respective axis. All three axes are added to the group node stored in `self.mesh`, which we use in our applications.  
 
 ## Grid Helper
 
