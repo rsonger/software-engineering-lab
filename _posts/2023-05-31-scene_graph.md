@@ -288,7 +288,7 @@ class Geometry(object):
 import OpenGL.GL as GL
 
 from core.openGLUtils import OpenGLUtils
-from core.uniform import Uniform
+from core.openGL import Uniform
 
 class Material(object):
     pass
@@ -303,6 +303,8 @@ Now we can create `Mesh` with `Geometry` and `Material` even though they are not
 ```python
 from geometry import Geometry
 from material import Material
+
+import OpenGL.GL as GL
 ```
 
 <input type="checkbox" class="checkbox inline"> At the end of the `scene_graph.py` file, add the following code after the `Camera` class:  

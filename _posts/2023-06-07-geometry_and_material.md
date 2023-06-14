@@ -522,8 +522,8 @@ class Test_9_1(WindowApp):
         self.rotate_speed_X = 1/3 * pi
 
     def update(self):
-        self.mesh.rotateY(self.rotate_speed_Y * self.delta_time)
-        self.mesh.rotateX(self.rotate_speed_X * self.delta_time)
+        self.mesh.rotate_y(self.rotate_speed_Y * self.delta_time)
+        self.mesh.rotate_x(self.rotate_speed_X * self.delta_time)
 
         self.renderer.render(self.scene, self.camera)
 
