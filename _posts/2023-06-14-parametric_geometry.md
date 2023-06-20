@@ -166,9 +166,9 @@ Now we have a strong foundation for creating parametric geometries. Every new ge
 
 ## Planes
 
-A plane is the simplest parametric object as it uses the parametric function that directly maps $u$ and $v$ values to $x$ and $y$ coordinates: $S(u,v) = (u,v,0)$. When rendered, it looks just like a `RectangleGeometry` instance, except it is divided into a number of smaller rectangles as defined by the resolutions of $u$ and $v$. 
+A plane is the simplest parametric object. It uses a parametric function that directly maps $u$ and $v$ values to $x$ and $y$ coordinates: $S(u,v) = (u,v,0)$. When rendered, it looks just like a `RectangleGeometry` instance, except it is divided into a number of smaller rectangles defined by the resolutions of $u$ and $v$. 
 
-Let's create a `PlaneGeometry` class that renders a plane with its center at the origin. Here, we will refer to range $u$ as the width and range $v$ as the height for clarity.
+Let's create a `PlaneGeometry` class that renders a plane with its center at the origin. We will refer to the range of $u$ as the width and the range of $v$ as the height so it is easier to imagine.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside the `parametric_geometries.py` file, add the following code after the `ParametricGeometry` class:  
@@ -188,13 +188,13 @@ class PlaneGeometry(ParametricGeometry):
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-When we define a plane, we can set its width and height as well as its segmentation along each dimension. We then define the surface function using a special Python function called `lambda`. Lambda functions are small anonymous functions that only evaluate a single expression. Here, our function `lambda u,v: [u, v, 0]` takes values from the two parameters `u` and `v` then returns a list containing those values followed by a `0`. In this way we can easily represent the parametric function $S(u,v)=(u,v,0)$.
+When we define a plane, we can set its width and height as well as its segmentation along each dimension. We then define the surface function using a special Python function called `lambda`. Lambda functions are small anonymous functions that only evaluate a single expression. Here, our function `lambda u,v: (u, v, 0)` takes values from the two parameters `u` and `v` then returns a tuple containing those values along with a `0`. In this way we can easily represent the parametric function $S(u,v)=(u,v,0)$.
 
-With our surface function defined, then we just call the `__init__` method on the superclass `ParametricGeometry` with the range of width values for $u$, the range of height values for $v$, and the surface function itself.
+With our surface function defined, we just call the `__init__` method on the superclass `ParametricGeometry` with the range of $u$ values calculated from the width, the range of $v$ values calculated from the height, and the surface function itself.
 
 # Ellipsoids
 
-Rounded shapes such as spheres are essentially made up of several circles of different sizes (called *cross-sections*). At the center of the sphere, the radius of the circular cross-section is equal to the radius of the sphere. At the top and bottom of the sphere, the radius of the cross-section is $0$. Every cross-section in between has a radius somewhere in between. Here we can use a parametric function $S(u,v)=(x,y,z)$ where $u$ is the range of $t$ values for the parametic equations of the cross-sections and $v$ is the range of radians for a half-circle as if it were drawn along the $y$-axis from the bottom of the sphere to the top.
+Rounded shapes such as spheres are essentially made up of several circles of different sizes (called *cross-sections*) stacked up along one axis. At the center of a sphere, the radius of the circular cross-section is equal to the radius of the sphere. At the top and bottom of the sphere, the radius of the cross-section is $0$. Every cross-section in between has a radius somewhere in between. Here we can use a parametric function $S(u,v)=(x,y,z)$ where $u$ is the range of $t$ values for the parametic equations of the cross-sections and $v$ is the range of radians for a half-circle as if it were drawn along the $y$-axis from the bottom of the sphere to the top.
 
 For cross-sections that are perpendicular to the $y$-axis with radius $r$, we can define $z=r\cdot\cos(u)$ and $x=r\cdot\sin(u)$ where $0\le u\le 2\pi$. The radius of these cross-sections $r$ relate directly to the value of the cross-section's $y$-coordinate. For a sphere with radius $1$, the cross-section radius $r=1$ when $y=0$ and $r=0$ when $y=1$ or $y=-1$. If we consider these values as the result of a parametric function for $v$ then we can express them as $y=cos(v)$ and $r=sin(v)$ where $-\frac{\pi}{2} \le v \le \frac{\pi}{2}$.
 
@@ -209,7 +209,7 @@ Putting this all together then we see our parametric function for a sphere is:
 $$S(u,v) = \left( \sin(u)\cdot\cos(v), \sin(v), \cos(u)\cdot\cos(v) \right) \\
 \text{where } 0\le u\le 2\pi \text{, and } -\frac{\pi}{2} \le v \le \frac{\pi}{2}$$
 
-Given that this function gives us the coordinates for a perfect sphere of radius $1$, we can create an ellipsoid by simply applying the three dimensions of width, height, and depth, to the $x$, $y$, and $z$ coordinates. Now let's write an `EllipsoidGeometry` class with its center at $(0,0,0)$ based on everything above.
+Given that this function gives us the coordinates for a perfect sphere of radius $1$, we can create an ellipsoid by simply multiplying the $x$, $y$, and $z$ coordinates by the dimensions of width, height, and depth, respectively. Now let's write an `EllipsoidGeometry` class with its center at $(0,0,0)$ based on everything we just defined.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside the `parametric_geometries.py` file, add the following import to the top of the file:  
@@ -222,7 +222,7 @@ from math import sin, cos, pi
 
 ```python
 class EllipsoidGeometry(ParametricGeometry):
-    """A unit sphere stretched by the given factors of width, height, and depth."""
+    """A unit sphere with dimensions scaled by the given width, height, and depth."""
     def __init__(self, width=1, height=1, depth=1, 
                        radial_segments=32, height_segments=16):
 
@@ -241,7 +241,7 @@ class EllipsoidGeometry(ParametricGeometry):
 
 Since the width, height, and depth dimensions span across the entire object, we only apply half of their values to the coordinates of a unit sphere to get the final coordinates of the ellipsoid centered at the origin.
 
-When we call the superclass `__init__` method, we give our values for $u$ and $v$ for the ranges previously mentioned. Here we can think of the `radial_segments` value as the number of triangles that each cross-section will be divided into, and the `height_segments` value is the total number of cross-sections.
+When we call the `__init__` method of the superclass, we give our values for $u$ and $v$ for the ranges previously mentioned. Here we can think of the `radial_segments` value as the number of triangles that each cross-section will be divided into, and the `height_segments` value is the total number of cross-sections.
 
 ## Spheres
 
@@ -269,9 +269,9 @@ A cylinder is not as complicated as a sphere because all of its cross-sections h
 
 $$y=h\cdot \left( v - \frac{1}{2} \right) \text{, where } 0 \le v \le 1$$
 
-Now, if we consider that the top of a cylindrical geometry can have a different radius than the bottom, then we can imagine a wider range of geometries such as cones and pyramids. For a cone standing upright, the radius of the top cross-section is the smallest at $0$ and the radius of the bottom cross-section is the widest. Given that our $v$ parameter expresses the $y$-coordinates from a range of values between $0$ and $1$, we can also use it to express the cross-section radius $r$. If we have a bottom radius $s$, then $r=(1-v)\cdot s$ since $v=0$ at the bottom, $v=1$ at the top, and all the points in between are on a straight line. 
+Now, if we consider that the top of a cylindrical geometry can have a different radius than the bottom, then we can imagine a wider range of geometries such as cones and pyramids. For a cone standing upright, the radius of the top cross-section is the smallest at $0$ and the radius of the bottom cross-section is the widest. Given that our $v$ parameter expresses the $y$-coordinates from a range of values between $0$ and $1$, we can also use it to express the cross-section radius $r$. Since $v=0$ at the bottom, $v=1$ at the top, and all the points in between are on a straight line, then $r=s\cdot (1-v)$ where $s$ is the bottom radius. 
 
-What if we also have a non-zero radius at the top of the cylindrical object? In that case, with a top radius $t$ and a bottom radius $s$, then the cross-section radius $r$ can be expressed as $r=v\cdot t + (1-v)\cdot s$ where $0 \le v \le 1$.
+What if we also have a non-zero radius at the top of the cylindrical object? In that case, with a top radius $t$ and a bottom radius $s$, then the cross-section radius $r$ can be expressed as $r=t\cdot v + s\cdot (1-v)$ where $0 \le v \le 1$.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside the `parametric_geometries.py` folder, add the following import statements just before the `ParametricGeometry` class.  
@@ -292,12 +292,12 @@ class CylindricalGeometry(ParametricGeometry):
         
         # calculates points on the surface
         surface_function = lambda u,v: (
-            (v * top_radius + (1-v) * bottom_radius) * sin(u),
+            (top_radius * v + bottom_radius * (1-v)) * sin(u),
             height * (v - 0.5),
-            (v * top_radius + (1-v) * bottom_radius) * cos(u)
+            (top_radius * v + bottom_radius * (1-v)) * cos(u)
         )
 
-        super().__init__(0, 2*pi, radial_segments, 
+        super().__init__(0, 2 * pi, radial_segments, 
                          0, 1, height_segments, surface_function)
 ```
 
@@ -339,8 +339,10 @@ Remember that applying matrix transformations in 3D requires a fourth dimensiona
 
 ```python
     def merge(self, other_geometry):
-        """Merge data from attributes of other geometries into this object.
-           Both geometries must share attributes with the same names."""
+        """
+        Merge data from attributes of other geometries into this object.
+        Both geometries must share attributes with the same names.
+        """
         for variable_name, attribute in self._attributes.items():
             attribute.data += other_geometry.attributes[variable_name].data
             self.set_attribute(variable_name, attribute.data)
@@ -357,7 +359,7 @@ Now we can complete the `CylindricalGeometry` class to give it top and bottom su
 <input type="checkbox" class="checkbox inline"> Open the `parametric_geometries.py` file again and add the following code to the end of the `__init__` method of the `CylindricalGeometry` class:  
 
 ```python
-        # add polygons to the top and bottom if requested
+        # add polygons to the top and bottom if necessary
         if top_closed:
             top_geometry = PolygonGeometry(radial_segments, top_radius)
             rotation = Matrix.make_rotation_y(-pi/2) @ Matrix.make_rotation_x(-pi/2)
@@ -412,7 +414,7 @@ Finally, we can extend the `CylindricalGeometry` class and give it specific para
 class ConeGeometry(CylindricalGeometry):
     """A cylindrical object that comes to a point at the top."""
     def __init__(self, radius=1, height=1, radial_segments=32,
-                       height_segments=4, closed=True):
+                       height_segments=4,  closed=True):
 
         super().__init__(0, radius, height, radial_segments, 
                          height_segments, False, closed)
@@ -421,3 +423,5 @@ class ConeGeometry(CylindricalGeometry):
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
 The `ConeGeometry` class is also useful for creating pyramids. Simply make a new instance with 3 or 4 `radial_segments` and the "cone" will actually be a pyramid!
+
+Now you have a variety of new geometries in your toolbox for creating 3D scenes. Try using them to build something interesting, like a house or a toy!  
