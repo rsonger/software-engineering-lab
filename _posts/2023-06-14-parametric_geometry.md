@@ -18,11 +18,11 @@ As we build 3D scenes, we will need to use a variety of different shapes and geo
 
 # Polygons
 
-Our `PolygonGeometry` class will provide the ability to render *regular polygons* which are 2D shapes where all sides and angles are equal. Regular polygons include equilateral triangles (3 sides), squares (4 sides), pentagons (5 sides), hexagons (6 sides), heptagons (7 sides), octogons (8 sides), and so on.
+Our `PolygonGeometry` class will provide the ability to render *regular polygons* which are 2D shapes where all sides and angles are equal. Regular polygons include equilateral triangles (3 sides), squares (4 sides), pentagons (5 sides), hexagons (6 sides), heptagons (7 sides), octagons (8 sides), and so on.
 
-We can calculate the points of a polygon with radius $r$ as equally spaced points along the circumference of a circle with the same radius $r$. Recall that previously we defined the circular path of a moving triangly by using $x=r\cdot\cos(t)$ and $y=r\cdot\sin(t)$ where $t$ is the number of radians. Together, these are the parametric equations for specifying points along the circumference of a circle. When the number of points is small and we draw straight lines between each consecutive point, we get common polygons such as hexagons (6 points) and octogons (8 points). As as the number of points increases, we get shapes that look closer and closer to a circle (imagine 32 points, for example).
+We can calculate the points of a polygon with radius $r$ as equally spaced points along the circumference of a circle with the same radius $r$. Recall that previously we defined the circular path of a moving triangle by using $x=r\cdot\cos(t)$ and $y=r\cdot\sin(t)$ where $t$ is the number of radians. Together, these are the parametric equations for specifying points along the circumference of a circle. When the number of points is small and we draw straight lines between each consecutive point, we get common polygons such as hexagons (6 points) and octagons (8 points). As the number of points increases, we get shapes that look closer and closer to a circle (imagine 32 points, for example).
 
-The image below demonstrates how to draw a polygon with triangles by dividing $2\pi$ radians into equal angles. The number of divisions is the same as the number of sides for the polygon which is also the same as the number of vertices. The polygon pictured below is an octogon, so $\theta=\frac{2\pi}{8}=\frac{\pi}{4}$. Then, the equations for the circumference of a circle give us the vertices,
+The image below demonstrates how to draw a polygon with triangles by dividing $2\pi$ radians into equal angles. The number of divisions is the same as the number of sides for the polygon which is also the same as the number of vertices. The polygon pictured below is an octagon, so $\theta=\frac{2\pi}{8}=\frac{\pi}{4}$. Then, the equations for the circumference of a circle give us the vertices,
 
 $$\begin{aligned}
 P_0 &= (r\cdot\cos(\frac{\pi}{4}),r\cdot\sin(\frac{\pi}{4})) \\
@@ -194,7 +194,7 @@ With our surface function defined, we just call the `__init__` method on the sup
 
 # Ellipsoids
 
-Rounded shapes such as spheres are essentially made up of several circles of different sizes (called *cross-sections*) stacked up along one axis. At the center of a sphere, the radius of the circular cross-section is equal to the radius of the sphere. At the top and bottom of the sphere, the radius of the cross-section is $0$. Every cross-section in between has a radius somewhere in between. Here we can use a parametric function $S(u,v)=(x,y,z)$ where $u$ is the range of $t$ values for the parametic equations of the cross-sections and $v$ is the range of radians for a half-circle as if it were drawn along the $y$-axis from the bottom of the sphere to the top.
+Rounded shapes such as spheres are essentially made up of several circles of different sizes (called *cross-sections*) stacked up along one axis. At the center of a sphere, the radius of the circular cross-section is equal to the radius of the sphere. At the top and bottom of the sphere, the radius of the cross-section is $0$. Every cross-section in between has a radius somewhere in between. Here we can use a parametric function $S(u,v)=(x,y,z)$ where $u$ is the range of $t$ values for the parametric equations of the cross-sections and $v$ is the range of radians for a half-circle as if it were drawn along the $y$-axis from the bottom of the sphere to the top.
 
 For cross-sections that are perpendicular to the $y$-axis with radius $r$, we can define $z=r\cdot\cos(u)$ and $x=r\cdot\sin(u)$ where $0\le u\le 2\pi$. The radius of these cross-sections $r$ relate directly to the value of the cross-section's $y$-coordinate. For a sphere with radius $1$, the cross-section radius $r=1$ when $y=0$ and $r=0$ when $y=1$ or $y=-1$. If we consider these values as the result of a parametric function for $v$ then we can express them as $y=cos(v)$ and $r=sin(v)$ where $-\frac{\pi}{2} \le v \le \frac{\pi}{2}$.
 
@@ -265,7 +265,7 @@ Now when we use a `SphereGeometry` instance, we only need to give it a radius in
 
 # Cylindrical Geometries
 
-A cylinder is not as complicated as a sphere because all of its cross-sections have the same radius. So we can once again adopt the equations $z=r\cdot\cos(u)$ and $x=r\cdot\sin(u)$ where $0\le u\le 2\pi$. As for the $y$-coordinate, it will depend on the height $h$ of the cylinder and fall in the range of $-\frac{h}{2} \le y \le \frac{h}{2}$ for a cylinder centered at the origin. We can express the $y$-coordinates with the parameter $v$ as,
+A cylinder is not as complicated as a sphere because all of its cross-sections have the same radius. So, we can once again adopt the equations $z=r\cdot\cos(u)$ and $x=r\cdot\sin(u)$ where $0\le u\le 2\pi$. As for the $y$-coordinate, it will depend on the height $h$ of the cylinder and fall in the range of $-\frac{h}{2} \le y \le \frac{h}{2}$ for a cylinder centered at the origin. We can express the $y$-coordinates with the parameter $v$ as,
 
 $$y=h\cdot \left( v - \frac{1}{2} \right) \text{, where } 0 \le v \le 1$$
 
@@ -303,7 +303,7 @@ class CylindricalGeometry(ParametricGeometry):
 
 The `CylindricalGeometry` class has two new parameters: `top_closed` and `bottom_closed`. As it is now, this geometry object will only render the rounded surface of the cylindrical object's sides. In order to render the top and bottom surfaces, we can use our `PolygonGeometry` class that we wrote earlier with a couple alterations.
 
-First, we need the ability to transform the vertices of the geometry object. We already did the work of creating transformation matrices with our `Matrix` class, so ideally we should be able to apply those matrices to a `Geometry` object as well. We also need a way to merge the attribute data of two different geometry objects so they can be combined into one. Without this merge functionality, the top and bottom surfaces of cylinders would need to be separate mesh objects handled by the application, which is just more trouble for the programmer. 
+First, we need the ability to transform the vertices of the geometry object. We already did the work of creating transformation matrices with our `Matrix` class, so we should be able to apply those matrices to a `Geometry` object as well. We also need a way to merge the attribute data of two different geometry objects so they can be combined into one. Without this merge functionality, the top and bottom surfaces of cylinders would need to be separate mesh objects handled by the application, which is just more trouble for the programmer. 
 
 These are generic features that should not depend on the type of geometry, so let's add them to the `Geometry` class.
 
