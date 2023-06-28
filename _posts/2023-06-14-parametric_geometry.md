@@ -65,9 +65,9 @@ class PolygonGeometry(Geometry):
             # the center is white, the sides interpolate between red and blue
             color_data += ((1, 1, 1), (1, 0, 0), (0, 0, 1))
 
-        self.setAttribute("vertexPosition", position_data, "vec3")
-        self.setAttribute("vertexColor", color_data, "vec3")
-        self.countVertices()
+        self.set_attribute("vertexPosition", position_data, "vec3")
+        self.set_attribute("vertexColor", color_data, "vec3")
+        self.count_vertices()
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -330,7 +330,7 @@ These are generic features that should not depend on the type of geometry, so le
             new_pos = new_pos[:3]
             new_position_data.append(new_pos)
 
-        self.setAttribute(variable_name, new_position_data)
+        self.set_attribute(variable_name, new_position_data)
 ```
 
 Remember that applying matrix transformations in 3D requires a fourth dimensional coordinate called the *homogeneous coordinate*. Since `Geometry` instances do not store vertex data in 4D, we need to add one before applying the matrix. In the code `old_pos + (1,)` we use a comma to indicate that we are creating a tuple with a single value. If there is no comma, then it will be treated simply as the value `1` instead of a tuple.
