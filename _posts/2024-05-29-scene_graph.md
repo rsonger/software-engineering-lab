@@ -5,7 +5,7 @@ paginate: true
 
 # Jekyll
 title: "8_The Scene Graph"
-date: 2023-05-31
+date: 2024-05-29
 categories:
   - Notes
 classes: wide

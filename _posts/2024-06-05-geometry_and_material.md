@@ -5,7 +5,7 @@ paginate: true
 
 # Jekyll
 title: "9_3D Scenes with Geometry and Material Objects"
-date: 2023-06-07
+date: 2024-06-05
 categories:
   - Notes
 classes: wide
