@@ -296,7 +296,7 @@ This diagram shows how data flows through the GPU program. The application progr
 
 ## Compiling GPU Programs
 
-Before we can create our first rendering of a yellow pixel, let's build some utilities to handle the common tasks of compiling and linking our shaders to create a GPU program. We will do this by creating *static methods* (methods that do not use an instance of their class) in a class called `OpenGLUtils`. These methods will load and compile shader code, link shaders, and compile the GPU program. We will use many OpenGL functions from the `GL` namespace which have `gl` at the beginning of their names.
+Our first rendered image will show a yellow point on a black background. But before that, let's build some utilities to handle the common tasks of preparing shaders for a GPU program. We will do this by creating a module called `openGLUtils` with functions that compile shader code, link shaders, and compile the GPU program. In this module, we use many OpenGL functions from the `GL` namespace which are prefixed with `gl` by convention.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside your `core` folder, create a file called `openGLUtils.py`.  
@@ -306,83 +306,79 @@ Before we can create our first rendering of a yellow pixel, let's build some uti
 # graphics/core/openGLUtils.py
 import OpenGL.GL as GL
 
-class OpenGLUtils:
-    """Static methods to compile OpenGL shaders and link them to create GPU programs."""
-    @staticmethod
-    def initialize_shader(shader_code, shader_type):
-        # specify required OpenGL_GLSL version
-        shader_code = f"#version 330\n{shader_code}"
+def initialize_shader(shader_code, shader_type):
+    # specify required OpenGL_GLSL version
+    shader_code = f"#version 330\n{shader_code}"
 
-        # create an empty shader object and return its reference value
-        shader_ref = GL.glCreateShader(shader_type)
-        # load the source code into the shader
-        GL.glShaderSource(shader_ref, shader_code)
-        # compile the shader
-        GL.glCompileShader(shader_ref)
+    # create an empty shader object and return its reference value
+    shader_ref = GL.glCreateShader(shader_type)
+    # load the source code into the shader
+    GL.glShaderSource(shader_ref, shader_code)
+    # compile the shader
+    GL.glCompileShader(shader_ref)
 
-        # check if the shader compile was successful
-        compile_success = GL.glGetShaderiv(shader_ref, GL.GL_COMPILE_STATUS)
-        if not compile_success:
-            # get an error message from the shader as a byte string
-            error_message = GL.glGetShaderInfoLog(shader_ref)
-            # convert the byte string to a character string
-            error_message = f"\n{error_message.decode('utf-8')}"
-            # free memory used to store the shader program
-            GL.glDeleteShader(shader_ref)
-            # raise an exception to top running and print the error message
-            raise Exception(error_message)
-        
-        # compilation was successful, so return the shader reference
-        return shader_ref
+    # check if the shader compile was successful
+    compile_success = GL.glGetShaderiv(shader_ref, GL.GL_COMPILE_STATUS)
+    if not compile_success:
+        # get an error message from the shader as a byte string
+        error_message = GL.glGetShaderInfoLog(shader_ref)
+        # convert the byte string to a character string
+        error_message = f"\n{error_message.decode('utf-8')}"
+        # free memory used to store the shader program
+        GL.glDeleteShader(shader_ref)
+        # raise an exception to top running and print the error message
+        raise Exception(error_message)
+
+    # compilation was successful, so return the shader reference
+    return shader_ref
 ```
 
-Here we use the `@staticmethod` decorator to make the `initialize_shader` method static. Inside the method, we use [`glCreateShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCreateShader.xhtml){:target="_blank"} to initialize a shader object and get its reference. Then, we load the source code into the shader with [`glShaderSource`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glShaderSource.xhtml){:target="_blank"} and compile the code with [`glCompileShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCompileShader.xhtml){:target="_blank"}. We then check the compiler status to see if it failed with [`glGetShaderiv`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetShader.xhtml){:target="_blank"}. If compilation failed, we get the error message with [`glGetShaderInfoLog`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetShaderInfoLog.xhtml){:target="_blank"} before deleting the shader program with [`glDeleteShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDeleteShader.xhtml){:target="_blank"}. Otherwise, our method returns a reference to the shader object.
+Here the `initialize_shader` function uses [`glCreateShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCreateShader.xhtml){:target="_blank"} to initialize a shader object and get its reference. Then, we load the source code into the shader with [`glShaderSource`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glShaderSource.xhtml){:target="_blank"} and compile the code with [`glCompileShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCompileShader.xhtml){:target="_blank"}. We then check the compiler status to see if it failed with [`glGetShaderiv`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetShader.xhtml){:target="_blank"}. If compilation failed, we get the error message with [`glGetShaderInfoLog`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetShaderInfoLog.xhtml){:target="_blank"} before deleting the shader program with [`glDeleteShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDeleteShader.xhtml){:target="_blank"}. Otherwise, our method returns a reference to the shader object.
 
-Next we need a method for linking the shaders and compiling the GPU program.  
+Next we need a function for linking the shaders and compiling the GPU program.  
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Add the next method to the `OpenGLUtils` class:  
+<input type="checkbox" class="checkbox inline"> Add the next function to the `openGLUtils.py` file:  
 
 ```python
-    @staticmethod
-    def initialize_program(vertex_shader_code, fragment_shader_code):
-        # use our previous method to load and compile the shaders
-        vertex_shader_ref = OpenGLUtils.initialize_shader(
-            vertex_shader_code, 
-            GL.GL_VERTEX_SHADER
-        )
-        fragment_shader_ref = OpenGLUtils.initialize_shader(
-            fragment_shader_code, 
-            GL.GL_FRAGMENT_SHADER
-        )
+def initialize_program(vertex_shader_code, fragment_shader_code):
+    # use our previous method to load and compile the shaders
+    vertex_shader_ref = initialize_shader(
+        vertex_shader_code, 
+        GL.GL_VERTEX_SHADER
+    )
+    fragment_shader_ref = initialize_shader(
+        fragment_shader_code, 
+        GL.GL_FRAGMENT_SHADER
+    )
 
-        # create an empty program object and get its reference value
-        program_ref = GL.glCreateProgram()
+    # create an empty program object and get its reference value
+    program_ref = GL.glCreateProgram()
 
-        # attach the previously compiled shaders
-        GL.glAttachShader(program_ref, vertex_shader_ref)
-        GL.glAttachShader(program_ref, fragment_shader_ref)
+    # attach the previously compiled shaders
+    GL.glAttachShader(program_ref, vertex_shader_ref)
+    GL.glAttachShader(program_ref, fragment_shader_ref)
 
-        # link the vertex shader to the fragment shader
-        GL.glLinkProgram(program_ref)
+    # link the vertex shader to the fragment shader
+    GL.glLinkProgram(program_ref)
 
-        # check if the program link was successful
-        link_success = GL.glGetProgramiv(program_ref, GL.GL_LINK_STATUS)
-        if not link_success:
-            # get an error message from the program compiler
-            error_message = GL.glGetProgramInfoLog(program_ref)
-            # convert byte string to a character string
-            error_message = f"\n{error_message.decode('utf-8')}"
-            # free memory used to store GPU program
-            GL.glDeleteProgram(program_ref)
-            # raise an exception to stop running and print the error message
-            raise Exception(error_message)
+    # check if the program link was successful
+    link_success = GL.glGetProgramiv(program_ref, GL.GL_LINK_STATUS)
+    if not link_success:
+        # get an error message from the program compiler
+        error_message = GL.glGetProgramInfoLog(program_ref)
+        # convert byte string to a character string
+        error_message = f"\n{error_message.decode('utf-8')}"
+        # free memory used to store GPU program
+        GL.glDeleteProgram(program_ref)
+        # raise an exception to stop running and print the error message
+        raise Exception(error_message)
 
-        # linking was successful, so return the program reference
-        return program_ref
+    # linking was successful, so return the program reference
+    return program_ref
 ```
 
-This method uses our `initialize_shader` method to load and compile the vertex shader and fragment shader from strings of their source code. Then we create an object for the GPU program with [`glCreateProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCreateProgram.xhtml){:target="_blank"} and attach the shaders to be linked with [`glAttachShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glAttachShader.xhtml){:target="_blank"}. Then, [`glLinkProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glLinkProgram.xhtml){:target="_blank"} uses the shaders to create the GPU program. Linking the program may fail, so we check its status with [`glGetProgramiv`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetProgram.xhtml){:target="_blank"}, similar to the shaders. If it failed we use [`glGetProgramInfoLog`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetProgramInfoLog.xhtml){:target="_blank"} to get the error message before deleting the program with [`glDeleteProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDeleteProgram.xhtml){:target="_blank"}. Otherwise, we return a reference to the program object.
+This method uses our `initialize_shader` function to load and compile the vertex shader and fragment shader from strings of their source code. It then creates an object for the GPU program with [`glCreateProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCreateProgram.xhtml){:target="_blank"} and attaches the shaders to be linked with [`glAttachShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glAttachShader.xhtml){:target="_blank"}. Then, [`glLinkProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glLinkProgram.xhtml){:target="_blank"} uses the shaders to create the GPU program. Linking the program may fail, so we check its status with [`glGetProgramiv`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetProgram.xhtml){:target="_blank"} in a way similar to the `initialize_shader` function. If linking failed, we use [`glGetProgramInfoLog`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetProgramInfoLog.xhtml){:target="_blank"} to get the error message before deleting the program with [`glDeleteProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDeleteProgram.xhtml){:target="_blank"}. Otherwise, the function returns a reference to the program object.
 
 <!-- The last utility method prints information about the running system to tell which version of OpenGL/GLSL it supports.
 
@@ -402,41 +398,41 @@ This last method may be interesting to run in the Python interpreter if you want
 
 ## Rendering in the Application
 
-Finally, we can create an application that renders a point using our `OpenGLUtils` methods and a few others from the OpenGL library.
+Finally, we can create an application that renders a point using the functions in our `openGLUtils` module and a few others from the OpenGL library.
 
-A typical application will have the following steps within its **startup** process:
+A typical application will follow these steps in its **startup** process:
 
 1. Store vertex attributes in GPU memory buffers called *vertex buffer objects* (VBOs).  
-2. Send source code for the vertex shader and fragment shader to the GPU.
+2. Send vertex shader and fragment shader source code to the GPU.
 3. Compile and load the shader source code.
 4. Link vertex data in VBOs to variables in the the vertex shader.
 
-In our applications, we do these steps in the `startup` method which is defined in the `WindowApp` class but implemented by each application. We will use special objects called *vertex array objects* (VAOs) that can hold multiple associations between VBOs and shader variables. OpenGL often requires at least one VAO. Our applications are simple and don't need to set up any buffers, so the vertex and color data will come straight from our code instead.
+In our applications, we do these steps in a method called `startup` which is defined in the `WindowApp` class but left empty there. We must implement the method in each of our apps that extend the `WindowApp` class. We will use special objects called *vertex array objects* (VAOs) to hold associations between VBOs and shader variables. OpenGL apps often requires at least one VAO. Our applications are simple and don't need to set up any buffers (VBOs), so the vertex and color data will come directly from our code instead.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your main folder, create a new file called `test_2_2.py`.  
+<input type="checkbox" class="checkbox inline"> In your `graphics` folder, create a new file called `test_2_2.py`.  
 <input type="checkbox" class="checkbox inline"> Open the `test_2_2.py` file and add the following code:
 
 ```python
-# test_2_2.py
+# graphics/test_2_2.py
 import OpenGL.GL as GL
 
 from core.app import WindowApp
-from core.openGLUtils import OpenGLUtils
+from core.openGLUtils import initialize_program
 
 class Test_2_2(WindowApp):
-    """Test GPU program compiling and linking by rendering a single point."""
+    """Test compiling and linking a GPU program by rendering a single point."""
     def startup(self):
         print("Starting up Test 2-2...")
 
-        # vertex shader code as a character string
+        # vertex shader code as a string
         vs_code = """
         void main() {
             gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
         }
         """
 
-        # fragment shader code as a character string
+        # fragment shader code as a string
         fs_code = """
         out vec4 fragColor;
         void main() {
@@ -445,7 +441,7 @@ class Test_2_2(WindowApp):
         """
 
         # compile the GPU program and save its reference
-        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
+        self.program_ref = initialize_program(vs_code, fs_code)
 
         # create and bind vertex array object (VAO)
         vao_ref = GL.glGenVertexArrays(1)
@@ -461,7 +457,7 @@ class Test_2_2(WindowApp):
         # render geometric objects using the selected program
         GL.glDrawArrays(GL.GL_POINTS, 0, 1)
 
-# instantiate and run this test
+# initialize and run this test
 Test_2_2().run()
 ```
 
@@ -474,10 +470,10 @@ $ python test_2_2.py
 
 <input type="checkbox" class="checkbox inline"> Confirm that the program displays a yellow dot in the center of the window.  
 
-This test application once again inherits from our `WindowApp` class. It implements the `startup` method for its startup process and the `update` method for its update process.
+This test application once again inherits from our `WindowApp` class. It implements the `startup` method to run its startup procedure and the `update` method to run in the main loop.
 
-The `startup` method directly stores the source code for the shaders as multi-line strings and uses our `OpenGLUtils.initialize_program` method to compile and link the GPU program. Then it gets a VAO with [`glGenVertexArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGenVertexArrays.xhtml){:target="_blank"} and binds it for use with [`glBindVertexArray`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindVertexArray.xhtml){:target="_blank"}. The last line is to optionally change the rendering size of the point with [`glPointSize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} so that it is easier to see. Here, the parameter of `10` means the point will be 10 pixels wide and 10 pixels tall.
+The `startup` method directly stores the source code for the shaders as multi-line strings and uses our `initialize_program` function to compile and link the GPU program. Then it gets a VAO with [`glGenVertexArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGenVertexArrays.xhtml){:target="_blank"} and binds it for use with [`glBindVertexArray`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindVertexArray.xhtml){:target="_blank"}. The last line of this method changes the size of the point with [`glPointSize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} so that it is easier to see. Here, the parameter of `10` means the point will be 10 pixels wide and 10 pixels tall.
 
-In the `update` method, we indicate that the **render** process should use our program with [`glUseProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUseProgram.xhtml){:target="_blank"} and then [`glDrawArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml){:target="_blank"} draws the point on the screen using our program.
+In the `update` method, we use [`glUseProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUseProgram.xhtml){:target="_blank"} to specify our program for use in the **render** process. Then [`glDrawArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml){:target="_blank"} draws the point on the screen using our program.
 
-It was a lot of work, but we now have a good foundation for building more complicated CG apps. Next time we will look at the basics of rendering 2-dimensional shapes with different colors.
+This was a lot of work, but we now have a good foundation for building more complicated CG apps. Next time we will look at the basics of rendering 2-dimensional shapes of different colors. Look forward to it!
