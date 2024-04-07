@@ -238,7 +238,7 @@ class Test_2_1(WindowApp):
     def update(self):
         pass
 
-# instantiate and run this test
+# initialize and run this test
 Test_2_1().run()
 ```
 
