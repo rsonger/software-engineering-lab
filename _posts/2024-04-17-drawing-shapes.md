@@ -12,13 +12,13 @@ classes: wide
 toc_sticky: false
 ---
 
-*In this lesson, we add a class to our framework which makes use of vertex buffers and then shows how to use the class to draw shapes with multiple vertices and colors.*
+*In this lesson, we add a class to our framework to simplify the use of vertex buffers and then use the class to draw shapes with multiple vertices and colors.*
 
-Our [last application](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) drew a single point using a single vertex. Every vertex shader we make from now on will use multiple vertices stored in memory called **vertex buffers**. Then we can draw more complicated shapes like triangles (3 vertices), squares (4 vertices), and hexagons (6 vertices).
+In our [last app](/software-engineering-lab/notes/windows-points/#rendering-in-the-application), we drew a single point with only a single vertex. But we need more than a single vertex to draw anything that is more complicated than a point. For example, triangles have 3 vertices, squares have 4 vertices, and hexagons have 6 vertices. As the number of shapes and their vertices grow, we need to make use of memory objects called **vertex buffers** so it is easier to process the data.  
 
 ## Using Vertex Buffers
 
-Recall from [`test_2_2.py`](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) that the **application stage** of the graphics pipeline creates **vertex buffer objects** (VBOs) in memory, stores data in those buffers, and associates vertex buffers with shader variables. These associations are then stored in a bound **vertex array object** (VAO). We bound a single VAO in `test_2_2.py` but did not have any buffers for it. This time we will prepare an `Attribute` class which binds vertex buffers, uploads data to them, and links them to shader variables so the shader can access the data.
+Recall from [`test_2_2.py`](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) that the **application stage** of the graphics pipeline creates **vertex buffer objects** (VBOs) in memory, stores data in those buffers, and associates vertex buffers with shader variables. These associations are then stored in a **vertex array object** (VAO) which is bound for use by the GPU. We had a single VAO in `test_2_2.py` but did not use any buffers with it. This time we will prepare an `Attribute` class which automatically binds vertex buffers, uploads data to them, and links them to shader variables so the shader can access the data.
 
 Here is an outline of the class and the OpenGL functions it will use:
 
@@ -36,12 +36,12 @@ Here is an outline of the class and the OpenGL functions it will use:
 <input type="checkbox" class="checkbox inline"> Open `openGL.py` for editing and add the following code:  
 
 ```python
-# core.openGL.py
+# graphics/core/openGL.py
 import OpenGL.GL as GL
 import numpy
 
 class Attribute(object):
-    """Manages a single attribute variable that uses data from a vertex buffer."""
+    """ Manages a single attribute variable that uses data from a vertex buffer """
     def __init__(self, data_type, data):
         # data types can be int, float, vec2, vec3, or vec4
         self.data_type = data_type
