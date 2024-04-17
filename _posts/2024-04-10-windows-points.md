@@ -26,7 +26,7 @@ The tasks of the **Application** stage include:
 3. Run algorithms for physics simulations and collision detection.
 4. **Send vertex attributes and shader source code to the GPU for rendering.**  
 
-All the test applications we make in the following lessons will perform tasks 1, 2, and 4. Task 3 is left as an exercise for the intrepid reader who would like to try building physical simulations or interactive games.  
+All the test applications we make in the following lessons will perform tasks 1, 2, and 4. Task 3 is left as an exercise for the intrepid reader who would like to try building physics simulations or interactive games.  
 
 In this lesson, we will use Pygame to complete tasks 1 and 2 in the section called [Creating Windows with Pygame](#creating-windows-with-pygame) below. A simple example of completing task 4 is then provided in the section called [Drawing a Point](#drawing-a-point).  
 
@@ -36,20 +36,21 @@ The **Rasterization** stage then creates *fragments* which hold the color data f
 
 Finally, the **Pixel Processing** stage executes a **fragment shader** program to calculate the final color of each pixel.
 
-In the section [Drawing a Point](#drawing-a-point), we write a very simple **vertex shader** program to render a single point and then set its color with an equally simple **fragment shader** program. The point coordinates and color values are fixed in this first example, so we do not bother with **geometry processing** or **rasterization** at this time.
+We will write a very simple **vertex shader** program to render a single point and then set its color with an equally simple **fragment shader** program. The point coordinates and color values are fixed in program source code, so we do not need to bother with **geometry processing** or **rasterization** at this time.
 
-The graphics framework we begin building here will follow good software engineering design practices, such as **reusability** and **extensibility**. Each component of the graphics framework is designed to have a single responsibility and be open to extensions.  
+This lesson creates the first components of the graphics framework we will build up over the duration of this course. The framework will follow good software engineering design practices, such as **reusability** and **extensibility** as each component will be designed to follow a single responsibility and be open to extensions.  
 
 # Creating Windows with Pygame
 
 The first thing we need for our framework is something to create an application window for the **application stage** of the graphics pipeline. Here we can use the Pygame library to handle a lot of the work for us. The design of our applications should implement the flow of application logic defined by the *application lifecycle*:  
-- **Startup** - load external files, initialize values, and create programming objects  
-- **Main Loop** - check input from the user, update variables and objects, and render the graphics  
-- **Shutdown** - cancel any running processes and close the window  
 
 ![The interactive graphics application lifecycle](/software-engineering-lab/assets/images/igraphics-app-flow.png)
 
-The first component of our graphics framework will be a class called `WindowApp`. Let's create it inside a Python package for the core components of the framework.
+- **Startup** - load external files, initialize values, and create programming objects  
+- **Main Loop** - includes tasks to **process input** from the user, **update** variables and objects, and **render** the graphics  
+- **Shutdown** - cancel any running processes and close the window  
+
+The first component of our graphics framework will be a class called `WindowApp` that manages the application lifecycle. Let's create it inside a Python package for the core components of the framework.
 
 ## The `WindowApp` Class
 
@@ -93,9 +94,9 @@ class WindowApp(ABC):
         self.clock = pygame.time.Clock()
 ```
 
-This code creates the `WindowApp` class from which all of our CG apps will be made. We use the `abc` module to make it an *abstract class* because it will define two empty methods (`startup` and `update`) that all CG apps must implement on their own.  Since it is abstract, we cannot create an instance of the `WindowApp` class directly. Instead, we will create subclasses that implement the `WindowApp` interface.
+This code creates the `WindowApp` class from which all of our CG apps will be made. We use the `abc` module to make it an *abstract class* because it will define two empty methods (`startup` and `update`) that all CG apps must implement on their own.  Since it is abstract, we cannot create an instance of the `WindowApp` class directly. Instead, each one of our apps will create a subclass that implements the `WindowApp` interface.
 
-The initialization method (`__init__`) prepares the necessary Pygame modules and buffer settings before creating a window. The window size is set by the `screen_size` parameter which has a default 512 x 512 resolution. An object for rendering images on screen is then created with the `pygame.display.set_mode()` method and saved to the `self.screen` property.  
+The initialization method prepares the necessary Pygame modules and buffer settings before creating a window. The window size is set by the `screen_size` parameter which has a default 512 x 512 resolution. An object for rendering images on screen is then created with the `pygame.display.set_mode()` method and saved to the `self.screen` property.  
 
 Additional configuration for the display screen is specified by `display_flags` which we set to use OpenGL with double buffering. We can combine flags with the binary OR operator `|` when we want to use multiple options. For example, replacing that line with the following code would also allow the user to change the window size:
 
@@ -103,7 +104,7 @@ Additional configuration for the display screen is specified by `display_flags` 
         display_flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE
 ```
 
-(The [`pygame.display`](https://www.pygame.org/docs/ref/display.html#pygame.display.set_mode){:target="_blank"} documentation has information about more display modes.)
+(The documentation for [`pygame.display`](https://www.pygame.org/docs/ref/display.html#pygame.display.set_mode){:target="_blank"} has more information about display modes.)
 
 The `GL_MULTISAMPLEBUFFERS` and `GL_MULTISAMPLESAMPLES` attributes control *antialiasing*. The number of samples indicates how many times to calculate the color of a pixel at the edge of a polygon. We calculate the color of a pixel with a slight offset so the pixel becomes a blend of the polygon color and the colors around it. This calculation is called "sampling".  
 
@@ -161,7 +162,7 @@ The last method we will add to `WindowApp` is the one that will run the entire a
         sys.exit()
 ```
 
-We will call this `run` method when we want to start a new application as it contains most processes of an interactive application. We will add the process for checking inputs after implementing the `Input` class next. 
+We will call this `run` method to begin the execution of each new interactive application. The process for checking inputs will be handled by the `Input` class which we create next. 
 
 ## The `Input` Class
 
@@ -181,7 +182,7 @@ class Input:
         return self._quit
 ```
 
-Here we create an attribute in the `Input` class called `_quit`. We want to limit the control of its Boolean value to the `Input` class only, so we also make a special **getter** method with the `@property` decorator. This gives the class a read-only property named `quit` so other classes can read the value but cannot change it.  
+Here we create an attribute in the `Input` class called `_quit`. We want to limit the control of its Boolean value to the `Input` class only, so we also make a special **getter** method with the `@property` decorator. This gives the class a read-only property named `quit` so other classes can read the value without changing it.  
 
 When the user closes a window that has been created with Pygame, the Pygame library adds an event to its event queue of type `pygame.QUIT`. The `Input` class will provide a method to check the event queue and change the Boolean to `True` when the window has been closed.
 
@@ -251,7 +252,7 @@ $ python test_2_1.py
 
 <input type="checkbox" class="checkbox inline"> Click the close button on the window and confirm that the program exits.  
 
-In this test, the `startup` and `update` methods don't add any significant functionality. But we include them here because `Test_2_1` extends the `WindowApp` abstract class and must implement its interface. The next test we write will have more interesting content for these two methods.
+In this test, the `startup` and `update` methods don't add any functionality. But we include them here because `Test_2_1` extends the `WindowApp` abstract class and must implement its interface. The next test we write will have more interesting content for these two methods.
 
 # Drawing a Point
 
@@ -292,7 +293,7 @@ Here, the variable `fragColor` is declared with `out` which is a *type qualifier
 
 ![The ins and outs of a GPU program](/software-engineering-lab/assets/images/buffer-shader-dataflow.png)
 
-This diagram shows how data flows through the GPU program. The application program can define `colorData`, send it to the vertex shader as `vertexColor`, then pass that to the fragment shader as `color` where it becomes a `vec4` called `fragColor` and goes back to the color buffer for rendering. We will take advantage of this design much later when we render shapes with multiple colors, but for now our fragment shader defines its own fixed color value and sends it to the buffer.
+This diagram shows how data flows through the GPU program. The application program can define `colorData`, send it to the vertex shader as `vertexColor`, then pass that to the fragment shader as `color` where it becomes a `vec4` called `fragColor` and goes back to the color buffer for rendering. We will take advantage of this design in the next lesson when we render shapes with multiple colors, but for now our fragment shader defines its own fixed color value and sends it to the buffer.
 
 ## Compiling GPU Programs
 
