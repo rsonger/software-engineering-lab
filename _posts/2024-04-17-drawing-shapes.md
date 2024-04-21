@@ -47,15 +47,18 @@ class Attribute(object):
 
     # maps data types to their associated vertex size and component data type
     _ATTRIB_SIZE_TYPE = {
-        'int':      (1, GL.GL_INT),
-        'float':    (1, GL.GL_FLOAT),
-        'vec2':     (2, GL.GL_FLOAT),
-        'vec3':     (3, GL.GL_FLOAT),
-        'vec4':     (4, GL.GL_FLOAT),
+        "int":      (1, GL.GL_INT),
+        "float":    (1, GL.GL_FLOAT),
+        "vec2":     (2, GL.GL_FLOAT),
+        "vec3":     (3, GL.GL_FLOAT),
+        "vec4":     (4, GL.GL_FLOAT),
     }
 
     def __init__(self, data_type, data):
         # data types can be int, float, vec2, vec3, or vec4
+        if data_type not in self._ATTRIB_SIZE_TYPE.keys():
+            raise ValueError(data_type, "Unsupported data type")
+
         self.data_type = data_type
         self.data = data
 
@@ -68,7 +71,7 @@ class Attribute(object):
 
 When we create a new vertex attribute, we give it data to store in a vertex buffer and specify the data type. The `Attribute` instance will get an available vertex buffer when it initializes and then immediately upload its data using the `upload_data` method below.
 
-Here we also create a class variable called `_ATTRIB_SIZE_TYPE` to map data type parameters to their associated vertex size and component data types. The variable is a dictionary where each key is a valid parameter for `self.data_type`, and each value is a tuple containing the size and data type for OpenGL. As a class variable, the dictionary is shared among all instances and it will be used in the method we create later for associating variables with their data.  
+Here we also create a class variable called `_ATTRIB_SIZE_TYPE` to map data type parameters to their associated vertex size and component data types. The variable is a dictionary where each key is a valid parameter for `self.data_type`, and each value is a tuple containing the size and data type for OpenGL. As a class variable, the dictionary is shared among all instances and we can use it both in the `__init__` method and in the method we create later for associating variables with their data.  
 
 <input type="checkbox" class="checkbox inline"> Add the `upload_data` method to the `Attribute` class.  
 
@@ -97,7 +100,7 @@ Next is another method for associating variables with their data, aptly named `a
 
         # stop if the program does not use the variable
         if variable_ref == -1:
-            print(f'No reference found for variable {variable_name}')
+            print(f"No reference found for variable {variable_name}")
             return
 
         # bind the buffer for use just in case it hasn't been bound already

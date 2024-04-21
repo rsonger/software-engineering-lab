@@ -12,56 +12,58 @@ classes: wide
 toc_sticky: false
 ---
 
-*In this lesson, we introduce uniform data for creating animations and keyboard events for greater interaction with the application.*
+*In this lesson, we introduce uniform data for use in animations and keyboard events for greater interaction with the application.*
 
-In the section [Working with Uniform Data](#working-with-uniform-data), we introduce uniform variables that can be accessed by both the vertex shader and the fragment shader, then use them to animate a triangle moving across the screen. Then in the section [Adding Interactivity](#adding-interactivity), we extend the `Input` class to handle various keyboard events and give the user control of the triangle's movements.  
+In the section [Working with Uniform Data](#working-with-uniform-data), we introduce uniform variables that store shared values for both the vertex shader and the fragment shader, then use them to animate a triangle moving across the screen. In the section [Adding Interactivity](#adding-interactivity), we extend the `Input` class to handle various keyboard events and give the user control over the triangle's movements.  
 
-With vertex array objects, we can associate position and color data to GPU program variables. However, the structure of VAOs means that we cannot share the same data between vertices. Instead, we need to repeat data when we want different vertices to be the same color, for example. This is not ideal. Repeating data multiple times in our source code lowers the **maintainability** and **extensibility** of our software. To change the color of a solid-color hexagon, we would need to change the data for six different vertices.
+With vertex array objects, we can associate position and color data to GPU program variables. However, we cannot share the same instances of data between vertices due to the way VAOs are structured. Instead, we need to give each vertex its own data value. This means we repeat data values for vertices that use the same value, such as when we want them to be the same color. This is not ideal. Repeating data multiple times in our source code lowers the **maintainability** and **extensibility** of our software. To change the color of a solid-color hexagon, we would need to change the data for six different vertices.
 
-There must be an easier way! Actually, there is. In situations like this we can use a special kind of global variable called a *uniform variable* because it stores values in a uniformly accessible way. That means both shaders can use them for every vertex in the array.
+But there is an easier way! In situations like this we can use a special kind of global variable called a *uniform variable* which stores values in a way that makes them accessible across programs (i.e., *uniform* access). That means both shaders can use the same uniform variable for every vertex in the array.
 
 # Working with Uniform Data
 
-Uniform variables are useful when we want to send data directly from our application to variables in the GPU program. They do not store data in vertex buffers, and we do not need VAOs to manage their associations. Instead, we just use [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} to get a reference to the uniform variable inside the GPU program and then assign a value to it with one of the many [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions. The `glUniform` function we use will depend on the data type and number of values as indicated in the function name. For example, sending a single integer (or Boolean value) would use `glUniform1i` (here `i` means `int`) but sending a `vec3` would require `glUniform3f` (and `f` means `float`). Then the shader programs will reference that data every time it draws a frame.
+Uniform variables are useful when we want to send data directly from our application to variables in the GPU program. They do not store data in vertex buffers, and we do not need VAOs to manage their associations. Instead, we just use [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} to get a reference to the uniform variable inside the GPU program and then assign a value to it with one of the many [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions. The `glUniform` function we use will depend on the data type and number of values it holds as indicated in the function name. For example, sending a single integer (or Boolean value) would use `glUniform1i` (here `i` means `int`) but sending a `vec3` would require `glUniform3f` (and `f` means `float`). Then the shader programs will reference that data every time it draws a frame.
 
 ## The Uniform Class
 
-Similar to how we made the `Attribute` class for attribute variables in the previous post, now we will create a class that handles uniform variables called the `Uniform` class. The responsibilities of this class are to:
+Similar to how we made the `Attribute` class for attribute variables in the previous post, we will now create the `Uniform` class to handle uniform variables. The responsibilities of this class are to:  
 - store the data and data type of the uniform variable in the GPU program;
-- get and store a reference to the uniform variable in the GPU program that will load the data;
+- get and store a reference to the uniform variable in the GPU program;
 - and load the data into the uniform variable as needed.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `openGL.py`.  
-<input type="checkbox" class="checkbox inline"> Scroll to the end of `openGL.py` and add the following code after the `Attribute` class:  
+<input type="checkbox" class="checkbox inline"> Scroll to the end of `openGL.py` and add the following code at the bottom:  
 
 ```python
 class Uniform:
-    """Manages a single uniform variable in a shader program."""
+    """ Manages a single uniform variable in a shader program """
+
+    _VALID_TYPES = ("int","bool","float","vec2","vec3","vec4")  
+
     def __init__(self, data_type, data):
         # check the given data type
-        valid_types = ('int','bool','float','vec2','vec3','vec4')
-        if data_type.lower() not in valid_types:
-            raise Exception(f"Unsupported data type: {data_type}")
+        if data_type.lower() not in self._VALID_TYPES:
+            raise ValueError(f"Unsupported data type: {data_type}")
         self.data_type = data_type.lower()
 
         # data to be sent to uniform variable
         self.data = data
 
-        # reference for variable location in shader
+        # reference for the variable's location in the shader
         self.variable_ref = None
 ```
 
-The `Uniform` class introduces some strict type checking that we didn't have in `Attribute`. It defines the valid data types with a tuple and raises an exception if the given data type is not one of them. This will make it easier to debug your code if you have a typo in your application code or try to use a type that we do not handle in our `upload_data` method later. (Adding this same check to the `Attribute` class would surely improve the integrity of our framework, so give it a try if you like!)
+The `Uniform` class stores the valid data types with a tuple and raises an exception if the given data type is not one of them. This makes it easier to debug your code if you have a typo in your application code or try to use a type that we do not support.  
 
 <input type="checkbox" class="checkbox inline"> Now add the `locate_variable` method to the `Uniform` class.  
 
 ```python
     def locate_variable(self, program_ref, variable_name):
-        """Get and store a reference to a uniform variable with the given name."""
+        """ Get and store a reference to a uniform variable with the given name """
         self.variable_ref = GL.glGetUniformLocation(program_ref, variable_name)
         if self.variable_ref == -1:
-          raise Exception(f"No uniform variable found for {variable_name}")
+          raise ValueError(f"No uniform variable found with name {variable_name}")
 ```
 
 Here we use the [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} function to get a reference to the uniform variable in the given program. That function will return `-1` if the variable cannot be found. We don't want our program to fail silently if it cannot find the variable, so we raise an exception with a descriptive message for the programmer.
@@ -70,50 +72,26 @@ Here we use the [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL
 
 ```python
     def upload_data(self):
-        """Store data in a previously located uniform variable."""
-        if self.variable_ref == None:
-            # the variable has not been located in a program
-            raise Exception("No uniform variable reference. Set with locate_variable() before uploading data.")
+        """ Store data in a previously located uniform variable """
+        # check that the variable reference exists
+        assert self.variable_ref is not None, \
+            "Call locate_variable() before upload_data()."
 
         if self.data_type == "int":
-            GL.glUniform1i(
-                self.variable_ref, 
-                self.data
-            )
+            GL.glUniform1i(self.variable_ref, self.data)
         elif self.data_type == "bool":
-            GL.glUniform1i(
-                self.variable_ref, 
-                self.data
-            )
+            GL.glUniform1i(self.variable_ref, self.data)
         elif self.data_type == "float":
-            GL.glUniform1f(
-                self.variable_ref, 
-                self.data
-            )
+            GL.glUniform1f(self.variable_ref, self.data)
         elif self.data_type == "vec2":
-            GL.glUniform2f(
-                self.variable_ref, 
-                self.data[0], 
-                self.data[1]
-            )
+            GL.glUniform2f(self.variable_ref, *self.data)
         elif self.data_type == "vec3":
-            GL.glUniform3f(
-                self.variable_ref, 
-                self.data[0], 
-                self.data[1], 
-                self.data[2]
-            )
+            GL.glUniform3f(self.variable_ref, *self.data)
         elif self.data_type == "vec4":
-            GL.glUniform4f(
-                self.variable_ref, 
-                self.data[0], 
-                self.data[1], 
-                self.data[2], 
-                self.data[3]
-            )
+            GL.glUniform4f(self.variable_ref, *self.data)
 ```
 
-The first thing we do is confirm that we have a reference to the uniform variable. `self.variable_ref` is set to `None` when the `Uniform` object initializes, but then it receives a value in the `locate_variable` method. So our message to the programmer is a reminder to call `locate_variable` before `upload_data`. Then we check the data type of this uniform variable and upload the data with the appropriate [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} function.
+The first thing we do is confirm that we have a reference to the uniform variable. `self.variable_ref` is set to `None` when the `Uniform` object initializes, but then it receives a value in the `locate_variable` method. So our message to the programmer is a reminder to call `locate_variable` before `upload_data`. Then we check the data type of this uniform variable and upload the data with the appropriate [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} function. If the data stores more than one value (such as a `list` or `tuple`), then we [unpack the data](https://docs.python.org/3/tutorial/controlflow.html#tut-unpacking-arguments) to pass its values as separate arguments to the GL function.
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the `openGL.py` file.
 
@@ -121,7 +99,7 @@ Next we will write a simple test program to confirm that the `Uniform` class wor
 
 ## A Test of Two Triangles
 
-The application that tests the `Uniform` class will show two triangles with the same shape, but different positions and colors. For this purpose, we will use shader programs that are slightly modified from before. Here is the vertex shader:
+The application that tests the `Uniform` class will show two triangles with the same shape, but different positions and colors. For this purpose, we will use shader programs that are slightly modified from before. The new vertex shader code looks like this:
 
 ```glsl
 # GLSL version 330
@@ -132,11 +110,11 @@ void main() {
     gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
 }
 ```
-There are a couple of things to notice here. First, the `translation` variable has the `uniform` qualifier which defines it as a uniform variable. We will use our `Uniform` class to upload data to `translation` in the test application.
+There are a couple of things to notice here. First, the `translation` variable has the `uniform` qualifier which declares it to be a uniform variable. We will use our `Uniform` class to upload data to `translation` when we write the the test app.
 
-Second, `gl_Position` (which defines the location of each vertex) is the combination of `position` and `translation`. The `position` variable will reference three vertices centered around the origin that together represent the triangle's shape. The `translation` variable associates with values representing the change in position for each triangle. Combining `position` and `translation` will effectively move the center of the triangle before drawing it. We will use this to make the left triangle move $-0.5$ units and the right triangle move $0.5$ units along the $x$-axis.
+Second, the value we assign to `gl_Position` (which defines the location of each vertex) combines the values of `position` and `translation`. The `position` variable will reference three vertices centered around the origin that together represent the triangle's shape. The `translation` variable stores values representing the change in position for the triangle. Combining `position` and `translation` will effectively move the center of the triangle before drawing it. We will use this approach so that the left triangle moves $-0.5$ units along the $x$-axis and the right triangle moves $0.5$ units.
 
-The new fragment shader program will look like this:
+The new fragment shader code looks like this:
 
 ```glsl
 # GLSL version 330
@@ -149,14 +127,14 @@ void main() {
 
 This one is even simpler. Before drawing each triangle, we just upload its color to the `baseColor` uniform variable. We will make the left triangle red and the right triangle blue.
 
-In order to use the `translation` and `baseColor` uniform variables, our test application will create an instance of the `Uniform` class for each value we want to upload and store a reference to the respective variable. Then it will upload the data in the respective `Uniform` objects before drawing each triangle in the `update` method.
+Our test app will create an instance of the `Uniform` class for each of the `translation` and `baseColor` uniform variables so that we can upload their values and store their references. Setting up each `Uniform` instance happens in the `startup` method. Then, in the `update` method, it will upload the data to use for `translation` and `baseColor` before drawing each triangle.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_4_1.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_4_1.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your `graphics` folder, create a new file called `test_4_1.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_4_1.py` and add the following code:  
 
 ```python
-# test_4_1.py
+# graphics/test_4_1.py
 import OpenGL.GL as GL
 
 from core.app import WindowApp
@@ -164,7 +142,7 @@ from core.openGL import Attribute, Uniform
 from core.openGLUtils import OpenGLUtils
 
 class Test_4_1(WindowApp):
-    """Test Uniform by drawing the same triangles with different positions and colors."""
+    """ Test Uniform by drawing two separate instances of the same triangle """
     def startup(self):
         print("Starting up Test 4-1...")
 
@@ -236,28 +214,28 @@ Test_4_1().run()
 <input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_4_1.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a red triangle on the left side of the screen and a blue triangle on the right side.  
 
-In this application we create a new `Uniform` object and save it to the application instance `self` for each value that we will want to use with a uniform variable. Then we can just reference the `Uniform` object and use its `upload_data` method when we want to apply its associated value in our `update` method. Note that the data MUST be uploaded BEFORE calling `glDrawArrays` or the shader program won't have access to it.
+This app saves a reference to each `Uniform` object associated with a uniform variable in the shader. Then we can reference the `Uniform` object in the `update` method and use its `upload_data` method to assign its value to the associated variable before drawing. Note that the data MUST be uploaded BEFORE calling `glDrawArrays` or the shader program will not use the correct data to draw.
 
 ## Animations
 
-Until now, all of our test applications have used the `update` method to draw still images, which it does 60 times a second. Remember that in the application runtime lifecycle, the `update` method runs in a continuous loop that updates data and renders the image at 60 FPS (see the `run` method in the `WindowApp` class). With static images, we get no real benefit from structuring our application in this way. The benefit comes when the images change in some way over time, which we will now learn how to do by creating animations.
+Until now, all of our test apps have used the `update` method to draw still images, which it does 60 times a second. Remember that in the application runtime lifecycle, the `update` method runs in a continuous loop that updates data and renders the image at 60 FPS (see the `run` method in the `WindowApp` class). With static images, we get no real benefit from structuring our application in this way. The benefit comes when the image changes over time to create animations. Let's take a look at the essential techniques for animating our rendered images.
 
 ### Clearing the Screen
 
-One of the essential steps in computer animation is to clear the screen in between frames. If we do not clear the screen, then the images drawn in the previous frame will remain on the screen and the new images will draw on top of them. Clearing the screen will effectively erase the previously drawn image and prepare the screen for drawing the new frame. OpenGL provides two functions for this:  
+One of the essential techniques in computer animation is to clear the screen in between frames. If we do not clear the screen, then the images drawn in the previous frame will remain on the screen and the new images will draw on top of them. Clearing the screen will effectively erase the previously drawn image and prepare the screen for drawing the new frame. OpenGL provides two functions for this:  
 - The [`glClearColor`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glClearColor.xhtml){:target="_blank"} function sets a RGBA color to use when clearing the color buffer. The color provided will effectively become the background color for the new frame.
 - The [`glClear`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glClear.xhtml){:target="_blank"} function resets a buffer specified by the parameter. OpenGL constants can be used for the parameters, such as `GL_COLOR_BUFFER_BIT`, `GL_DEPTH_BUFFER_BIT`, `GL_STENCIL_BUFFER_BIT`, or any combination of these using the bitwise OR `|` operator.
 
-Our next test application will create an animation of a single triangle moving to the right across the screen. When it moves off screen completely, it will reposition itself on the left side of the screen and continue moving to the right. This is called a *wrap-around effect*.
+Our next test app will create an animation of a single triangle moving to the right across the screen. When it moves off screen completely, it will reposition itself on the left side of the screen and continue moving to the right. This is called a *wrap-around effect*.
 
-The source code is very similary to `test_4_1.py`, except this time we only use the red triangle and completely rewrite the `update` method. In the `update` method, we will increment the `translation` data representing the triangle's $x$-coordinates and clear the color buffer before redrawing the triangle.
+The source code is very similar to `test_4_1.py`, except this time we only use the red triangle and completely rewrite the `update` method. In the `update` method, we will increment the `translation` data representing the triangle's $x$-coordinates and clear the color buffer before redrawing the triangle.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_4_2.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_4_2.py` for editing and add the following code:  
+<input type="checkbox" class="checkbox inline"> In your `graphics` folder, create a new file called `test_4_2.py`.  
+<input type="checkbox" class="checkbox inline"> Open `test_4_2.py` and add the following code:  
 
 ```python
-# test_4_2.py
+# graphics/test_4_2.py
 import OpenGL.GL as GL
 
 from core.app import WindowApp
@@ -265,7 +243,7 @@ from core.openGL import Attribute, Uniform
 from core.openGLUtils import OpenGLUtils
 
 class Test_4_2(WindowApp):
-    """Test animations with uniform variables by moving a triangle across the screen."""
+    """ Test animations with uniform variables by moving a triangle across the screen """
 
     def startup(self):
         print("Starting up Test 4-2...")
@@ -305,7 +283,7 @@ class Test_4_2(WindowApp):
         position_attribute = Attribute("vec3", position_data)
         position_attribute.associate_variable(self.program_ref, "position")
 
-        # create initial values for translation and baseColor
+        # the triangle will begin to the left of the origin
         self.translation = Uniform("vec3", [-0.5, 0.0, 0.0])
         self.translation.locate_variable(self.program_ref, "translation")
 
@@ -316,14 +294,14 @@ class Test_4_2(WindowApp):
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
 
     def update(self):
-        # update translation to move the triangle to the right
+        # update the translation value to move the triangle to the right
         self.translation.data[0] += 0.01
 
         # if the triangle passes off screen, move it to the left side
         if self.translation.data[0] > 1.2:
             self.translation.data[0] = -1.2
 
-        # reset color buffer with specified color
+        # reset the color buffer with the previously specified color
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
         GL.glUseProgram(self.program_ref)
@@ -339,13 +317,13 @@ Test_4_2().run()
 <input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_4_2.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a red triangle moving to the right of the screen and then wrapping around to the left side.  
 
-This application only has one `Uniform` object for the `translation` variable and one for the `baseColor` variable. Here we use a list for each `Uniform` object's data because Python tuples are *immutable* (cannot be changed). If we used a tuple instead, we would not be able to change the data values (and would not be able to animate).
+Since this app only draws a single triangle, it only needs one `Uniform` object for the `translation` variable and one for the `baseColor` variable. Here we use a list for the data of each `Uniform` object because Python tuples are *immutable* (i.e., they cannot change). If we used a tuple instead, we would not be able to change the data values (and would not be able to animate the triangle).
 
 In the `update` method, we directly set the new data for the $x$-coordinate translation in the `Uniform` object before uploading its data. If the triangle moves more than `1.2` units to the right, we reposition it to the left side of the screen. Remember, the leftmost point in the triangle position data is at `-0.2` on the $x$-axis, so a translation value of `1.2` will put it at exactly `1.0`, the edge of the screen.
 
 ### Keeping Time
 
-Another essential technique in computer animation is to calculate movements based on the amount of time that has passed since the previous frame. We will prepare two new instance variables for keeping track of time:
+Another essential technique in computer animation is to calculate movements based on the amount of time that has passed since the previous frame. For this purpose, we will introduce two new instance variables in `WindowApp` for keeping track of time:
 - The `time` variable will count the total number of seconds that the application has been running.
 - The `delta_time` variable will store the number of seconds that have passed since the last interation of the run loop.
 
@@ -353,7 +331,7 @@ These variables will go in the `WindowApp` class so they can be inherited into e
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `app.py`.  
-<input type="checkbox" class="checkbox inline"> Look inside the `WindowApp` class and add the following code inside the `__init__` method at the end of it:  
+<input type="checkbox" class="checkbox inline"> Look inside the `WindowApp` class and add the following code to the end of the `__init__` method:  
 
 ```python
         # timekeeper variables
@@ -361,7 +339,7 @@ These variables will go in the `WindowApp` class so they can be inherited into e
         self.__delta_time = 0
 ```
 
-Here, the double underscores in the variable names will give complete control of the variable to the `WindowApp` class. That means our applications could create their own `__time` and `__delta_time` variables without overwriting the timekeeper features in `WindowApp`.
+Here, the double underscores in the variable names will give complete control of the variable to the `WindowApp` class. That means our apps could create their own `__time` and `__delta_time` variables without overwriting the timekeeper features in `WindowApp`.
 
 <input type="checkbox" class="checkbox inline"> Inside the `WindowApp` class, add two `@property` definitions for the `time` and `delta_time` variables.  
 
@@ -375,21 +353,21 @@ Here, the double underscores in the variable names will give complete control of
         return self.__delta_time
 ```
 
-This makes the `time` and `delta_time` variables read-only so applications cannot mess around with time.
+This makes the `time` and `delta_time` variables read-only so apps cannot mess around with time.
 
 <input type="checkbox" class="checkbox inline"> Finally, go to the `run` method inside the `WindowApp` class and find the line that calls `self.update()`.  
-<input type="checkbox" class="checkbox inline"> Just before the `self.update()` call inside the `while running` loop, add the following code:
+<input type="checkbox" class="checkbox inline"> Just before the `self.update()` call inside the `while` loop, add the following code:
 
 ```python
             # calculate seconds since the last iteration of the run loop
             self.__delta_time = self.clock.get_time() / 1000
-            # increment time application has been running
+            # increment the total time that the app has been running
             self.__time += self.__delta_time
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the `app.py` file.
 
-Now let's test the timekeeper variables with an application that calculates the triangle's position based on time. We could make the triangle move back and forth across the screen with simple linear equations, or we can use sine and cosine functions from trigonometry to make the triangle move more smoothly between $1$ and $-1$ values. Together, sine and cosine can calculate the $(x,y)$ coordinates of a circular path from a time variable $t$:
+Now let's test the timekeeper variables with an application that calculates the triangle's position based on time. We could make the triangle move back and forth across the screen with simple linear equations, or we can use sine and cosine functions to make the triangle move more smoothly between $1$ and $-1$ values. If we assign cosine and sine to the $x$ and $y$ coordinates respectively, we can calculate a circular path from the time variable (represented by $t$):
 
 $$\begin{aligned}
 x&=cos(t) \\
@@ -403,7 +381,7 @@ x &= r \cdot cos(t) + a \\
 y &= r \cdot sin(t) + b
 \end{aligned}$$
 
-If the triangle's path has a radius of $1.0$, then it will partially disappear off the screen at the edges. So let's make the radius a little smaller with a value of $0.75$ instead.
+If the triangle's path has a radius of $1.0$, then it will partially disappear off screen at the edges. So let's reduce the radius to $0.75$ instead.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Copy your `test_4_2.py` file and change its name to `test_4_3.py`.  
@@ -411,22 +389,23 @@ If the triangle's path has a radius of $1.0$, then it will partially disappear o
 
 ```python
 class Test_4_3(WindowApp):
-    """Test using timekeeper variables to animate a triangle moving in a circle."""
+    """ Test using timekeeper variables to animate a triangle moving in a circle """
     def startup(self):
         print("Starting up Test 4-3...")
 ```
 
 <input type="checkbox" class="checkbox inline"> On the last line of the file, change the code that runs the application to `Test_4_3().run()`.  
-<input type="checkbox" class="checkbox inline"> At the top of the file, add an `import` statement to get functions for sine and cosine:  
+<input type="checkbox" class="checkbox inline"> At the top of the file, change the comment and add an `import` statement to get functions for sine and cosine:  
 
 ```python
+# graphics/test_4_3.py
 from math import sin, cos
 ```
 
 <input type="checkbox" class="checkbox inline"> Inside the `update` method, delete the code before `glClear(GL_COLOR_BUFFER_BIT)` and add the following code:  
 
 ```python
-        # update the (x,y) coordinates of the circular path
+        # update the (x,y) position along a circular path
         self.translation.data[0] = 0.75 * sin(self.time)
         self.translation.data[1] = 0.75 * cos(self.time)
 ```
@@ -434,11 +413,11 @@ from math import sin, cos
 <input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_4_3.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a red triangle moving in a circle around the center of the screen.  
 
-This application takes `self.time` as the number of radians in the sine and cosine calculations, so the triangle will complete one full revolution every $2 \pi$ (about 6.28) seconds.
+This app uses `self.time` as the number of radians for the sine and cosine calculations, so the triangle will complete one full revolution every $2 \pi$ (about 6.28) seconds.
 
-The last test application for animations will use our timekeeper variables to animate changing color. We will copy `test_4_3.py` and use the sine and cosine functions again, but this time we will change the red value of the `baseColor` variable instead of `translation`.
+The final test app for animations will use our timekeeper variables to animate changing color. We will copy `test_4_3.py` and use the sine and cosine functions again, but this time we will change the value of the `baseColor` shader variable instead of `translation`.
 
-Color values must be in the range of $[0.0,1.0]$ but sine results are in the range $[-1.0,1.0]$, so we need to change our equation again. We can do this by shifting the results out of the negative values with $sin(t) + 1$ so the range becomes $[0.0,2.0]$. Then we just shorten the range of values by half to create the final equation $f(t) = 0.5(sin(t)+1)$.
+Color values must be in the range of $[0.0,1.0]$ but sine results are in the range $[-1.0,1.0]$, so we need to change our equation again. We can do this by shifting the results out of the negative values with $sin(t) + 1$ so the range becomes $[0.0,2.0]$. Then we just shrink the range of values in half to create the final equation $f(t) = 0.5(sin(t)+1)$.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Copy your `test_4_3.py` file and change its name to `test_4_4.py`.  
@@ -455,12 +434,12 @@ class Test_4_4(WindowApp):
 <input type="checkbox" class="checkbox inline"> Inside the `update` method, delete the code before `glClear(GL_COLOR_BUFFER_BIT)` and add the following code:  
 
 ```python
-        # update the baseColor red value based on time passed
+        # update the red value based on time passed
         self.base_color.data[0] = 0.5 * (sin(self.time) + 1)
 ```
 
 <input type="checkbox" class="checkbox inline"> Save the file and run the application with the `python test_4_4.py` command in your terminal.  
-<input type="checkbox" class="checkbox inline"> Confirm that you can see the triangle fading from red to black and back again.  
+<input type="checkbox" class="checkbox inline"> Confirm that you can see the triangle fading from red to black and back to red again.  
 
 The green and blue values of the triangle color are stored in `self.base_color.data[1]` and `self.base_color.data[2]`, respectively. If we wanted to shift through a wider range of colors, we would need to update those values also. But the equations for the green and blue values would need to be different so they peak at different times. In order to visualize this, it may be helpful to see a graph. Desmos.com has a very useful graphing tool and I have prepared one to show oscillating RGB values [here](https://www.desmos.com/calculator/uymwhpwc7x){:target="_blank"}. Try playing with the expressions to see what different effects you can create!
 

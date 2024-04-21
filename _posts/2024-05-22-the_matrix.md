@@ -165,10 +165,10 @@ GLSL uses the `mat4` data type for 4x4 matrices and we can use the `glUniformMat
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Open the `openGL.py` file from your `core` folder and scroll down to the `Uniform` class.  
-<input type="checkbox" class="checkbox inline"> Find the `valid_types` variable inside the `__init__` method of the `Uniform` class and add ***ONLY*** the `'mat4'` value to the tuple.  
+<input type="checkbox" class="checkbox inline"> Find the `_VALID_TYPES` variable inside the `Uniform` class and add ***ONLY*** the `'mat4'` value to the tuple.  
 
 ```python
-        valid_types = ('int','bool','float','vec2','vec3','vec4','mat4')
+    _VALID_TYPES = ('int','bool','float','vec2','vec3','vec4','mat4')
 ```
 
 <input type="checkbox" class="checkbox inline"> Then, find the long `if` statement inside the `upload_data` method and add the following code at the end:  
