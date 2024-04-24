@@ -188,8 +188,7 @@ The base class of `Material` will compile and initialize the shader program, sto
 ```python
     """Stores a shader program reference, Uniform objects, and OpenGL render settings."""
     def __init__(self, vertex_shader_code, fragment_shader_code):
-        self._program_ref = OpenGLUtils.initialize_program(
-            vertex_shader_code, fragment_shader_code)
+        self._program_ref = initialize_program(vertex_shader_code, fragment_shader_code)
 
         self._uniforms = {}
 

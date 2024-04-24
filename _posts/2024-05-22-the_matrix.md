@@ -208,7 +208,7 @@ from math import pi
 import OpenGL.GL as GL
 
 from core.app import WindowApp
-from core.openGLUtils import OpenGLUtils
+from core.openGLUtils import initialize_program
 from core.openGL import Attribute, Uniform
 from core.matrix import Matrix
 
@@ -234,7 +234,7 @@ class Test_7(WindowApp):
         }
         """
 
-        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
+        self.program_ref = initialize_program(vs_code, fs_code)
 ```
 
 Next, we create an `Attribute` object for the position data and two `Uniform` objects for the two uniform matrices in the shader program. We will use `make_translation` and `make_rotation_z` to update the model matrix whenever the user moves or rotates the triangle. The `make_perspective` method is only called once in our `startup` method since the perspective will always stay the same.

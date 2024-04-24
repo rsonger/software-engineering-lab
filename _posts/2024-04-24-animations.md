@@ -139,7 +139,7 @@ import OpenGL.GL as GL
 
 from core.app import WindowApp
 from core.openGL import Attribute, Uniform
-from core.openGLUtils import OpenGLUtils
+from core.openGLUtils import initialize_program
 
 class Test_4_1(WindowApp):
     """ Test Uniform by drawing two separate instances of the same triangle """
@@ -165,7 +165,7 @@ class Test_4_1(WindowApp):
         }
         """
 
-        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
+        self.program_ref = initialize_program(vs_code, fs_code)
 
         # we only need one vertex array object this time
         vao_ref = GL.glGenVertexArrays(1)
@@ -240,7 +240,7 @@ import OpenGL.GL as GL
 
 from core.app import WindowApp
 from core.openGL import Attribute, Uniform
-from core.openGLUtils import OpenGLUtils
+from core.openGLUtils import initialize_program
 
 class Test_4_2(WindowApp):
     """ Test animations with uniform variables by moving a triangle across the screen """
@@ -267,7 +267,7 @@ class Test_4_2(WindowApp):
         }
         """
 
-        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
+        self.program_ref = initialize_program(vs_code, fs_code)
 
         # get and bind a vertex array object
         vao_ref = GL.glGenVertexArrays(1)

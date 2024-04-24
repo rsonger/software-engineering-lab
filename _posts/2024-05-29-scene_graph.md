@@ -287,7 +287,7 @@ class Geometry(object):
 # material.__init__.py
 import OpenGL.GL as GL
 
-from core.openGLUtils import OpenGLUtils
+from core.openGLUtils import initialize_program
 from core.openGL import Uniform
 
 class Material(object):
