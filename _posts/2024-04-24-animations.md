@@ -445,24 +445,24 @@ The green and blue values of the triangle color are stored in `self.base_color.d
 
 # Adding Interactivity
 
-Up to now, our applications have only allowed one kind of input&mdash;closing the window. If we allow for keyboard inputs, it will greatly expand the varieties of applications we can create. 
+Up to now, our applications have only allowed one kind of input&mdash;closing the window. If our framework also allows for keyboard inputs, we will be able to create apps with much greater interactivity.  
 
 ## Keyboard Input with Pygame
 
-With our current framework design, we handle input events in the `update` method of the `Input` class. We use Pygame to detect input events and handle quit type events. This section will add keyboard events to be handled by our `Input` class. There are two types of keyboard events that Pygame recognizes:
+In our current framework design, we handle input events with the `update` method of the `Input` class. We use Pygame to detect input events and process quit type events. Now let's add the ability to handle keyboard events in the `Input` class. There are two types of keyboard events that Pygame recognizes:
 
 - **Keydown events** happen when a key is first pressed down.
 - **Keyup events** happen when a pressed key is released.
 
-These Pygame events are *discrete*, which means they happen once in an instant of time. However, some user actions are *continuous* which means they happen over a period of time (such as holding down an arrow key or doing click-and-drag actions). In order to handle *continuous* keyboard inputs in addition to *discrete* ones, we will use lists to keep track of a key's state.  
+These Pygame events are *discrete*, which means they happen only in a single moment. However, some user actions are *continuous* which means they happen over a period of time (such as holding down an arrow key or doing click-and-drag actions). In order to handle *continuous* keyboard inputs in addition to *discrete* ones, we will use sets to keep track of each key's state. Sets are useful here because we know each key is unique and the order we store them does not matter.  
 
-Each time we check for events in the `update` method, we will check the keyboard event type and then record the name of the key in lists that represent their state:  
+When we check for events in the `update` method, we will look at the keyboard event type and then record the name of the key in sets that represent their state:  
 
-- The `key_down_list` will hold names of keys that have just been pressed with a **keydown** event in the current update cycle.  
-- The `key_pressed_list` will hold names of keys that have been pressed but are not released yet.  
-- The `key_up_list` will hold names of keys that have just been released with a **keyup** event in the current update cycle.  
+- The `down_keys` set will hold names of keys that have just been pressed with a **keydown** event in the current update cycle.  
+- The `pressed_keys` set will hold names of keys that have been pressed but are not released yet.  
+- The `up_keys` set will hold names of keys that have just been released with a **keyup** event in the current update cycle.  
 
-The **keydown** and **keyup** events represent *discrete* states, so we will empty their lists at the start of each update cycle. The `key_pressed_list` holds keys in a *continuous* state, so their names will remain in the list until their **keyup** event is received.
+The **keydown** and **keyup** events represent *discrete* states, so we will clear their sets at the start of each update cycle. The `pressed_keys` set holds keys in a *continuous* state, so their names will remain in the set until their **keyup** event is received.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your `core` folder, open the file called `app.py`.  
@@ -472,27 +472,27 @@ The **keydown** and **keyup** events represent *discrete* states, so we will emp
         # lists for the key states
         #   Down and Up are discrete states 
         #   Pressed states last continuously between Down and Up events
-        self.__key_down_list = []
-        self.__key_pressed_list = []
-        self.__key_up_list = []
+        self.__key_down_list = set()
+        self.__key_pressed_list = set()
+        self.__key_up_list = set()
 ```
 
-Again, we only want the `Input` class to manage these lists, so we name them with double underscores (`__`). But we will give read-only access from outside the class.
+Again, we want only the `Input` class to manage these sets, so we name them with double underscores (`__`). But we will give read-only access from outside the class.
 
-<input type="checkbox" class="checkbox inline"> Just before the `update` method in the `Input` class, add properties for each of the key state lists.  
+<input type="checkbox" class="checkbox inline"> Just before the `update` method in the `Input` class, add properties for each of the key state sets.  
 
 ```python
     @property
-    def key_down_list(self):
-        return self.__key_down_list
+    def down_keys(self):
+        return self.__down_keys
 
     @property
-    def key_pressed_list(self):
-        return self.__key_pressed_list
+    def pressed_keys(self):
+        return self.__pressed_keys
 
     @property
-    def key_up_list(self):
-        return self.__key_up_list
+    def up_keys(self):
+        return self.__up_keys
 ```
 
 Now, it is common for applications to have a keyboard shortcut for closing the application. Currently, our `quit` property is read-only so we cannot use it to close an application with the `Input` class. Let's add a **setter** property for `quit` to give some control back to the applications.
@@ -511,24 +511,24 @@ Here we convert the given `value` to a `Boolean` type and assign it to `_quit`. 
 
 ```python
         # reset all the discrete states
-        self.__key_down_list = []
-        self.__key_up_list = []
+        self.__down_keys.clear()
+        self.__up_keys.clear()
 ```
 
 <input type="checkbox" class="checkbox inline"> Inside the `for` loop of the `update` method, add the following code at the end (after it handles quit events).  
 
 ```python
             # handle keyboard events
-            #   keydown events initiate the pressed state
-            #   keyup events terminate the pressed state
+            #  - keydown events initiate the pressed state
+            #  - keyup events terminate the pressed state
             if event.type == pygame.KEYDOWN:
                 key_name = pygame.key.name(event.key)
-                self.__key_down_list.append(key_name)
-                self.__key_pressed_list.append(key_name)
+                self.__down_keys.add(key_name)
+                self.__pressed_keys.add(key_name)
             if event.type == pygame.KEYUP:
                 key_name = pygame.key.name(event.key)
-                self.__key_up_list.append(key_name)
-                self.__key_pressed_list.remove(key_name)
+                self.__up_keys.add(key_name)
+                self.__pressed_keys.remove(key_name)
 ```
 
 <input type="checkbox" class="checkbox inline"> Finally, add three convenience methods inside the `Input` class for checking the state of a given key.  
@@ -536,42 +536,42 @@ Here we convert the given `value` to a `Boolean` type and assign it to `_quit`. 
 ```python
     def iskeydown(self, key_code):
         """Checks the down state of the given key"""
-        return key_code in self.__key_down_list
+        return key_code in self.__down_keys
 
 
     def iskeypressed(self, key_code):
         """Checks the pressed state of the given key"""
-        return key_code in self.__key_pressed_list
+        return key_code in self.__pressed_keys
 
 
     def iskeyup(self, key_code):
         """Checks the up state of the given key"""
-        return key_code in self.__key_up_list
+        return key_code in self.__up_keys
 ```
 
-Now let's test our new `Input` features with a small program that outputs messages to the console about key states.
+Now let's test this new feature with a small program that outputs messages to the console about key states.
 
 <input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_4_5.py`.  
 <input type="checkbox" class="checkbox inline"> Open `test_4_5.py` for editing and add the following code:  
 
 ```python
-# test_4_5.py
+# graphics/test_4_5.py
 from core.app import WindowApp
 
 class Test_4_5(WindowApp):
-    """Test key functionality of the Input class."""
+    """ Test keyboard inputs with the Input class """
     def startup(self):
         print("Starting up Test 4-5...")
 
     def update(self):
-        if len(self.input.key_down_list) > 0:
-            print(f"Keys down: {self.input.key_down_list}")
+        if len(self.input.down_keys) > 0:
+            print(f"Keys down: {self.input.down_keys}")
 
-        if len(self.input.key_pressed_list) > 0:
-            print(f"Keys pressed: {self.input.key_pressed_list}")
+        if len(self.input.pressed_keys) > 0:
+            print(f"Keys pressed: {self.input.pressed_keys}")
 
-        if len(self.input.key_up_list) > 0:
-            print(f"Keys up: {self.input.key_up_list}")
+        if len(self.input.up_keys) > 0:
+            print(f"Keys up: {self.input.up_keys}")
 
         # typical use case for key presses
         if self.input.iskeypressed("space"):
@@ -591,7 +591,7 @@ Test_4_5().run()
 
 ## Incorporating with Graphics Programs
 
-Now that we have an  `Input` class with working keyboard features, let's use them to control the movements of a triangle on the screen. We will begin with our first test application for animation `test_4_2.py` and change its `update` method to control the triangle's movement with keyboard input.
+Now that we have an  `Input` class with working keyboard features, let's use them to control the movements of a triangle on the screen. We will begin with our first test app with animation `test_4_2.py` and change its `update` method to control the triangle's movement with keyboard input.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Copy your `test_4_2.py` file and change its name to `test_4_6.py`.  
@@ -635,4 +635,4 @@ The speed is defined in the same units as the screen coordinates, so it should t
 <input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_4_6.py` in the terminal.  
 <input type="checkbox" class="checkbox inline"> Try each of the arrow keys and confirm that the triangle moves in the correct direction.  
 
-:warning: **NOTE:** Different operating systems might use different strings for their key events. For example, `"left"` might be `"left arrow"` instead. You can run your `test_4_5.py` application and check its output anytime you want to know which string is associated with which key.
+:warning: **NOTE:** Different operating systems might use different names for their key events. For example, `"left"` might be `"left arrow"` instead. This `test_4_5.py` app may be a useful tool for you in the future when you want to know which names are associated with different keys.

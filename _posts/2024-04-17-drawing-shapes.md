@@ -111,9 +111,7 @@ Next is another method for associating variables with their data, aptly named `a
             GL.glBindVertexArray(vao_ref)
 
         # get vertex parameters for this attribute's data type
-        size, gl_type = self._ATTRIB_SIZE_TYPE.get(self.data_type, (0, 0))
-        if size == 0 or gl_type == 0:
-            raise Exception(f"Attribute {variable_name} has unknown type {self.data_type}")
+        size, gl_type = self._ATTRIB_SIZE_TYPE[self.data_type]
 
         # specify how data will be read from the currently bound buffer 
         # into the specified variable. These associations are stored by
@@ -142,7 +140,7 @@ Our first test application will use the `Attribute` class from above to draw lin
 import OpenGL.GL as GL
 
 from core.app import WindowApp
-from core.openGLUtils import OpenGLUtils
+from core.openGLUtils import initialize_program
 from core.openGL import Attribute
 
 class Test_3_1(WindowApp):
@@ -166,7 +164,7 @@ class Test_3_1(WindowApp):
         }
         """
 
-        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
+        self.program_ref = initialize_program(vs_code, fs_code)
 
         # **WINDOWS ONLY** set a wider line width so it is easier to see 
         GL.glLineWidth(4)
@@ -238,7 +236,7 @@ Even though the position data for the triangle and square will be stored in sepa
 import OpenGL.GL as GL
 
 from core.app import WindowApp
-from core.openGLUtils import OpenGLUtils
+from core.openGLUtils import initialize_program
 from core.openGL import Attribute
 
 class Test_3_2(WindowApp):
@@ -260,7 +258,7 @@ class Test_3_2(WindowApp):
         }
         """
 
-        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
+        self.program_ref = initialize_program(vs_code, fs_code)
 
         # get a reference to a vertex array object for the triangle
         self.vao_triangle = GL.glGenVertexArrays(1)
@@ -363,7 +361,7 @@ Now let's create one more test app to demonstrate color data passing through att
 import OpenGL.GL as GL
 
 from core.app import WindowApp
-from core.openGLUtils import OpenGLUtils
+from core.openGLUtils import initialize_program
 from core.openGL import Attribute
 
 class Test_3_3(WindowApp):
@@ -389,7 +387,7 @@ class Test_3_3(WindowApp):
         }
         """
 
-        self.program_ref = OpenGLUtils.initialize_program(vs_code, fs_code)
+        self.program_ref = initialize_program(vs_code, fs_code)
 
         # make points larger so they are easy to see
         GL.glPointSize(10)
@@ -440,7 +438,7 @@ In `test_3_2.py`, we used two different vertex arrays to bind different buffers 
 
 Now what happens if we change the draw mode from `GL_POINTS` to something like `GL_LINE_LOOP` or `GL_TRIANGLE_FAN`? In that case, we can see OpenGL's **rasterization** process in action as it *interpolates* the color values in between each vertex. Here, interpolation is a mathematical calculation of the RGB components for each pixel based on how far it is from the original vertices. It weighs the values of each component differently and combines them to get each pixel's final color.
 
-For example, if a point $P$ is halfway between a point with color $C_1=[1.0, 0.0, 0.0]$ (red) and a second point with color $C_2=[0.0, 0.0, 1.0]$ (green), then its color $C_P$ would be half of $C_1$ and half of $C_2$, which is purple:
+For example, if a point $P$ is halfway between a point with color $C_1=[1.0, 0.0, 0.0]$ (red) and a second point with color $C_2=[0.0, 0.0, 1.0]$ (blue), then its color $C_P$ would be half of $C_1$ and half of $C_2$, which is purple:
 
 $$\begin{aligned}
 C_P &=0.5 \cdot C_1+0.5 \cdot C_2 \\
