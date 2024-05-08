@@ -469,12 +469,12 @@ The **keydown** and **keyup** events represent *discrete* states, so we will cle
 <input type="checkbox" class="checkbox inline"> Look for the `__init__` method inside the `Input` class and add the following code at the end of `__init__`:  
 
 ```python
-        # lists for the key states
+        # sets for the key states
         #   Down and Up are discrete states 
         #   Pressed states last continuously between Down and Up events
-        self.__key_down_list = set()
-        self.__key_pressed_list = set()
-        self.__key_up_list = set()
+        self.__down_keys = set()
+        self.__pressed_keys = set()
+        self.__up_keys = set()
 ```
 
 Again, we want only the `Input` class to manage these sets, so we name them with double underscores (`__`). But we will give read-only access from outside the class.

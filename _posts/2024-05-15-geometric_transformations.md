@@ -10,7 +10,7 @@ categories:
   - Notes
 ---
 
-*This lesson explains the mathematical concepts behind matrix calculations for common transformations in computer graphics, including scaling, rotation, translation, and projection.*
+*This lesson explains the mathematical concepts behind matrix calculations for common transformations in computer graphics including scaling, rotation, translation, and projection.*
 
 # Overview
 
@@ -20,11 +20,13 @@ The common transformations in computer graphics are:
 - **[Translation](#translation)**: changing the coordinate position of the object.
 - **[Projection](#projection)**: changing the 3D object into a 2D image for display.
 
-We will first describe formulas for calculating the matrices of each type of transformation. Then, we will look at the differences between *global transformations* (changes made relative to world coordinates) and *[local transformations](#local-transformations)* (changes made relative to object coordinates).
+We will first describe formulas for calculating the matrices of each type of transformation. 
+Then we will look at the differences between *global transformations* (changes made relative to the world coordinates) and *[local transformations](#local-transformations)* (changes made relative to object coordinates).
 
 # Scaling
 
-A scaling transformation is calculated by simply multiplying each component by a scalar (constant value). In 2D,
+A scaling transformation is calculated by simply multiplying each component by a scalar value. 
+In 2D, the calculation looks like this:
 $$F\left(\begin{bmatrix}
     x \\
     y
@@ -39,18 +41,19 @@ $$F\left(\begin{bmatrix}
     y
 \end{bmatrix}$$
 
-So the transformation matrix for scaling $x$ by $r$ and $y$ by $s$ is,  
+So the transformation matrix for scaling the $x$-coordinate by $r$ and the $y$-coordinate by $s$ is,  
 $$A=\begin{bmatrix}
     r & 0 \\  
     0 & s
 \end{bmatrix}$$
 
 In 3D, the third component $z$ is transformed by scalar $t$:
-$$F\left(\begin{bmatrix}
+$$\begin{aligned}
+F\left(\begin{bmatrix}
     x \\
     y \\
     z
-\end{bmatrix}\right) = \begin{bmatrix}
+\end{bmatrix}\right) &= \begin{bmatrix}
     r \cdot x \\
     s \cdot y \\
     t \cdot z
@@ -62,17 +65,30 @@ $$F\left(\begin{bmatrix}
     x \\
     y \\
     z
-\end{bmatrix}$$
+\end{bmatrix} \\
+
+A &= \begin{bmatrix}
+    r & 0 & 0 \\  
+    0 & s & 0 \\
+    0 & 0 & t
+\end{bmatrix}
+
+\end{aligned}$$
+
 
 # Rotation
 
-Rotating an object requires the use of trigonometric functions $\sin(\theta)=b/h$, $\cos(\theta)=a/h$, and $\tan(\theta)=b/a$ where $a$ and $b$ are the lengths of the two sides of the right triangle formed by angle $\theta$, and $h$ is the hypotenuse.
+Rotating an object requires the trigonometric functions $\sin(\theta)=b/h$, $\cos(\theta)=a/h$, and $\tan(\theta)=b/a$ for the right triangle formed with angle $\theta$. 
+Here $a$ is the length of the side adjacent to $\theta$, $b$ is the length of the side opposite of $\theta$, and $h$ is the hypotenuse.
 
-We can use the standard basis vectors $i= \langle 1,0 \rangle$ and $j= \langle 0,1 \rangle$ to calculate the matrix of a counterclockwise rotation of angle $\theta$. When we draw vectors $i$ and $j$ together with their rotations $F(i)$ and $F(j)$, a right triangle forms from the rotation angle $\theta$.
+We can use the standard basis vectors $i= \langle 1,0 \rangle$ and $j= \langle 0,1 \rangle$ to represent the rotation on the $x$-coordinate and $y$-coordinate respectively. 
+Then it is relatively simple to find the matrix of the counterclockwise rotation of angle $\theta$. 
+When we draw vectors $i$ and $j$ together with their rotations $F(i)$ and $F(j)$, a right triangle forms from the rotation angle $\theta$.
 
 ![Rotating basis vectors $i$ and $j$ by angle $\theta$.](https://robsonger.dev/software-engineering-lab/assets/images/vector_rotation.png)
 
-Rotating a vector does not change its length. So we know the hypotenuse $h$ will always have a length of $1$ for basis vectors. This implies that $\sin(\theta)=\frac{b}{1}=b$ and $\cos(\theta)=\frac{a}{1}=a$. Then we can express $F(i)$ and $F(j)$ as,
+Rotating a vector does not change its length. So we know the hypotenuse $h$ will always have a length of $1$ for basis vectors. 
+This implies that $\sin(\theta)=\frac{b}{1}=b$ and $\cos(\theta)=\frac{a}{1}=a$. Then we can express $F(i)$ and $F(j)$ as,
 $$\begin{aligned}
     F(i) &= \langle a,b \rangle = \langle\cos(\theta),\sin(\theta)\rangle \\
     F(j) &= \langle -b,a \rangle = \langle -\sin(\theta),\cos(\theta)\rangle
