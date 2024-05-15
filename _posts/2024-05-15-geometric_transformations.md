@@ -66,35 +66,31 @@ F\left(\begin{bmatrix}
     y \\
     z
 \end{bmatrix} \\
-
 A &= \begin{bmatrix}
     r & 0 & 0 \\  
     0 & s & 0 \\
     0 & 0 & t
 \end{bmatrix}
-
 \end{aligned}$$
 
 
 # Rotation
 
-Rotating an object requires the trigonometric functions $\sin(\theta)=b/h$, $\cos(\theta)=a/h$, and $\tan(\theta)=b/a$ for the right triangle formed with angle $\theta$. 
-Here $a$ is the length of the side adjacent to $\theta$, $b$ is the length of the side opposite of $\theta$, and $h$ is the hypotenuse.
+Rotating an object requires the trigonometric functions $\sin(\theta)=b/h$, $\cos(\theta)=a/h$, and $\tan(\theta)=b/a$ where  $\theta$ is the angle of a right triangle, $a$ is the length of the side adjacent to $\theta$, $b$ is the length of the side opposite of $\theta$, and $h$ is the hypotenuse.
 
-We can use the standard basis vectors $i= \langle 1,0 \rangle$ and $j= \langle 0,1 \rangle$ to represent the rotation on the $x$-coordinate and $y$-coordinate respectively. 
-Then it is relatively simple to find the matrix of the counterclockwise rotation of angle $\theta$. 
-When we draw vectors $i$ and $j$ together with their rotations $F(i)$ and $F(j)$, a right triangle forms from the rotation angle $\theta$.
+We can use the standard basis vectors $i= \langle 1,0 \rangle$ and $j= \langle 0,1 \rangle$ to represent the rotation on the $x$ and $y$ coordinates respectively. 
+When we draw vectors $i$ and $j$ together with their rotations $F(i)$ and $F(j)$, we can see right triangles map to the components of the rotated vectors.
 
 ![Rotating basis vectors $i$ and $j$ by angle $\theta$.](https://robsonger.dev/software-engineering-lab/assets/images/vector_rotation.png)
 
-Rotating a vector does not change its length. So we know the hypotenuse $h$ will always have a length of $1$ for basis vectors. 
-This implies that $\sin(\theta)=\frac{b}{1}=b$ and $\cos(\theta)=\frac{a}{1}=a$. Then we can express $F(i)$ and $F(j)$ as,
+Rotating a vector does not change its length, so we know the hypotenuse $h$ will always have a length of $1$ for basis vectors. 
+That means $\sin(\theta)=\frac{b}{1}=b$ and $\cos(\theta)=\frac{a}{1}=a$, so we can replace $b$ with $\sin(\theta)$ and $a$ with $\cos(\theta)$:
 $$\begin{aligned}
     F(i) &= \langle a,b \rangle = \langle\cos(\theta),\sin(\theta)\rangle \\
     F(j) &= \langle -b,a \rangle = \langle -\sin(\theta),\cos(\theta)\rangle
 \end{aligned}$$
 
-And since the results of $F(i)$ and $F(j)$ determine the transformation matrix, then
+Since we know that $F(i)$ and $F(j)$ together determine the transformation matrix, then we can find $A$:
 $$\begin{aligned}
 F\left(\begin{bmatrix}
     x \\
@@ -117,11 +113,14 @@ A &= \begin{bmatrix}
     \sin(\theta) & \cos(\theta)
 \end{bmatrix}\end{aligned}$$
 
-In 2D rotations, the angle $\theta$ revolves around a single point, but in 3D that point becomes a line extending perpendicular to the angle plane. That is, the $xy$-plane is perpendicular to the $z$-axis, so we can say that rotation in 2D space (the $xy$ plane) is the same as rotation around the $z$-axis in 3D space. The difference is that 3D space has a third standard basis vector $k$ and all vectors have three components, $i= \langle 1,0,0 \rangle$, $j= \langle 0,1,0 \rangle$, and $k= \langle 0,0,1 \rangle$.
+In 2D rotations, the angle $\theta$ revolves around a single point, but in 3D that point becomes a line extending perpendicular to the plane of the angle itself. 
+That is, the $xy$-plane is perpendicular to the $z$-axis, so we can say that rotation in 2D space (the $xy$ plane) is the same as rotation around the $z$-axis in 3D space. 
+The difference is that vectors in 3D space have three components and there is a third standard basis vector $k$ for the $z$ component where $i= \langle 1,0,0 \rangle$, $j= \langle 0,1,0 \rangle$, and $k= \langle 0,0,1 \rangle$.
 
 ## $z$-Axis Rotation
 
-When rotating around the $z$-axis, the $z$ coordinates do not change while the $x$ and $y$ coordinates change the same as in 2D rotation. So the basis vector transformations are,
+When rotating around the $z$-axis, the $z$ coordinates do not change while the $x$ and $y$ coordinates change in the same way as 2D rotation. 
+So the basis vector transformations are,
 $$\begin{aligned}
 F(i) &= \langle \cos(\theta),\sin(\theta),0 \rangle \\
 F(j) &= \langle -\sin(\theta),\cos(\theta),0 \rangle \\
@@ -136,7 +135,10 @@ $$A_z=\begin{bmatrix}
 
 ## $x$-Axis Rotation
 
-Graphically, we can represent a rotation of angle $\theta$ around the $x$-axis by drawing the $i$ vector perpendicular to the rotation plane. Then, if we draw the $j$ vector extending to the right, the $k$ vector will point up according to the structure of the 3D coordinate axes. Since the $x$-axis is perpendicular to $\theta$ and the $x$-components do not change, the vector components represent the components of $y$ and $z$. Then the drawing looks like this:
+Graphically, we can represent a rotation of angle $\theta$ around the $x$-axis by drawing the $i$ vector perpendicular to the rotation plane. 
+Then, if we draw the $j$ vector extending to the right, the $k$ vector will point up according to the structure of the 3D coordinate axes. 
+Since the $x$-axis is perpendicular to $\theta$ and the $x$-components do not change, the vector components represent the components of $y$ and $z$. 
+Then the drawing looks like this:
 
 ![3D rotation of basis vectors $j$ and $k$ around the $x$-axis](https://robsonger.dev/software-engineering-lab/assets/images/vector_rotation_x-axis.png)
   
@@ -154,12 +156,13 @@ $$A_x=\begin{bmatrix}
 ## $y$-Axis Rotation
 
 Rotating around the $y$-axis is a little more complicated. The points to remember when visualizing it are:
-- The positive axis of rotation points towards the viewer, perpendicular to the angle of rotation.
-- The basis vector along the axis of rotation ($j$) is ignored, and the other basis vectors are written in terms of the components ($x$ and $z$) on the plane of angle $\theta$.
-- The first basis vector ($i$) is drawn horizonally so that $\theta$ rotates counterclockwise from $\langle 1,0 \rangle$.
-- And the second basis vector ($k$) with value $\langle 0,1 \rangle$ is drawn vertically with its positive direction relative to the other two axes.
+- The positive axis of rotation is perpendicular to the angle and points towards the viewer.
+- The basis vector along the axis of rotation is ignored, and the other basis vectors are written in terms of the components on the plane of angle $\theta$.
+- The first basis vector is drawn horizontally so that $\theta$ rotates counterclockwise from $\langle 1,0 \rangle$.
+- And the second basis vector with value $\langle 0,1 \rangle$ is drawn vertically with its positive direction relative to the other two axes.
 
-Following these rules, the $z$-axis will point down and the diagram for $y$-axis rotation will look like this:
+Following these rules, the drawing will look down the positive $y$-axis so we will ignore the $j$ vector and write the components in terms of $x$ and $z$. 
+Then the $x$-axis and its vector $i$ will point to the right while the $z$-axis and its vector $k$ will point down:
 
 ![3D rotation of basis vectors $i$ and $k$ around the $y$-axis](https://robsonger.dev/software-engineering-lab/assets/images/vector_rotation_y-axis.png)
 
@@ -174,11 +177,13 @@ $$A_y=\begin{bmatrix}
     -\sin(\theta) & 0 & \cos(\theta)
 \end{bmatrix}$$
 
-Finally, you might have noticed that all of these matrices will give you the *identity matrix* for a rotation of $\theta =0$ because $\cos(0)=1$ and $\sin(0)=0$.
+Finally, you might wonder what happens when $\theta =0$. 
+Since $\cos(0)=1$ and $\sin(0)=0$, all of these matrices will become the *identity matrix* as expected.
 
 # Translation
 
-Translations are simply changing the coordinate positions of a vertex by constant values. Let's use the constants $m$ and $n$ to show this as a change in the components:
+A translation simply changes the coordinate position of a vertex by constant values. 
+Let's use the constants $m$ and $n$ to show the change of $x$ and $y$ from translation $\langle m,n \rangle$:
 $$F\left(\begin{bmatrix}
     x \\
     y
@@ -187,7 +192,8 @@ $$F\left(\begin{bmatrix}
     y+n
 \end{bmatrix}$$
 
-Now, when we consider the nature of matrix multiplication, we see that a 2x2 matrix is not sufficient for adding constant values to each component. For example, consider a translation of $\langle 0,2 \rangle$ and try solving for $a$, $b$, $c$ and $d$:
+Now, when we consider the nature of matrix multiplication, we see that a 2x2 matrix is not sufficient for adding constant values to each component. 
+For example, consider a translation of $\langle 0,2 \rangle$ and try solving for $a$, $b$, $c$ and $d$:
 $$\begin{bmatrix}
     a & b \\
     c & d
@@ -201,7 +207,10 @@ $$\begin{bmatrix}
     x \\
     y+2
 \end{bmatrix}$$
-From above, $a \cdot x+b \cdot y=x$ gives us the values $a=1$ and $b=0$. However, $c \cdot x+d \cdot y=y+2$ tells us that $d=1$ and $c=2/x$ which is not constant. Even if we wanted to define our transformation matrix with $c=2/x$, then we would not be able to transform any coordinates where $x=0$ because $2/0$ is undefined. You might also recognize that $c=0$ would give us the identity matrix, so $c$ must be some non-zero value. 
+From above, $a \cdot x+b \cdot y=x$ gives us the values $a=1$ and $b=0$. 
+However, $c \cdot x+d \cdot y=y+2$ tells us that $d=1$ and $c=2/x$ which is not constant. 
+Even if we wanted to define our transformation matrix with $c=2/x$, then we would not be able to transform any coordinates where $x=0$ because $2/0$ is undefined. 
+You might also recognize that $c=0$ would give us the identity matrix, so $c$ must be some non-zero value. 
 
 Consider the matrix with $c=2$ applied to a square with points $(0,0)$, $(1,0)$, $(0,1)$ and $(1,1)$. Then we get,
 $$F\left( (0,0) \right) = \begin{bmatrix}
@@ -234,10 +243,23 @@ F\left( (1,1) \right) = \begin{bmatrix}
 \end{bmatrix} = (1,3) \\
 $$
 
-We can see that the $y$-coordinates remain the same for points where $x=0$ and the translation only changes the $x$-coordinates. This is called a *shear translation* and it warps the shape of the object. If we were to try this with a 3D object as well, then we would see only two of the three coordinates being translated. In other words, using a transformation matrix only applies the translation to a *subset* of the coordinate space.
+We can see that the $y$-coordinates remain the same for points where $x=0$ and the translation only changes the $x$-coordinates. 
+This is called a *shear translation* and it warps the shape of the object. If we were to try this with a 3D object as well, then we would see only two of the three coordinates being translated. 
+In other words, using a transformation matrix only applies the translation to a *subset* of the coordinate space.
 
-A 2D vector can only be translated when it is a subset of a 3D system. So, we assume the point $(x,y)$ is on a plane in 3D space located at $z=1$ and then $(x,y)$ becomes $(x,y,1)$. Using these 3D coordinates we can then find the transformation matrix:
-$$\begin{bmatrix}
+A 2D vector can only be translated when it is a subset of a 3D system. 
+So, we assume the point $(x,y)$ is on a plane in 3D space located at $z=1$ and then $(x,y)$ becomes $(x,y,1)$. 
+Using these 3D coordinates, the transformation matrix is found simply:
+$$\begin{aligned}
+F\left(\begin{bmatrix}
+    x \\
+    y \\
+    1
+\end{bmatrix}\right) &= \begin{bmatrix}
+    x+m \\
+    y+n \\
+    1
+\end{bmatrix} = \begin{bmatrix}
     1 & 0 & m \\
     0 & 1 & n \\
     0 & 0 & 1
@@ -245,15 +267,28 @@ $$\begin{bmatrix}
     x \\
     y \\
     1
-\end{bmatrix} = \begin{bmatrix}
-    x + m \\
-    y + n \\
-    1
 \end{bmatrix} \\
-$$
+A &= \begin{bmatrix}
+    1 & 0 & m \\
+    0 & 1 & n \\
+    0 & 0 & 1
+\end{bmatrix}
+\end{aligned}$$
 
-When we want to apply the 3D translation $\langle m,n,p \rangle$ in all three dimensions, we need to add a fourth dimension so that each point becomes $(x,y,z,1)$. Then the matrix calculation becomes:
-$$\begin{bmatrix}
+When we want to apply the 3D translation $\langle m,n,p \rangle$ in all three dimensions, we need to add a fourth dimension so that each point becomes $(x,y,z,1)$. 
+Then the matrix calculation becomes:
+$$\begin{aligned}
+F\left(\begin{bmatrix}
+    x \\
+    y \\
+    z \\
+    1
+\end{bmatrix}\right) &= \begin{bmatrix}
+    x+m \\
+    y+n \\
+    z+p \\
+    1
+\end{bmatrix} = \begin{bmatrix}
     1 & 0 & 0 & m \\
     0 & 1 & 0 & n \\
     0 & 0 & 1 & p \\
@@ -263,20 +298,24 @@ $$\begin{bmatrix}
     y \\
     z \\
     1
-\end{bmatrix} = \begin{bmatrix}
-    x + m \\
-    y + n \\
-    z + p \\
-    1
 \end{bmatrix} \\
-$$
+A &= \begin{bmatrix}
+    1 & 0 & 0 & m \\
+    0 & 1 & 0 & n \\
+    0 & 0 & 1 & p \\
+    0 & 0 & 0 & 1
+\end{bmatrix}
+\end{aligned}$$
 
-3D computer graphics always use 4D vectors and matrices to do 3D calculations. This system is called *homogeneous coordinates*. When we set the extra dimension equal to $1$, then we get a useful correspondence between the 3D and 4D representatons of the point. That is, with 4D point $(x,y,z,w)$ we can divide $x$, $y$, and $z$ by $w$ to get the same point in 3D:
+3D computer graphics always use 4D vectors and matrices to do 3D calculations. 
+This system is called *homogeneous coordinates*. When we set the extra dimension equal to $1$, then we get a useful correspondence between the 3D and 4D representatons of the point. 
+That is, with 4D point $(x,y,z,w)$ we can divide $x$, $y$, and $z$ by $w$ to get the same point in 3D:
 $$(x/w,y/w,z/w)=(x/1,y/1,z/1)=(x,y,z)$$
 
 This is called *perspective division* and it provides some unique advantages for calculating the projections of a 3D scene (as we will see later in the section [**Perspective Projection**](#perspective-projection)).
 
-If we are going to create a homogeneous coordinate system by adding an extra coordinate, then we should review the previous transformations with the new system applied. For 2D transformations, the function $F(\langle x,y \rangle)=\langle a \cdot x+b \cdot y,c \cdot x+d \cdot y \rangle$ becomes $F(\langle x,y,1 \rangle)=\langle a \cdot x+b \cdot y,c \cdot x+d \cdot y,1 \rangle$ and the matrix calculation is,
+If we are going to create a homogeneous coordinate system by adding an extra coordinate, then we should review the previous transformations with the new system applied. 
+For 2D transformations, the function $F(\langle x,y \rangle)=\langle a \cdot x+b \cdot y,c \cdot x+d \cdot y \rangle$ becomes $F(\langle x,y,1 \rangle)=\langle a \cdot x+b \cdot y,c \cdot x+d \cdot y,1 \rangle$ and the matrix calculation is,
 $$\begin{bmatrix}
     a & b & 0 \\
     c & d & 0 \\
@@ -299,9 +338,11 @@ $$\begin{bmatrix}
     0 & 0 & 1
 \end{bmatrix}$$
 
-Here we can see the matrix for scaling and rotation combines nicely with the matrix for translation. The values $a_{11}$ to $a_{22}$ represent the scaling and rotation transformations while $m_1$ and $m_2$ are the translation values.
+Here we can see the matrix for scaling and rotation combines nicely with the matrix for translation. 
+The values $a_{11}$ to $a_{22}$ represent the scaling and rotation transformations while $m_1$ and $m_2$ are the translation values.
 
-So the three transformations of scaling, rotation and translation (called *affine transformations*) can be calculated with a single matrix. If we further expand this out to 3D, that matrix will have an extra dimension as well:
+So the three transformations of scaling, rotation and translation (collectively called *affine transformations*) can be represented together in a single matrix. 
+If we further expand this out to 3D, that matrix will have an extra dimension as well:
 $$\begin{bmatrix}
     a_{11} & a_{12} & a_{13} & m_1 \\
     a_{21} & a_{22} & a_{23} & m_2 \\
@@ -311,11 +352,17 @@ $$\begin{bmatrix}
 
 # Projection
 
-When rendering a 3D scene using OpenGL, we need to map coordinates of the viewable area to the coordinates of the *clip space* where all $x$, $y$, and $z$ coordinates are between the values of $+1$ and $-1$. Remember, in our previous programs we drew shapes in the range of $-1.0$ to $1.0$ in the $x$ and $y$ dimensions. That is the coordinate space of everything that OpenGL renders on screen. But when our scene is defined in a much larger coordinate system, we need to map the vertices from the scene space to the clip space.
+When rendering a 3D scene using OpenGL, we need to map coordinates of the viewable area to the coordinates of the *clip space* where all $x$, $y$, and $z$ coordinates are between the values of $+1.0$ and $-1.0$. 
+Remember, in our previous programs we drew shapes with $x$ and $y$ coordinates in the range of $-1.0$ to $1.0$. 
+That is the coordinate space of everything that OpenGL renders on screen. 
+But when our scenes are defined in a much larger coordinate system, we need to map the vertices from the scene space to the clip space.
+
+For this purpose, we need to calculate a volume of the world space that will be rendered on screen, called the *viewing volume*.
+There are different approaches to projecting coordinates from world space to screen space, but we will only cover the one that closely models human perspective in the real world.
 
 ## The View Frustum
 
-We represent the viewable area using a shape called a *frustum*, which is basically a pyramid with its tip cut off lying on its side. It is centered around the the negative $z$-axis and its top points towards the viewer where the tip of the pyramid would be where the viewer is at the origin.
+We represent the viewable area using a shape called a *frustum*, which is basically a pyramid lying on its side with its tip cut off. It is centered around the the negative $z$-axis with its top represents the location of the viewer's eye at the origin. The plane where the pyramids top is cut off represents the beginning of the viewable distance (often likened to the display screen) while the base of the pyramid is the end of the viewable distance. Everything inside the frustum will be rendered while all vertices outside the frustum are mostly ignored.
 
 ![The frustum is a pyramid on its side with the top cut off, pointing towards the viewer's position at the origin.](https://robsonger.dev/software-engineering-lab/assets/images/perspective_frustum.png)
 

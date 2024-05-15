@@ -32,7 +32,7 @@ $$P=(x,y)$$
 
 <span id="vectors">**Vectors**</span>  
 A *vector* represents *displacement* (the amount of change in a coordinate) and is drawn on graphs with an arrow.
-The arrow begins at at the *initial point*, also called the *tail*, and ends at the *teriminal point*, also called the *head*.
+The arrow begins at at the *initial point*, also called the *tail*, and ends at the *terminal point*, also called the *head*.
 The distance between the tail and the head is the *length* or *magnitude* of the vector.
 When the vector's initial point is at the origin of the coordinate system, it is in *standard position*.  
 
@@ -61,7 +61,7 @@ If we draw the vectors head-to-tail, the resulting vector $u$ will have the init
 ---
 ## Vector/Point Addition
 
-When we translate from a point $P$ along vector $v$, we arrive at another point $Q$. 
+When we add vector $v$ to point $P$, we arrive at another point $Q$. 
 This can be described mathematically:
 $$\begin{aligned}
 P+v & = Q \\ 
@@ -76,7 +76,7 @@ This means $P$ is the initial point of $v$ and $Q$ is the terminal point of $v$.
 
 ---
 ## Point Subtraction
-If $P+v=Q$ describes the translation from $P$ to $Q$, then we can calculate the vector $v$ connecting $P$ and $Q$ as $Q-P=v$. 
+If $P+v=Q$ describes the translation from $P$ to $Q$, then we can calculate the vector $v$ connecting $P$ and $Q$ with $Q-P=v$. 
 In other words, the displacement vector $v$ is the distance between points $P$ and $Q$, or the difference between the coordinates of $P$ and $Q$:  
 
 $$\begin{aligned}
@@ -167,7 +167,7 @@ $$ F(v+w) = F(v) + F(w) $$
 And we can even combine scalar multiplication with vector addition:
 $$F(c \cdot v + d \cdot w) = c \cdot F(v) + d \cdot F(w)$$
 
-This shows that we can represent any complicated linear function as multiplication and addition of the function applied to the vectors separately.
+This shows that we can represent any complicated linear function as multiplication and addition of the same function applied to the vectors individually.
 A common shortcut for calculating linear transformations is to rewrite them in terms of the *standard basis* vectors $i=\langle 1,0 \rangle$ and $j=\langle 0,1 \rangle$. 
 This way, we don't actually need to know how the function calculates any given transformation. 
 We only need to know the results of transforming the standard basis vectors. 
