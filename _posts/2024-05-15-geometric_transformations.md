@@ -368,13 +368,13 @@ We represent the viewable area using a shape called a *frustum*, which is basica
 
 We can adjust this shape to make objects appear farther away or closer to the camera, and decide which objects to render based on their distance within a specified range. The values we use to adjust the frustum are the *near distance*, the *far distance*, the *angle of view*, and the *aspect ratio*. 
 
-The near distance and far distance are measured in units along the $z$-axis. The near distance (also called the *near clipping distance*) sets the limit for the closest viewable points. Likewise, the far distance (also called the *far clipping distance*) sets the limit for the farthest viewable points. When we choose not to render a point based on its location, this is called *clipping*.
+The near distance and far distance are measured in units along the $z$-axis. The near distance (also called the *near clipping distance*) sets the limit for the closest viewable vertices. Likewise, the far distance (also called the *far clipping distance*) sets the limit for the farthest viewable vertices. When we choose not to render a point based on its location, this is called *clipping*.
 
-The angle of view is the angle between the top and bottom planes of the frustum as if those planes extended all the way to the origin.
+The angle of view is the angle between the top and bottom planes of the frustum where they would intersect if they extended all the way to the origin.
 
 ![The angle of view is the angle formed by the intersection of the top and bottom planes of the frustum.](https://robsonger.dev/software-engineering-lab/assets/images/perspective_angle.png)
 
-From the point of view at the origin, the far distance plane appears to be the same size as the near distance plane. Since a rendered image is basically a 2D projection of a 3D scene, we must map all the points inside the frustum to the *projection window*. Imagine drawing a line from the origin to the point $P$. The intersection of that line with the projection window is the point $Q$ that we draw on the screen.
+From the point of view at the origin, the far distance plane appears to be the same size as the near distance plane. Since a rendered image is a 2D projection of a 3D scene, we must map all the points inside the frustum to the *projection window*. Imagine drawing a line from the origin to the point $P$. The point $Q$ where that line intersects with the projection window is the point that we render on screen.
 
 ![Rendered points are determined by mapping points from the scene onto to the projection window.](https://robsonger.dev/software-engineering-lab/assets/images/mapping_points.png)
 
@@ -382,7 +382,7 @@ The size of the projection window determines the *aspect ratio* $r$ of the image
 
 ## Perspective Projection
 
-*Perspective projection* transformations convert the coordinates of the target vectors to coordinates of the clipping space. That is, if we have point $P$, we want to find the transformation matrix $A$ that will give us the point $Q$ in clipping space.
+The transformation that converts the coordinates of target vectors to coordinates of the clipping space is called *perspective projection*. In order to calculate this transformation, we need to find the matrix $A$ that will transform the target point $P$ from the world space to the point $Q$ in clipping space.
 
 $$F(P)=A \cdot \begin{bmatrix}
     P_x \\
@@ -537,11 +537,11 @@ Here, $r$ is the aspect ratio, $a$ is the angle of view, $n$ is the near clippin
 
 # Local Transformations
 
-One important note about all the transformations so far is that they operate on vectors based at the origin. For example, if we have a rotation transformation $R$ of $45^{\circ}$ for an object with a set of points $P$ centered at $(0,0)$, then the transformation $R \cdot P$ rotates the object around its own center. However, if $P$ is centered on $(1,0)$ in the world space, then $R \cdot P$ effectively rotates the object around the world origin. 
+One important note about all these transformations so far is that they operate on vectors based at the origin. For example, if we have a rotation transformation $R$ of $45^{\circ}$ for an object with a set of points $P$ centered at $(0,0)$, then the transformation $R \cdot P$ rotates the object around its own center. However, if $P$ is centered on $(1,0)$ in the world space, then $R \cdot P$ effectively rotates the object around the world origin. 
 
 ![Rotating an object at its local origin is not always the same as rotating it at the world origin.](https://robsonger.dev/software-engineering-lab/assets/images/local_v_world_rotation.png)
 
-The picture on the left shows a rotation of *object coordinates* or *local coordinates*. Here, the rotation effectively transforms the object's coordinate axes, which are shown as $x_l$ and $y_l$. The picture on the right shows the rotation on an object with its center at $(1,0)$ in the *world coordinates* or *global coordinates* defined by the $x_g$-axis and $y_g$-axis. Then, a *local transformation* is any transformation that applies relative to the local coordinates of an object. When the an object's local coordinates are the same as the world coordinates, any global transformation is also a local transformation, as shown in the first image.  
+The picture on the left shows a rotation of *object coordinates* or *local coordinates*. Here, the rotation effectively transforms the object's coordinate axes, which are shown as $x_l$ and $y_l$. The picture on the right shows the rotation on an object with its center at $(1,0)$ in the *world coordinates* or *global coordinates* defined by the $x_g$-axis and $y_g$-axis. Then, a *local transformation* is any transformation that applies relative to the local coordinates of an object. When an object's local coordinates are the same as the world coordinates, any global transformation is also a local transformation on that object, as shown in the first image.  
 
 So how can we use our matrix multiplication method to perform a local transformation when the object is not at the global origin?
 
@@ -554,7 +554,7 @@ $$P_g =M \cdot P_l$$
 Naturally, when there are no transformations acting on the object, $M$ is the identity matrix.  
 $$P_g = M \cdot P_l = I \cdot P_l = P_l$$
 
-If $M$ is the product of all transformations leading to the world coordinates of the object, then we know the inverse of $M$, denoted $M^{-1}$, will undo those transformations and produce the original object coordinates in local space. In other words, this converts the object's vertices in world space back to local coordinate space:
+If $M$ is the product of all transformations leading to the world coordinates of the object, then we know the inverse of $M$, denoted $M^{-1}$, will undo those transformations and produce the original object coordinates in local space. In other words, this converts the object's vertices in world space back to local coordinate space, like so:
 
 $$P_l=M^{-1} \cdot P_g =M^{-1} \cdot M \cdot P_l$$  
 
@@ -566,8 +566,8 @@ P_g' &= M \cdot R \cdot M^{-1} \cdot P_g \\
     &= M \cdot R \cdot P_l
 \end{aligned}$$
 
-As a **global transformation**, $R$ follows the model matrix and $P' = R \cdot M \cdot P$.
+As a **global transformation**, $R$ is applied **after** the model matrix: $P' = R \cdot M \cdot P$.
 
-As a **local transformation**, $R$ precedes the model matrix and $P' = M \cdot R \cdot P$.
+As a **local transformation**, $R$ is applied **before** the model matrix: $P' = M \cdot R \cdot P$.
 
 This conveniently applies to all previously discussed geometric transformations in addition to rotation.
