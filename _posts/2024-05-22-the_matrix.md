@@ -14,32 +14,32 @@ toc_sticky: false
 
 *In this lesson, we apply what we learned about calculating geometric transformations to build a `Matrix` class and integrate it with our CG framework.*
 
-Now that we have learned about the usefulness of [matrix calculations](/software-engineering-lab/notes/ch3-1/) for [geometric transformations](/software-engineering-lab/notes/ch3-2/), we will add a new component to our CG framework that can create transformation matrices for us. Our framework will always use 4x4 matrices so we can easily handle 2D and 3D graphics. When rendering in 2D, we can simply use a value of $0.0$ for all the $z$ coordinates so everything renders on the same plane.
+Now that we have learned about the usefulness of [matrix calculations](/software-engineering-lab/notes/ch3-1/) for [geometric transformations](/software-engineering-lab/notes/ch3-2/), we can add a new component to our CG framework that can provides matrices for transformations of objects in our apps. Our framework will always use 4x4 matrices so that we can easily handle both 2D and 3D graphics. When rendering in 2D, we simply use a consistent value for all the $z$ coordinates so everything renders on the same plane.
 
 # The `Matrix` Class
 
-Our `Matrix` class will have static properties and methods that return different kinds of transformation matrices from the given parameters. With static properties and methods, we do not need to create any instances of `Matrix` and we do not need to manage any state variables either. Simply calling these methods will give us the matrix data we need to do geometric transformations.
+Our `Matrix` class will have static methods that return different kinds of transformation matrices from the given parameters. With static methods, we do not need to create an instance of `Matrix` or manage state variables. Simply calling these methods will give us the matrix data we need to do geometric transformations.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `matrix.py`.  
 <input type="checkbox" class="checkbox inline"> Open `matrix.py` for editing and add the following code:  
 
 ```python
-# core.matrix.py
+# graphics/core/matrix.py
 from math import sin, cos, tan, pi
-from numpy import array
+import numpy as np
 ```
 
-We first import the `math` functions for sine, cosine and tangent to use when calculating our matrices, and the constant pi for converting the angle of view to radians. We also use the `array` function from `numpy` to create [NumPy arrays](https://numpy.org/doc/stable/reference/generated/numpy.array.html){:target="_blank"} for each of our matrices. This gives us an advantage over memory, processing time, and convenience for matrix multiplication. NumPy lets us use the `@` operator to easily multiply matrices that are created as NumPy arrays.  
+We first import the `math` functions for sine, cosine and tangent to use when calculating our matrices, and the constant pi for converting the angle of view to radians. We also use the [`numpy.array`](https://numpy.org/doc/stable/reference/generated/numpy.array.html){:target="_blank"} function to create NumPy arrays for each of our matrices. This gives us an advantages of less memory use, shorter processing times, and access to the `@` operator for easy matrix multiplication. Instead of unpacking each matrix and calculating the product manually, we can simply do `product = matrix1 @ matrix2`. 
 
-<input type="checkbox" class="checkbox inline"> Add the next code to `matrix.py` for creating the class along with a method for returning the identity matrix.  
+<input type="checkbox" class="checkbox inline"> Add the next code to `matrix.py` for defining the class and a method for the identity matrix.  
 
 ```python
 class Matrix:
-    """Provides four-dimensional matrices for geometric transformations."""
+    """ Provides four-dimensional matrices for various geometric transformations """
 
     # the 4D identity matrix
-    __identity = array((
+    __identity = np.array((
         (1, 0, 0, 0),
         (0, 1, 0, 0),
         (0, 0, 1, 0),
@@ -47,24 +47,24 @@ class Matrix:
     )).astype(float)
 
     @classmethod
-    def get_identity(cls):
-        """Create a copy of the 4D identity matrix"""
+    def identity(cls):
+        """ A copy of the 4D identity matrix """
         return cls.__identity.copy()
 ```
 
-Here we create the identity matrix as a NumPy array and store it to a class variable. Then we make a class method with the `@classmethod` decorator. A class method can access class variables and methods using the `cls` parameter without creating an instance of the class. Our applications will be able to access these class methods directly on the class itself by using just the class name, for example `Matrix.get_identity()`.
+Here we create the identity matrix as a NumPy array and store it to a class variable. Then we make a class method to give access to the identity matrix with the `@classmethod` decorator. Class methods access class variables and methods using the `cls` parameter without creating an instance of the class. Our applications will be able to access these class methods directly on the class itself, for example `Matrix.identity()`.
 
-We make the identity matrix as a class variable and return copies of it with a class method so that the value of the identity matrix will always be the same. If we do not give a copy of the matrix, then the method would give a reference to the value stored in the class and our applications could accidentally change the original identity matrix itself. This would cause all kinds of confusion in our applications, so we make the matrix read-only using this approach.
+We are using a class variable and a class method that returns copies of the idendity matrix in order to prevent the original value from being changed. If we do not give a copy of the matrix, then the method would give a reference to the value stored in the class. Then our apps would be able to accidentally change the original identity matrix itself. That would cause all kinds of confusion in our apps! So we make the matrix read-only using this approach.
 
-Note that when we create a NumPy array, all of its values must be the same type. So we will fill each of our matrices with float values by calling the `astype()` method on each newly created array.
+Note that when we create a NumPy array, all of its values must be the same type. So we will fill each of our matrices with `float` values by calling the `astype()` method on each newly created array. The return type is a Numpy [ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html){:target="_blank"}.
 
-<input type="checkbox" class="checkbox inline"> Add the next code to `matrix.py` for creating a translation matrix.  
+<input type="checkbox" class="checkbox inline"> Add the next code to the `Matrix` class for creating a translation matrix.  
 
 ```python
     @staticmethod
-    def make_translation(x, y, z):
-        """Return a 4D matrix for the translation vector <x,y,z>."""
-        return array((
+    def translation(x, y, z):
+        """ 4D matrix for the translating along vector <x, y, z> """
+        return np.array((
             (1, 0, 0, x),
             (0, 1, 0, y),
             (0, 0, 1, z),
@@ -72,19 +72,19 @@ Note that when we create a NumPy array, all of its values must be the same type.
         )).astype(float)
 ```
 
-The `@staticmethod` decorator defines the `make_translation` method as a static method. Static methods are like class methods but static methods do not access the class. We can still call static methods directly on the name of the class (for example, `shift_matrix = Matrix.make_translation(1, 2, 3)`).
+Here the decorator defines the `translation` method as a *static method*. Static methods are like class methods but static methods do not access the class. We can still call static methods directly on the class itself (for example, `shift_matrix = Matrix.translation(1, 2, 3)`).
 
-Here the parameters `x`, `y`, and `z` are scalar values for their respective coordinates in the translation. The method creates an identity matrix for the scaling and rotation components of the transformation matrix then sets the translation coordinates to the values of the parameters.
+The parameters `x`, `y`, and `z` are the components of the translation vector. We simply plug those values into their respective locations within a numpy array representing the translation matrix and return it with all values converted to the `float` type.
 
-<input type="checkbox" class="checkbox inline"> Next, add the following methods to `matrix.py` that create matrices for rotation around each of the three axes, $x$, $y$, and $z$.  
+<input type="checkbox" class="checkbox inline"> Next, add the following methods to the `Matrix` class that create matrices for rotation around each of the three axes $x$, $y$, and $z$.  
 
 ```python
     @staticmethod
-    def make_rotation_x(angle):
-        """Return a 4D matrix for rotating around the x-axis by the given angle in radians."""
+    def rotation_x(angle):
+        """ 4D matrix for rotating around the x-axis by the given angle in radians """
         c = cos(angle)
         s = sin(angle)
-        return array((
+        return np.array((
             (1, 0,  0, 0),
             (0, c, -s, 0),
             (0, s,  c, 0),
@@ -92,11 +92,11 @@ Here the parameters `x`, `y`, and `z` are scalar values for their respective coo
         )).astype(float)
 
     @staticmethod
-    def make_rotation_y(angle):
-        """Return a 4D matrix for rotating around the y-axis by the given angle in radians."""
+    def rotation_y(angle):
+        """ 4D matrix for rotating around the y-axis by the given angle in radians """
         c = cos(angle)
         s = sin(angle)
-        return array((
+        return np.array((
             ( c, 0, s, 0),
             ( 0, 1, 0, 0),
             (-s, 0, c, 0),
@@ -104,11 +104,11 @@ Here the parameters `x`, `y`, and `z` are scalar values for their respective coo
         )).astype(float)
 
     @staticmethod
-    def make_rotation_z(angle):
-        """Return a 4D matrix for rotating around the z-axis by the given angle in radians."""
+    def rotation_z(angle):
+        """ 4D matrix for rotating around the z-axis by the given angle in radians """
         c = cos(angle)
         s = sin(angle)
-        return array((
+        return np.array((
             (c, -s, 0, 0),
             (s,  c, 0, 0),
             (0,  0, 1, 0),
@@ -118,13 +118,13 @@ Here the parameters `x`, `y`, and `z` are scalar values for their respective coo
 
 These methods all take the angle of rotation in radians. Then we can simply calculate sine and cosine of the angle before constructing a matrix with the appropriate values.
 
-<input type="checkbox" class="checkbox inline"> Add the `make_scale` method to `matrix.py` for scaling transformations.  
+<input type="checkbox" class="checkbox inline"> Add the `scale` method to the `Matrix` class for scaling transformations.  
 
 ```python
     @staticmethod
-    def make_scale(r, s, t):
-        """Return a 4D matrix for scaling by the given magnitudes."""
-        return array((
+    def scale(r, s, t):
+        """ 4D matrix for scaling dimensions x, y, and z by magnitudes r, s, and t respectively """
+        return np.array((
             (r, 0, 0, 0),
             (0, s, 0, 0),
             (0, 0, t, 0),
@@ -132,20 +132,20 @@ These methods all take the angle of rotation in radians. Then we can simply calc
         )).astype(float)
 ```
 
-Scaling can happen on any dimension, so we want to allow for scaling each dimension individually. **Uniform scaling** happens when all dimensions scale equally. In that case, we just use the same value for `r`, `s`, and `t`.
+Scaling can happen on any dimension, so we want to allow for scaling each dimension individually. **Uniform scaling** happens when all dimensions scale equally. In that case, we just need to use the same value for `r`, `s`, and `t`.
 
-<input type="checkbox" class="checkbox inline"> Finally, add the `make_perspective` method to `matrix.py` for calculating the perspective projection matrix.  
+<input type="checkbox" class="checkbox inline"> Finally, add the `perspective` method to the `Matrix` class for calculating the perspective projection matrix.  
 
 ```python
     @staticmethod
-    def make_perspective(angle_of_view=60, aspect_ratio=1, near=0.1, far=1000):
-        """Return a 4D matrix for a projection with the given perspective."""
+    def perspective(angle_of_view=60, aspect_ratio=1, near=0.1, far=1000):
+        """ 4D matrix for a projection transformation to the given perspective """
         a = angle_of_view * pi / 180.0
         d = 1.0 / tan(a/2)
         r = aspect_ratio
         b = (near + far) / (near - far)
         c = 2 * near * far / (near - far)
-        return array((
+        return np.array((
             (d/r, 0,  0, 0),
             (  0, d,  0, 0),
             (  0, 0,  b, c),
@@ -153,13 +153,13 @@ Scaling can happen on any dimension, so we want to allow for scaling each dimens
         )).astype(float)
 ```
 
-This method definition provides values for a default perspective so we do not need to enter them in every application. The angle of view parameter uses degrees for its units, so we need to convert it into radians before applying it to the tangent function for calculating the distance between the projection window and the camera. The depth components `b` and `c` are calculated from the *near clipping distance* and *far clipping distance* as explained in the previous lesson.
+This method definition provides values for a default perspective so we do not need to specify them in every app. The angle of view parameter uses degrees for its units, so we need to convert it into radians before applying it to the tangent function for calculating the distance between the projection window and the camera. The depth components `b` and `c` are calculated from the *near clipping distance* and *far clipping distance* as explained in the [previous lesson](http://127.0.0.1:4000/software-engineering-lab/notes/geometric_transformations/#perspective-projection).
 
 Now we have everything we need in the `Matrix` class. But before we can it, we need to update our `Uniform` class so it can handle 4x4 matrix data for uniform variables in our shader programs.
 
 # Updating the `Uniform` Class
 
-Remember that our `Uniform` class manages a link between a vertex buffer and a `uniform` variable in a shader program. The class uses [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions to assign data based on its data type. Now that we want to use matrix data in our applications, we need to update the `Uniform` class so it can associate matrix data with variables as well.
+Remember that our `Uniform` class manages a link between a vertex buffer and a `uniform` variable in a shader program. The class uses [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions to assign data based on its data type. Now that we want to use matrix data in our framework, we need to update the `Uniform` class so it can associate matrix data with variables as well.
 
 GLSL uses the `mat4` data type for 4x4 matrices and we can use the `glUniformMatrix4fv` function to upload data for `mat4` shader variables.
 
@@ -182,9 +182,9 @@ When calling the `glUniformMatrix4fv` function, the second parameter is the numb
 
 # A Test of Transformations
 
-Now we are ready to build an application that uses our `Matrix` class for geometric transformations. The test app will be a 2D triangle that moves and rotates according to user input. On the left side of the keyboard, the <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> keys will control global translation while <kbd>Q</kbd> and <kbd>E</kbd> control global rotation. On the right side, the <kbd>I</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> keys will control local translation while <kbd>U</kbd> and <kbd>O</kbd> control local rotation.
+Now we are ready to build an app that uses our `Matrix` class for geometric transformations. The test app will be a 2D triangle that moves and rotates according to user input. On the left side of the keyboard, the <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> keys will control global translation while <kbd>Q</kbd> and <kbd>E</kbd> control global rotation. On the right side, the <kbd>I</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> keys will control local translation while <kbd>U</kbd> and <kbd>O</kbd> control local rotation.
 
-The shader program we use will contain two `uniform mat4` variables&mdash;one for the projection matrix and one for the model matrix. Multiplying both of these matrices in order with the position vector will give us the object's position on the projection window. Our new vector shader program looks like this:
+Our shader program will use two `uniform mat4` variables&mdash;one for the projection matrix and one for the model matrix. Applying both of these matrices to the position vector will give us the object's position on the projection window. The new vector shader source code looks like this:
 
 ```glsl
 # GLSL version 330
@@ -203,7 +203,7 @@ Remember that the position vector stays the same and all of the transformations 
 <input type="checkbox" class="checkbox inline"> Open `test_7.py` for editing and add the following code:  
 
 ```python
-# test_7.py
+# graphics/test_7.py
 from math import pi
 import OpenGL.GL as GL
 
@@ -213,7 +213,7 @@ from core.openGL import Attribute, Uniform
 from core.matrix import Matrix
 
 class Test_7(WindowApp):
-    """Tests geometric transformations by moving a triangle around the screen."""
+    """ Tests geometric transformations by moving a triangle around the screen """
 
     def startup(self):
         print("Starting up Test 7...")
@@ -237,7 +237,7 @@ class Test_7(WindowApp):
         self.program_ref = initialize_program(vs_code, fs_code)
 ```
 
-Next, we create an `Attribute` object for the position data and two `Uniform` objects for the two uniform matrices in the shader program. We will use `make_translation` and `make_rotation_z` to update the model matrix whenever the user moves or rotates the triangle. The `make_perspective` method is only called once in our `startup` method since the perspective will always stay the same.
+Next, we create an `Attribute` object for the position data and two `Uniform` objects for the two matrices. We will use `translation` and `rotation_z` to update the model matrix whenever the user moves or rotates the triangle. The `perspective` method is only called once in our `startup` method since the perspective will always stay the same.
 
 <input type="checkbox" class="checkbox inline"> Inside the `startup` method of `test_7.py`, add the following code:  
 
@@ -246,7 +246,7 @@ Next, we create an `Attribute` object for the position data and two `Uniform` ob
         vao_ref = GL.glGenVertexArrays(1)
         GL.glBindVertexArray(vao_ref)
 
-        # triangle vertices
+        # triangle vertices are local to the object and do not change
         position_data = ( 
             ( 0.0,  0.3, 0.0 ),
             ( 0.2, -0.3, 0.0 ),
@@ -256,17 +256,17 @@ Next, we create an `Attribute` object for the position data and two `Uniform` ob
         position_attribute = Attribute("vec3", position_data)
         position_attribute.associate_variable(self.program_ref, "position")
 
-        # make model matrix as a uniform object
-        m_matrix = Matrix.make_translation(0, 0, -5)
+        # the model matrix
+        m_matrix = Matrix.translation(0, 0, -5)
         self.model_matrix = Uniform("mat4", m_matrix)
         self.model_matrix.locate_variable(self.program_ref, "modelMatrix")
 
-        # make perspective matrix as a uniform object
-        p_matrix = Matrix.make_perspective()
+        # the perspective matrix
+        p_matrix = Matrix.perspective()
         self.projection_matrix = Uniform("mat4", p_matrix)
         self.projection_matrix.locate_variable(self.program_ref, "projectionMatrix")
 
-        # movement speed in units per second
+        # movement speed in world units per second
         self.move_speed = 1.0
         # rotation speed in radians per second
         self.turn_speed = pi / 2
@@ -278,118 +278,119 @@ Next, we create an `Attribute` object for the position data and two `Uniform` ob
 
 Our triangle will be taller than it is wide so that we can see its orientation as it rotates around the screen. When we create the model matrix, we make it from a translation matrix that shifts the triangle backwards down the $z$-axis. Since the camera is located at the origin, we would not be able to see the triangle if it was also on the $z=0$ plane, so we move it in front of the camera at $z=-5$.
 
-The movement speed is set to units in world space. This means that the greater the distance between the object and the camera, the slower it appears to move. On the other hand, the rotation speed is unaffected by the object's distance from the camera, but it appears to speed up as the object moves away from the $z$-axis at the center of the screen. This will be clear when we compare local rotation (with the $z$-axis at the center of the triangle) to global rotation (with the $z$-axis at the center of the screen).
+The movement speed is set to units in world space. This means that the greater the distance between the object and the camera, the slower it appears to move. On the other hand, the rotation speed is not influenced by the object's distance from the camera, but it does appear to speed up as the object moves away from the center of rotation, the $z$-axis. This will be clear when we compare local rotation (with the $z$-axis at the center of the triangle) to global rotation (with the $z$-axis at the center of the screen).
 
-The last line of the `startup` method is a function that enables OpenGL's depth testing feature. This app renders a 3D scene, so depth testing tells OpenGL to calculate whether objects in the scene will block each other from view. There is only one object in the scene for now, but we turn it on in case we want to add more objects later.
+The last line of the `startup` method is a function that enables OpenGL's depth testing feature. Since we are rendering a 3D scene, we need depth testing to determine whether objects in the scene will block each other from view. There is only one object in the scene, but we turn it on now in case we want to add more objects to the scene later.
 
 <input type="checkbox" class="checkbox inline"> Now add the `update` method to the `Test_7` class with the following code:  
 
 ```python
     def update(self):
-        # first, update changes in position
+        # first, get changes to position
         move_amount = self.move_speed * self.delta_time
         turn_amount = self.turn_speed * self.delta_time
 ```
 
-As we did in the [Animations](/software-engineering-lab/notes/animations/#animations) lesson, we first calculate distances based on the time that has passed between frames. Now we also have a rotation distance to calculate separately from the move distance.
+As we did in the [Animations](/software-engineering-lab/notes/animations/#animations) lesson, we first calculate distances based on the time that has passed between frames. This time we also have a rotation distance to calculate separately from the move distance.
 
-<input type="checkbox" class="checkbox inline"> Next, add code for global translations to the `update` method.  
+<input type="checkbox" class="checkbox inline"> Next, add code for handling translations in the global context to the `update` method.  
 
 ```python
-        # global translation
+        # global translations
         # "w" is upward movement in the positive y direction
         if self.input.iskeypressed("w"):
-            m = Matrix.make_translation(0, move_amount, 0)
+            m = Matrix.translation(0, move_amount, 0)
             self.model_matrix.data = m @ self.model_matrix.data
         # "a" is leftward movement in the negative x direction
         if self.input.iskeypressed("a"):
-            m = Matrix.make_translation(-move_amount, 0, 0)
+            m = Matrix.translation(-move_amount, 0, 0)
             self.model_matrix.data = m @ self.model_matrix.data
         # "s" is downward movement in the negative y direction
         if self.input.iskeypressed("s"):
-            m = Matrix.make_translation(0, -move_amount, 0)
+            m = Matrix.translation(0, -move_amount, 0)
             self.model_matrix.data = m @ self.model_matrix.data
         # "d" is rightward movement in the positive x direction
         if self.input.iskeypressed("d"):
-            m = Matrix.make_translation(move_amount, 0, 0)
+            m = Matrix.translation(move_amount, 0, 0)
             self.model_matrix.data = m @ self.model_matrix.data
 ```
 
 Similar to our [Test 4-6](/software-engineering-lab/notes/animations/#incorporating-with-graphics-programs) application, we move the triangle in the direction specified by the key press. Here, we make a translation matrix for the movement and then multiply it by the existing model matrix to get a new model matrix. We are using the `@` operator since both of the matrices are NumPy arrays.
 
-<input type="checkbox" class="checkbox inline"> Now add code for global rotations to the `update` method.  
+<input type="checkbox" class="checkbox inline"> Now add code for handling global rotations to the `update` method.  
 
 ```python
-        # global rotation
-        # "q" is counterclockwise rotation around the global z-axis
+        # global rotations
+        # "q" is counterclockwise rotation around the world z-axis
         if self.input.iskeypressed("q"):
-            m = Matrix.make_rotation_z(turn_amount)
+            m = Matrix.rotation_z(turn_amount)
             self.model_matrix.data = m @ self.model_matrix.data
-        # "e" is clockwise rotation around the global z-axis
+        # "e" is clockwise rotation around the world z-axis
         if self.input.iskeypressed("e"):
-            m = Matrix.make_rotation_z(-turn_amount)
+            m = Matrix.rotation_z(-turn_amount)
             self.model_matrix.data = m @ self.model_matrix.data
 ```
 
-This code is similar to global translations except we use `Matrix.make_rotation_z` to get a rotation matrix instead. The <kbd>Q</kbd> key rotates in the positive (counterclockwise) direction and <kbd>E</kbd> rotates in the negative (clockwise) direction.
+This code is similar to global translations except we use `Matrix.rotation_z` to get a rotation matrix instead. The <kbd>Q</kbd> key rotates in the positive (counterclockwise) direction and <kbd>E</kbd> rotates in the negative (clockwise) direction.
 
-<input type="checkbox" class="checkbox inline"> After that, add code for local translations to the `update` method.  
+<input type="checkbox" class="checkbox inline"> After that, add code for handling local translations to the `update` method.  
 
 ```python
-        # local translation
+        # local translations
         # "i" is movement in the triangle's positive y direction
         if self.input.iskeypressed("i"):
-            m = Matrix.make_translation(0, move_amount, 0)
+            m = Matrix.translation(0, move_amount, 0)
             self.model_matrix.data = self.model_matrix.data @ m
         # "j" is movement in the triangle's negative x direction
         if self.input.iskeypressed("j"):
-            m = Matrix.make_translation(-move_amount, 0, 0)
+            m = Matrix.translation(-move_amount, 0, 0)
             self.model_matrix.data = self.model_matrix.data @ m
         # "k" is movement in the triangle's negative y direction
         if self.input.iskeypressed("k"):
-            m = Matrix.make_translation(0, -move_amount, 0)
+            m = Matrix.translation(0, -move_amount, 0)
             self.model_matrix.data = self.model_matrix.data @ m
         # "l" is movement in the triangle's positive x direction
         if self.input.iskeypressed("l"):
-            m = Matrix.make_translation(move_amount, 0, 0)
+            m = Matrix.translation(move_amount, 0, 0)
             self.model_matrix.data = self.model_matrix.data @ m
 ```
 
-Here we have changed from global coordinates to local coordinates. As discussed in the [Local Transformations](/software-engineering-lab/notes/ch3-2/#local-transformations) lesson, the only difference is the order in which we compose our model matrices. Local transformations are the reverse of global transformations so we apply the model matrix after the translation matrix.
+Here we handle local coordinates instead of global coordinates. As discussed in the [previous lesson](/software-engineering-lab/notes/ch3-2/#local-transformations), the only difference is the order in which we compose our model matrices. The order of composition for local transformations is the reverse of that for global transformations, so we apply the model matrix **after** the translation matrix.
 
-<input type="checkbox" class="checkbox inline"> Now add the final code for local rotations to the `update` method.  
+<input type="checkbox" class="checkbox inline"> Now add the final code for handling local rotations to the `update` method.  
 
 ```python
-        # local rotation
+        # local rotations
         # "u" is counterclockwise rotation around the triangle's center
         if self.input.iskeypressed("u"):
-            m = Matrix.make_rotation_z(turn_amount)
+            m = Matrix.rotation_z(turn_amount)
             self.model_matrix.data = self.model_matrix.data @ m
         # "o" is clockwise rotation around the triangle's center
         if self.input.iskeypressed("o"):
-            m = Matrix.make_rotation_z(-turn_amount)
+            m = Matrix.rotation_z(-turn_amount)
             self.model_matrix.data = self.model_matrix.data @ m
 ```
 
-As local transformations, these rotations will apply to the object's local coordinate axes, so the triangle will always spin in place around its own center with the <kbd>U</kbd> and <kbd>O</kbd> keys.
+As local transformations, these rotations will apply to the object's local coordinate axes and the triangle will always spin in place around its own center when pressing the <kbd>U</kbd> and <kbd>O</kbd> keys.
 
-<input type="checkbox" class="checkbox inline"> Finally, add the code for clearing and drawing the scene with our matrix data at the end of the `update` method.  
+<input type="checkbox" class="checkbox inline"> Finally, add code for clearing the screen and drawing with our matrix data at the end of the `update` method.  
 
 ```python
         # reset the color buffer and the depth buffer
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
+        # draw the scene
         GL.glUseProgram(self.program_ref)
         
         self.projection_matrix.upload_data()
         self.model_matrix.upload_data()
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
 
-# instantiate and run this test
+# initialize and run this test
 Test_7().run()
 ```
 
-Since we enabled depth testing, we want to reset the depth buffer every frame along with the color buffer. Then we can specify our shader program, upload the matrix data, and use it to draw the triangle. Don't forget to also include the last line for running this test application!
+Since we enabled depth testing, we want to reset the depth buffer every frame along with the color buffer. Then we can specify our shader program and upload the matrix data to draw the triangle. Don't forget to also include the last line for running this test app!
 
 <input type="checkbox" class="checkbox inline"> Save the file and run it with the `python test_7.py` command in the terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see a yellow triangle on the screen.  

@@ -196,7 +196,7 @@ class Test_3_1(WindowApp):
         # use the line loop drawing mode to connect all the vertices
         GL.glDrawArrays(GL.GL_LINE_LOOP, 0, self.vertex_count)
 
-# instantiate and run this test
+# initialize and run this test
 Test_3_1().run()
 ```
 <input type="checkbox" class="checkbox inline"> Run the application with the `python test_3_1.py` command in your terminal.  
@@ -299,7 +299,7 @@ class Test_3_2(WindowApp):
         GL.glBindVertexArray(self.vao_square)
         GL.glDrawArrays(GL.GL_LINE_LOOP, 0, self.vertex_count_square)
 
-# instantiate this test and run it
+# initialize this test and run it
 Test_3_2().run()
 ```
 
@@ -427,7 +427,7 @@ class Test_3_3(WindowApp):
         GL.glUseProgram(self.program_ref)
         GL.glDrawArrays(GL.GL_POINTS, 0, self.vertex_count)
 
-# instantiate and run this test
+# initialize and run this test
 Test_3_3().run()
 ```
 

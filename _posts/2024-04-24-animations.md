@@ -207,7 +207,7 @@ class Test_4_1(WindowApp):
         self.blue_color.upload_data()
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
 
-# instantiate and run this test
+# initialize and run this test
 Test_4_1().run()
 ```
 
@@ -310,7 +310,7 @@ class Test_4_2(WindowApp):
         self.base_color.upload_data()
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
 
-# instantiate and run this test
+# initialize and run this test
 Test_4_2().run()
 ```
 
