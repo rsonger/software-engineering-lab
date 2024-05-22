@@ -12,7 +12,7 @@ classes: wide
 toc_sticky: false
 ---
 
-*This lesson explains the scene graph which is a useful structure for a 3D scene that contains many objects and relationships. Then, the [3D Objects](#3d-objects) section introduces fundamental components for the CG framework to render the scene, 3D objects in the scene, and a camera to view it all.*
+*This lesson explains the scene graph which is a useful structure for 3D scenes that contain many objects and relationships. In addition, the [3D Objects](#3d-objects) section introduces fundamental components for the CG framework to render the scene, 3D objects in the scene, and a camera to view it all.*
 
 # The Scene Graph Framework
 
