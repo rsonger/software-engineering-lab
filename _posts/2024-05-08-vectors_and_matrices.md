@@ -56,7 +56,7 @@ v + w & = u \\
 
 If we draw the vectors head-to-tail, the resulting vector $u$ will have the initial point of vector $v$ and terminal point of vector $w$.
 
-![The sum of two vectors is the sum of its parts.](https://robsonger.dev/software-engineering-lab/assets/images/vector_addition.png)
+![The sum of two vectors is the sum of its parts.](/software-engineering-lab/assets/images/vector_addition.png)
 
 ---
 ## Vector/Point Addition
@@ -72,7 +72,7 @@ P+v & = Q \\
 The result represents translating from point $P$ to point $Q$. 
 This means $P$ is the initial point of $v$ and $Q$ is the terminal point of $v$.
 
-![Adding a vector to a point places its tail at that point and returns its head.](https://robsonger.dev/software-engineering-lab/assets/images/vector-point_addition.png)
+![Adding a vector to a point places its tail at that point and returns its head.](/software-engineering-lab/assets/images/vector-point_addition.png)
 
 ---
 ## Point Subtraction
@@ -93,7 +93,7 @@ When the value of $c$ is negative, it effectively reverses the direction of the 
 
 $$c \cdot v=c\cdot\langle v_1,v_2 \rangle = \langle c \cdot v_1,c \cdot v_2 \rangle$$
 
-![Multiplying a vector by a scalar changes its length and direction.](https://robsonger.dev/software-engineering-lab/assets/images/scalar_multiplication.png)
+![Multiplying a vector by a scalar changes its length and direction.](/software-engineering-lab/assets/images/scalar_multiplication.png)
 
 ---
 ## Standard Basis
@@ -115,7 +115,7 @@ A *linear transformation* is a mathematical operation that converts coordinates 
 For example, in the figure below, the image on the left shows an object **S** with coordinates in terms of vectors **i** and **j** in its own vector space. 
 When rendering the same object from a certain camera angle in a 3D scene, it may appear as the image on the right showing **T** with coordinate vectors **m** and **n** in the screen's vector space.
 
-![An example of a linear transformation](https://robsonger.dev/software-engineering-lab/assets/images/linear_transformation.png)
+![An example of a linear transformation](/software-engineering-lab/assets/images/linear_transformation.png)
 
 We use special functions for calculating the transformations based on whether they operate on a point, vector, or multiple vectors (a matrix).
 
