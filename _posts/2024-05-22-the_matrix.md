@@ -56,7 +56,7 @@ Here we create the identity matrix as a NumPy array and store it to a class vari
 
 We are using a class variable and a class method that returns copies of the idendity matrix in order to prevent the original value from being changed. If we do not give a copy of the matrix, then the method would give a reference to the value stored in the class. Then our apps would be able to accidentally change the original identity matrix itself. That would cause all kinds of confusion in our apps! So we make the matrix read-only using this approach.
 
-Note that when we create a NumPy array, all of its values must be the same type. So we will fill each of our matrices with `float` values by calling the `astype()` method on each newly created array. The return type is a Numpy [ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html){:target="_blank"}.
+Note that when we create a NumPy array, all of its values must be the same type. So we will fill each of our matrices with `float` values by calling the `astype()` method on each newly created array. The return type is a NumPy [ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html){:target="_blank"}.
 
 <input type="checkbox" class="checkbox inline"> Add the next code to the `Matrix` class for creating a translation matrix.  
 

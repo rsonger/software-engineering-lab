@@ -81,7 +81,7 @@ Rotating an object requires the trigonometric functions $\sin(\theta)=b/h$, $\co
 We can use the standard basis vectors $i= \langle 1,0 \rangle$ and $j= \langle 0,1 \rangle$ to represent the rotation on the $x$ and $y$ coordinates respectively. 
 When we draw vectors $i$ and $j$ together with their rotations $F(i)$ and $F(j)$, we can see right triangles map to the components of the rotated vectors.
 
-![Rotating basis vectors $i$ and $j$ by angle $\theta$.](https://robsonger.dev/software-engineering-lab/assets/images/vector_rotation.png)
+![Rotating basis vectors $i$ and $j$ by angle $\theta$.](/software-engineering-lab/assets/images/vector_rotation.png)
 
 Rotating a vector does not change its length, so we know the hypotenuse $h$ will always have a length of $1$ for basis vectors. 
 That means $\sin(\theta)=\frac{b}{1}=b$ and $\cos(\theta)=\frac{a}{1}=a$, so we can replace $b$ with $\sin(\theta)$ and $a$ with $\cos(\theta)$:
