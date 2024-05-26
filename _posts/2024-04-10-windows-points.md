@@ -328,7 +328,7 @@ def initialize_shader(shader_code, shader_type):
         # free memory used to store the shader program
         GL.glDeleteShader(shader_ref)
         # raise an exception to top running and print the error message
-        raise Exception(error_message)
+        raise RuntimeError(error_message)
 
     # compilation was successful, so return the shader reference
     return shader_ref
@@ -373,7 +373,7 @@ def initialize_program(vertex_shader_code, fragment_shader_code):
         # free memory used to store GPU program
         GL.glDeleteProgram(program_ref)
         # raise an exception to stop running and print the error message
-        raise Exception(error_message)
+        raise RuntimeError(error_message)
 
     # linking was successful, so return the program reference
     return program_ref
