@@ -104,15 +104,15 @@ class Object3D:
     def parent(self, node):
         """ Set or remove the parent of this node """
         if not isinstance(node, Object3D):
-            raise Exception("Parent node must be an instance of Object3D.")
+            raise RuntimeError("Parent node must be an instance of Object3D.")
         if self._parent is not None and node is not None:
-            raise Exception("Cannot replace an existing parent.")
+            raise RuntimeError("Cannot replace an existing parent.")
         self._parent = node
 
     def add(self, child):
         """ Add an object as the child to this object in the scene graph """
         if not isinstance(child, Object3D):
-            raise Exception("Child node must be an instance of Object3D.")
+            raise RuntimeError("Child node must be an instance of Object3D.")
         child.parent = self
         self._children.append(child)
 
@@ -208,7 +208,7 @@ Then, each method after that uses `apply_matrix` to apply a specific type of tra
     def position(self, position):
         """ Set the position of this object relative to its parent node """
         if not isinstance(position, (list, tuple)) or len(position) != 3:
-            raise Exception("Object3D position must be a list or tuple in the form (x,y,z).")
+            raise ValueError("Object3D position must be a list or tuple in the form (x,y,z).")
 
         self._transform.itemset((0,3), position[0])
         self._transform.itemset((1,3), position[1])
@@ -251,7 +251,7 @@ class Scene(Object3D):
     @Object3D.parent.setter
     def parent(self, node):
         if node is not None:
-            raise Exception("The root node cannot have a parent.")
+            raise RuntimeError("The root node cannot have a parent.")
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -309,10 +309,8 @@ class Camera(Object3D):
 
     @property
     def view_matrix(self):
-        return self._view_matrix
-
-    def update_view_matrix(self):
         self._view_matrix = numpy.linalg.inv(self.world_matrix)
+        return self._view_matrix
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -391,11 +389,11 @@ class Mesh(Object3D):
         super().__init__()
 
         if not isinstance(geometry, Geometry):
-            raise Exception(f"Expected an instance of Geometry but got {type(geometry)} instead.")
+            raise ValueError(f"Expected an instance of Geometry but got {type(geometry)} instead.")
         self._geometry = geometry
 
         if not isinstance(material, Material):
-            raise Exception(f"Expected an instance of Material but got {type(material)} instead.")
+            raise ValueError(f"Expected an instance of Material but got {type(material)} instead.")
         self._material = material
 
         self._visible = True
