@@ -12,7 +12,7 @@ classes: wide
 toc_sticky: false
 ---
 
-*In this lesson, we outline and extend the classes `Geometry` and `Material` for handling attributes, vertices, shader programs, uniform data, and rendering settings of different 3D objects. Then we introduce some extra components to our framework that help design and develop 3D scenes.*  
+*In this lesson, we implement the classes `Geometry` and `Material` for handling all the attributes, vertices, shader programs, uniform data, and rendering settings of different 3D objects. We then introduce some extra components to aid the design and develop of 3D scenes.*  
 
 In the previous lesson, we looked at the overview of our scene graph framework and created many of the basic components, including `Object3D`, `Scene`, `Group`, `Camera`, and `Mesh`. At the time, we also created an empty `Geometry` class and `Material` class. The first part of this lesson covers those two classes in full detail along with some simple extensions of each one.
 
@@ -54,7 +54,7 @@ The `Geometry` class contains a dictionary for each `Attribute` of a geometric o
         elif data_type is not None:
             self._attributes[variable_name] = Attribute(data_type, data)
         else:
-            raise Exception("A new Geometry attribute must have a data type.")
+            raise ValueError("A new Geometry attribute must have a data type.")
     
     def count_vertices(self, variable_name=None):
         """Count the number of vertices as the length of an attribute's data."""
@@ -223,7 +223,7 @@ Subclasses of `Material` will need to provide the vertex and fragment shader cod
             self._uniforms[variable_name].locate_variable(self._program_ref, 
                                                           variable_name)
         else:
-            raise Exception("New Material properties must have a dataType.")
+            raise ValueError("New Material properties must have a dataType.")
 
     def upload_data(self):
         """Upload the data of all stored uniform variables."""
@@ -241,7 +241,7 @@ Subclasses of `Material` will need to provide the vertex and fragment shader cod
             elif name in self._settings:
                 self._settings[name] = data
             else:
-                raise Exception(f"Material has no property named {name}")
+                raise ValueError(f"Material has no property named {name}")
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -383,7 +383,7 @@ class LineMaterial(BasicMaterial):
         elif self._settings["lineType"] == "segments":
             self._settings["drawStyle"] = GL.GL_LINES
         else:
-            raise Exception("Unknown line type: must be one of [connected | loop | segments].")
+            raise ValueError("Unknown line type: must be one of [connected | loop | segments].")
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -456,15 +456,12 @@ class Renderer:
     def render(self, scene, camera):
         """Render the given scene as viewed through the given camera."""
         if not isinstance(scene, Scene):
-            raise Exception("The given scene must be an instance of Scene.")
+            raise ValueError("The given scene must be an instance of Scene.")
         if not isinstance(camera, Camera):
-            raise Exception("The given camera must be an instance of Camera.")
+            raise ValueError("The given camera must be an instance of Camera.")
 
         # clear buffers
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-
-        # update camera view
-        camera.update_view_matrix()
 
         # draw all the viewable meshes
         for mesh in scene.descendant_list:

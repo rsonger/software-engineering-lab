@@ -314,7 +314,7 @@ These are generic features that should not depend on the type of geometry, so le
     def apply_matrix(self, matrix, variable_name="vertexPosition"):
         """Transform the data in an attribute using the given matrix."""
         if variable_name not in self._attributes.keys():
-            raise Exception(f"Unable to apply matrix to unknown attribute: {variable_name}")
+            raise ValueError(f"Unable to apply matrix to unknown attribute: {variable_name}")
 
         old_position_data = self._attributes[variable_name].data
         new_position_data = []
