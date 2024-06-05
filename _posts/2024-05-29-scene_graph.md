@@ -164,27 +164,27 @@ The `descendant_list` property similarly uses recursion to build a list of each 
             self._transform = matrix @ self._transform
 
     def translate(self, x, y, z, local=True):
-        """Calculate and apply a translation to this object."""
+        """ Calculate and apply a translation to this object """
         m = Matrix.translation(x,y,z)
         self.apply_matrix(m, local)
     
     def rotate_x(self, angle, local=True):
-        """Calculate and apply a rotation around the x-axis of this object."""
+        """ Calculate and apply a rotation around the x-axis of this object """
         m = Matrix.rotation_x(angle)
         self.apply_matrix(m, local)
     
     def rotate_y(self, angle, local=True):
-        """Calculate and apply a rotation around the y-axis of this object."""
+        """ Calculate and apply a rotation around the y-axis of this object """
         m = Matrix.rotation_y(angle)
         self.apply_matrix(m, local)
     
     def rotate_z(self, angle, local=True):
-        """Calculate and apply a rotation around the z-axis of this object."""
+        """ Calculate and apply a rotation around the z-axis of this object """
         m = Matrix.rotation_z(angle)
         self.apply_matrix(m, local)
     
     def scale_uniform(self, s, local=True):
-        """Calculate and apply a scaling transformation to this object."""
+        """ Calculate and apply a scaling transformation to this object """
         m = Matrix.scale(s, s, s)
         self.apply_matrix(m, local)
 ```
@@ -288,7 +288,7 @@ In addition to the view matrix, we will also use the `Camera` class to manage th
 <input type="checkbox" class="checkbox inline"> Open `scene_graph.py` and add the following code to the imports at the top of the file:  
 
 ```python
-import numpy.linalg.inv
+from numpy.linalg import inv
 ```
 
 <input type="checkbox" class="checkbox inline"> Next, scroll to the bottom of `scene_graph.py` and add the following code after the last code of the `Group` class.  
@@ -309,7 +309,7 @@ class Camera(Object3D):
 
     @property
     def view_matrix(self):
-        self._view_matrix = numpy.linalg.inv(self.world_matrix)
+        self._view_matrix = inv(self.world_matrix)
         return self._view_matrix
 ```
 

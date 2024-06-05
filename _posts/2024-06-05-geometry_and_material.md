@@ -527,7 +527,7 @@ class Renderer:
         GL.glEnable(GL.GL_MULTISAMPLE)
         GL.glClearColor(*clear_color, 1) # unpack clear_color to pass its values separately
 
-    def render(self, scene, camera):
+    def render(self, scene: Scene, camera: Camera):
         """ Render the given scene as viewed through the given camera """
         if not isinstance(scene, Scene):
             raise ValueError("The given scene must be an instance of Scene.")
