@@ -329,7 +329,7 @@ The `Mesh` class represents objects that can be rendered in the scene. It will c
 from .geometry import *
 ```
 
-This will allow us to import our `Geometry` class directly from the `geometries` module without needing to the specific sub-module. 
+This will allow us to import our `Geometry` class directly from the `geometries` module without needing to know the specific sub-module. 
 Over the next few lessons we will create several kinds of geometries in different sub-modules, so this shortcut will be convenient for programming our apps.  
 
 <input type="checkbox" class="checkbox inline"> Open `geometry.py` and add the following code:  
