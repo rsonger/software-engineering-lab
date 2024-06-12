@@ -21,11 +21,11 @@ In the first part of this lesson, we will finish implementing `Geometry` and `Ma
 
 ![A class diagram shows Renderer, Geometry, Material, BoxGeometry, BasicMaterial, and SurfaceMaterial as the targets for this lesson.](/software-engineering-lab/assets/images/scene_graph_uml-2.png)
 
-The classes we will make this time include `BoxGeometry`, `BasicMaterial`, and `SurfaceMaterial` which will allow us to render a 3D box with sides of many colors. 
+The classes we will make this time include `BoxGeometry`, `BasicMaterial`, and `SurfaceMaterial` which will allow us to render a 3D box with sides of different colors. 
 The `BasicMaterial` class maintains a reference to a basic shader program that renders vertices with a white base color by default. 
 The `BoxGeometry` class will define vertex colors separately so each side of the box can be a different color. 
 This makes it easier to see the box clearly. 
-Each extensions of the `BasicMaterial` class manages OpenGL render settings for its own draw style such as points, lines, or surfaces.
+Each extension of the `BasicMaterial` class will manage OpenGL render settings for its own draw style such as points, lines, or surfaces.
 
 Once we have a basic geometry and material to use in a `Mesh`, we will then create the `Renderer` class that can draw every `Mesh` using `Scene` and `Camera` objects. 
 After that we will have all the components we need to draw a 3D box in a test application. 
@@ -55,7 +55,7 @@ So specific details about vertex data and attributes for certain types of geomet
 
     def set_attribute(self, variable_name, data, data_type=None):
         """ Add or update an attribute of this geometric object """
-        if variable_name in self._attributes.keys():
+        if variable_name in self._attributes:
             self._attributes[variable_name].data = data
             self._attributes[variable_name].upload_data()
         elif data_type is not None:
@@ -79,7 +79,7 @@ So specific details about vertex data and attributes for certain types of geomet
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-The `_attribues` dictionary will store instances of `Attribute` for each variable in the shader program. 
+The `_attributes` dictionary will store instances of `Attribute` for each variable in the shader program. 
 Since variable names are unique, we can use them as the key for the associated attribute. 
 The `set_attribute` method updates data for an existing `Attribute` or creates a new one. 
 We want to manage a reference to the attributes dictionary internally, so we name it with an underscore, as in `_attributes`, and create a getter property to allow external access. 
