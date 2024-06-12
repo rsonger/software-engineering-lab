@@ -114,7 +114,7 @@ from .basic_geometries import *
 
 ```python
 # graphics/geometries/basic_geometries.py
-from geometries import Geometry
+from .geometry import Geometry
 
 class RectangleGeometry(Geometry):
     """ A rectangular object centered at (0,0) with a given width and height """
@@ -319,7 +319,7 @@ from .basic_materials import *
 # graphics/materials/basic_materials.py
 import OpenGL.GL as GL
 
-from materials import Material
+from .material import Material
 
 class BasicMaterial(Material):
     """ A simple material for rendering objects in a solid color or vertex colors """
@@ -487,7 +487,7 @@ class SurfaceMaterial(BasicMaterial):
             self.set_properties(properties)
 
     def update_render_settings(self):
-        if self._settings.get("doubleSide", False):
+        if self._settings["doubleSide"]:
             GL.glDisable(GL.GL_CULL_FACE)
         else:
             GL.glEnable(GL.GL_CULL_FACE)
@@ -782,7 +782,7 @@ class Test_9_2(WindowApp):
         # use the helper classes to create meshes for the grid and axes
         axes = helpers.get_axes_helper(length=3)
         grid = helpers.get_grid_helper(size=20, minor_color=(1,1,1), major_color=(1,1,0))
-        grid.mesh.rotate_x(-pi/2) # rotate from xy-plane to xz-plane
+        grid.rotate_x(-pi/2) # rotate from xy-plane to xz-plane
 
         self.scene.add(axes)
         self.scene.add(grid)
