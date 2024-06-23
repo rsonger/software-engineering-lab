@@ -145,7 +145,7 @@ from .parametric_geometries import *
 # graphics/geometries/parametric_geometries.py
 import numpy as np
 
-from geometry import Geometry
+from geometries.geometry import Geometry
 
 class ParametricGeometry(Geometry):
     """ A geometric surface rendered from the given function with parameters u and v """
