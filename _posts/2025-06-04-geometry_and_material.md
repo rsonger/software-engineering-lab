@@ -5,7 +5,7 @@ paginate: true
 
 # Jekyll
 title: "9_Rendering 3D Scenes"
-date: 2024-06-01
+date: 2025-06-04
 categories:
   - Notes
 classes: wide

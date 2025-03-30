@@ -5,7 +5,7 @@ paginate: true
 
 # Jekyll
 title: "10_Polygons, Planes, Spheres, and Cylinders"
-date: 2024-06-12
+date: 2025-06-11
 categories:
   - Notes
 classes: wide
