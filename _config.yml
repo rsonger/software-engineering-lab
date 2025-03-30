@@ -14,7 +14,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 title: "Software Engineering Lab"
-subtitle: "Academic Year 2024"
+subtitle: "Academic Year 2025"
 logo: "/assets/images/ict_logo.png"
 name: "Robert Songer"
 email: rsonger@neptune.kanazawa-it.ac.jp
@@ -71,7 +71,7 @@ plugins:
 author:
   name   : "Robert Songer"
   avatar : "/assets/images/bio-photo.jpg"
-  bio    : "Associate Professor teaching programming, web development, and software engineering at International College of Technology (ICT), Kanazawa."
+  bio    : "Adjunct Professor teaching software engineering and computer graphics at International College of Technology (ICT), Kanazawa."
   location: "Kanazawa, Japan"
   links:
     - 

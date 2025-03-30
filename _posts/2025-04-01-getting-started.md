@@ -24,7 +24,7 @@ In the lessons that follow, We will build a framework for interactive computer g
 
 This guide will show you how to set up and confirm your development environment now so you do not have any surprises later during the project.
 
-I recommend installing everything in a virtual environment which can be turned on and off as needed. Then the software configurations for this project will not interfere with other projects you may have on the same computer.
+A good practice is to install everything in a virtual environment which can be turned on and off as needed. That way the software configurations for this project will remain isolated from other projects you may have on the same computer.
 
 This guide will explain everything about setting up and using a virtual environment for the required packages.
 
@@ -32,7 +32,7 @@ This guide will explain everything about setting up and using a virtual environm
 
 On **MacOS** these commands should all work normally in your standard terminal or the one provided in **[VSCode](https://code.visualstudio.com/)**.
 
-On **Windows**, I recommend either installing a bash terminal such as **Git Bash** which comes with **[Git for Windows](https://gitforwindows.org/)**, or use the terminal in **[VSCode](https://code.visualstudio.com/)**.
+On **Windows**, I recommend installing the **Git Bash** which comes with **[Git for Windows](https://gitforwindows.org/)** and using it in either its own window or **[VSCode](https://code.visualstudio.com/)**.
 
 # Python 3.7
 
@@ -64,13 +64,13 @@ After the installation completes, open a new terminal and confirm the version nu
 
 # Virtual Environment
 
-Once we have Python 3 installed, we can create a virtual environment using its built-in `venv` module. According to the [docs](https://docs.python.org/3/library/venv.html), `venv` is a simple virtual environment tool which provides the following benefit:
+Once we have Python 3 installed, we can create a virtual environment using its built-in `venv` module. This is a simple virtual environment tool which, according to the [docs](https://docs.python.org/3/library/venv.html), provides the following benefit:
 
 > Each virtual environment has its own Python binary (which matches the version of the binary that was used to create this environment) and can have its own independent set of installed Python packages in its site directories.
 
-This means we can create an isolated installation of Python with only the necessary packages and we don't need to worry about breaking other projects or software on our PC.
+This means we can create an isolated installation of Python with only the necessary packages and their versions. We don't need to worry about breaking other projects or software on our PC when this project has requirements that may conflict with them.
 
-First, make a directory for this project somewhere on your computer and navigate to it in your terminal. Then type the following command:
+First, **make a directory for this project** somewhere on your computer and navigate to it in your terminal. Then type the following command:
  
 ```bash
 $ python3 -m venv .venv
@@ -78,7 +78,7 @@ $ python3 -m venv .venv
 
 This will use the `venv` module to create a virtual environment with your Python 3 binaries in a folder called `.venv`. I like to name the environment folder with a dot (`.`) so it is easy to distinguish and always appears at the top of directory listings. This also hides the folder by default when viewing files in programs like Finder on MacOS or File Explorer on Windows.
 
-Before we can start using the virtual environment, we must activate it. Fortunately, the environment we just created provides a binary script in its `bin` folder just for that purpose. Run the script with the following command in the same place where you created the `.venv` folder:
+Before we can start using the virtual environment, we must activate it. Fortunately, the environment we just created provides a script in its `bin` folder just for that purpose. Run the script with the following command in the same place where you created the `.venv` folder:
 
 **MacOS**
 ```bash
@@ -90,12 +90,15 @@ source .venv/bin/activate
 source .venv/Scripts/activate
 ```
 
-:warning:**&nbsp;Notice the space and dot `.` after `source`&nbsp;**:warning:
+:warning:**&nbsp;Notice the space after `source`&nbsp;**:warning:
 
-Now you should see the name of your virtual environment in parentheses at the front of your command prompt. For example, my prompt changes from `$` to `(.venv) $ `. This means you are working inside the active virtual environment and any Python modules you install will be exclusive to that environment. If you try the `pip list` command now, you will probably see that only the bare minimum packages are installed:
+Now you should see the name of your virtual environment in parentheses in front of your command prompt. For example, my prompt changes from `$` to `(.venv) $ `. This means you are working inside the active virtual environment and any Python modules you install will be exclusive to that environment. If you try the `pip list` command now, you will probably see that only the bare minimum packages are installed:
 
 ```bash
-(.venv) $ pip list
+pip list
+```
+And the output should look something like:
+```bash
 Package    Version
 ---------- -------
 pip        20.2.3
@@ -111,7 +114,7 @@ Whenever you finish working in the environment, always remember to deactivate it
 deactivate
 ```
 
-:warning:**&nbsp;Always `activate` before you start and `deactivate` when you stop working.&nbsp;**:warning:
+:warning:**&nbsp;Always `activate` and `deactivate` when you start and stop working.&nbsp;**:warning:
 
 # Python Packages
 
@@ -119,19 +122,19 @@ All the required software packages can be installed with `pip` which automatical
 
 ## `pip` Proxy Configuration
 
-The `pip list -o` command gets the latest versions of your installed packages from package repositories. We can use this command to test whether `pip` can connect or not. Try typing `pip list -o` into your terminal. If it gives an error, then you might need to configure proxy settings for `pip` to work correctly.
+The `pip list -o` command will simply output the latest versions of your installed packages that are available from package repositories. We can use this command to test whether or not `pip` can connect to the Internet. Try typing `pip list -o` into your terminal. If it gives an error, then you might need to configure proxy settings for `pip` to work correctly.
 
 Here we will configure `pip` to use the KIT internal network proxy server only when our virtual environment is active.
 
-First, activate the virtual environment as mentioned above and then type the following command:
+With the virtual environment active, type the following command:
 
 ```bash
 pip config --site set global.proxy http://wwwproxy.kanazawa-it.ac.jp:8080
 ```
 
-You should see a message that says it is writing to a `pip.conf` file (for **MacOS**) or a `pip.ini` file (for **Windows**). Make sure the file is inside your virtual environment `.venv` directory.
+You should see a message that says it is writing to a `pip.conf` file (for **MacOS**) or a `pip.ini` file (for **Windows**). You can confirm this by finding the file inside your virtual environment `.venv` directory.
 
-If this doesn't work, you can create a blank `pip.conf` or `pip.ini` file inside your `.venv` directory and save it with these contents:
+If the command doesn't work, you can manually create a blank `pip.conf` or `pip.ini` file inside your `.venv` directory and save it with these contents:
 ```
 [global]
 proxy = http://wwwproxy.kanazawa-it.ac.jp:8080
@@ -140,7 +143,10 @@ proxy = http://wwwproxy.kanazawa-it.ac.jp:8080
 Finally, confirm that the proxy is set with the following command in your terminal and you should see the proxy server address echoed back to you.
 
 ```bash
-(.venv) $ pip config get global.proxy
+pip config get global.proxy
+```
+Output:
+```bash
 http://wwwproxy.kanazawa-it.ac.jp:8080
 ```
 
@@ -152,7 +158,7 @@ By the way, when you are not behind a proxy (such as off the campus network) and
 pip config --site unset global.proxy
 ```
 
-Of course, deactivating the virtual environment will also disable the proxy setting for `pip`. But be careful because any packages you install after deactivating will apply to your default Python installation.
+Of course, deactivating the virtual environment will also disable the proxy setting for `pip`. But be careful because any packages you install after deactivating will apply to your default Python installation instead of your Python for this project.
 
 ## Installing Packages
 
@@ -176,7 +182,10 @@ When installing on **Windows**, you might see an error that says `Microsoft Visu
 The latest versions of each package for the installed Python version should be enough. When the installation completes, let's confirm they are usable in a Python program. Run the interactive Python interpreter by typing `python` in the terminal and pressing Enter. The prompt will change into `>>>` and you can directly enter Python script. 
 
 ```bash
-(.venv) $ python
+python
+```
+And then you will see something like this:
+```bash
 Python 3.7.3 (v3.7.3:ef4ec6ed12)
 Type "help", "copyright", "credits" or "license" for more information.
 >>> █
@@ -184,6 +193,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 :arrow_right: With **Git Bash** on **Windows**, the terminal might freeze after typing `python` and never respond. If that happens, look under the [Troubleshooting on Windows](#troubleshooting-on-windows) section below for help.
 
 Try importing the installed packages to confirm their installation. If you do not see any errors, then you are all ready to begin the project!
+
+Only `import pygame` will show some output. If you see nothing after typing `import numpy`, `import OpenGL`, and `import OpenGL.GL`, that means they loaded without any trouble! Here is what that might look like:
 
 ```bash
 >>> import pygame
@@ -196,7 +207,7 @@ Hello from the pygame community. https://www.pygame.org/contribute.html
 (.venv) $ █
 ```
 
-:warning:**&nbsp;In Python, the module is `OpenGL` not `opengl`.&nbsp;**:warning:
+:warning:**&nbsp;In Python, the module is `OpenGL`, not `opengl`.&nbsp;**:warning:
 
 On **MacOS**, you might get an error from `import OpenGL.GL`. In that case, try the instructions for [Troubleshooting on MacOS](#troubleshooting-on-macos) below.
 
@@ -206,7 +217,7 @@ When installing PyOpenGL and PyOpenGL-accelerate on Windows, you may encounter t
 
 > Microsoft Visual C++ 14.0 is required. Get it with "Build Tools for Visual Studio": https://visualstudio.microsoft.com/downloads/
 
-If that happens, open the [Visual Studio Downloads](https://visualstudio.microsoft.com/downloads/) page and search "All Downloads" for "Build Tools for Visual Studio 2022". Click the "Download" button and run the installer to get the necessary Microsoft Visual C++ tools.
+If that happens, open the [Visual Studio Downloads](https://visualstudio.microsoft.com/downloads/) page use the search box to find "Build Tools for Visual Studio 2022". Click the "Download" button and run the installer to get the necessary Microsoft Visual C++ tools.
 
 When the installation completes, try installing PyOpenGL and PyOpenGL-accelerate again to confirm that the problem is resolved.  
 
@@ -218,7 +229,7 @@ If the `python` command in **Git Bash** freezes and never gives you a `>>>` prom
 winpty python.exe
 ```  
 
-But typing that out everytime can be troublesome. Instead, we can create an [alias](https://en.wikipedia.org/wiki/Alias_(command)) for the `python` command and save it to our `.bashrc` script. The `.bashrc` script runs every time we open the Git Bash, so it is a good place to put things like aliases that you want to use in every session. Type this command to add the alias to your `.bashrc` file:  
+But typing that out everytime can be troublesome. Instead, we can create an [alias](https://en.wikipedia.org/wiki/Alias_(command)) for the `python` command and save it to our `.bashrc` script. The `.bashrc` script runs every time we open a bash terminal, so it is a good place to put things like aliases that you want to use in every session. Type this command to add the alias to your `.bashrc` file:  
 
 ```bash
 echo "alias python='winpty python.exe'" >> ~/.bashrc
@@ -231,7 +242,7 @@ Here, the `alias` command assigns the `winpty python.exe` command to the `python
 alias python='winpty python.exe'
 ```  
 
-Finally, run the script by either reopening the bash window or typing `source ~/.bashrc`. Now simply typing `python` in the terminal will run the `winpty python.exe` command automatically!  
+Finally, run the `.bashrc` script by either opening a new bash terminal or typing `source ~/.bashrc`. Now simply typing `python` in the terminal will run the `winpty python.exe` command automatically!  
 
 ## Troubleshooting on MacOS  
 
@@ -256,12 +267,12 @@ fullName = f"/System/Library/Frameworks/{name}.framework/{name}"
 Save the file and then test `import OpenGL.GL` in the interactive Python interpreter once more:  
 
 ```bash
-(.venv) $ python
-Python 3.7.3 (v3.7.3:ef4ec6ed12)
-Type "help", "copyright", "credits" or "license" for more information.
+python
+```
+Then, when the prompt changes to `>>>`, type `import OpenGL.GL`:
+```bash
 >>> import OpenGL.GL
 >>> exit()
-(.venv) $ █
 ```  
 
 If you don't get an error, then you are ready to start the project!  
