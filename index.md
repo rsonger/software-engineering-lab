@@ -19,7 +19,7 @@ Software Engineering is a practice-oriented discipline. This course provides stu
 
 ## Course Description
 
-Students will have an opportunity to practice the software engineering techniques they learned in previous years and apply them to the domain of computer graphics. The course begins with teaching the basics of computer graphics through hands-on exercises that build a computer graphics framework with Python and OpenGL. The students will then use their computer graphics frameworks to create a software application in a team development project.
+Students will have an opportunity to practice the software engineering techniques they learned in previous years and apply them to the domain of computer graphics (CG). The course begins with teaching the basics of computer graphics through hands-on exercises that build a computer graphics framework with Python and OpenGL. The students will then use their computer graphics frameworks to create a software application in a team development project.
 
 ## Content
 
