@@ -73,7 +73,7 @@ This means we can create an isolated installation of Python with only the necess
 First, **make a directory for this project** somewhere on your computer and navigate to it in your terminal. Then type the following command:
  
 ```bash
-$ python3 -m venv .venv
+python3 -m venv .venv
 ```
 
 This will use the `venv` module to create a virtual environment with your Python 3 binaries in a folder called `.venv`. I like to name the environment folder with a dot (`.`) so it is easy to distinguish and always appears at the top of directory listings. This also hides the folder by default when viewing files in programs like Finder on MacOS or File Explorer on Windows.

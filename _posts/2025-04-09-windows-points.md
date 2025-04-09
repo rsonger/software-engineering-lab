@@ -21,24 +21,24 @@ The graphics pipeline model we will follow has the following four stages:
 4. In the **Pixel Processing** stage, a *fragment shader* program calculates the color values of each pixel.
 
 The tasks of the **Application** stage include:  
-1. **Create a window to read from the GPU framebuffer and display the rendered scene.**
-2. **Maintain a loop for checking inputs and animating objects in the scene.**
+1. Create a window to read from the GPU framebuffer and display the rendered scene.
+2. Maintain a loop for checking inputs and animating objects in the scene.
 3. Run algorithms for physics simulations and collision detection.
-4. **Send vertex attributes and shader source code to the GPU for rendering.**  
+4. Send vertex attributes and shader source code to the GPU for rendering.  
 
-All the test applications we make in the following lessons will perform tasks 1, 2, and 4. Task 3 is left as an exercise for the intrepid reader who would like to try building physics simulations or interactive games.  
+All of the applications we make in these lessons will perform tasks 1, 2, and 4. Task 3 is left as an exercise for the intrepid reader who would like to try building physics simulations or interactive games.  
 
 In this lesson, we will use Pygame to complete tasks 1 and 2 in the section called [Creating Windows with Pygame](#creating-windows-with-pygame) below. A simple example of completing task 4 is then provided in the section called [Drawing a Point](#drawing-a-point).  
 
-In the **Geometry Processing** stage, a **vertex shader** program calculates transformations on geometric objects and determines their final coordinates for rendering.  
+After the Application stage comes the **Geometry Processing** stage in which a **vertex shader** program calculates transformations on geometric objects and determines their final coordinates for rendering.  
 
-The **Rasterization** stage then creates *fragments* which hold the color data for each pixel along with *raster positions* which are coordinates for the pixel in the rendered image.
+Then, the **Rasterization** stage creates *fragments* which hold the color data for each pixel along with *raster positions* which are coordinates for the pixel in the rendered image.
 
 Finally, the **Pixel Processing** stage executes a **fragment shader** program to calculate the final color of each pixel.
 
 We will write a very simple **vertex shader** program to render a single point and then set its color with an equally simple **fragment shader** program. The point coordinates and color values are fixed in program source code, so we do not need to bother with **geometry processing** or **rasterization** at this time.
 
-This lesson creates the first components of the graphics framework we will build up over the duration of this course. The framework will follow good software engineering design practices, such as **reusability** and **extensibility** as each component will be designed to follow a single responsibility and be open to extensions.  
+This lesson creates the first components of our own graphics framework that we will build over the duration of this course. The framework will follow good software engineering design practices, such as **reusability** and **extensibility** as each component is designed with a single responsibility and an openness to extensions.  
 
 # Creating Windows with Pygame
 
@@ -46,9 +46,9 @@ The first thing we need for our framework is something to create an application 
 
 ![The interactive graphics application lifecycle](/software-engineering-lab/assets/images/igraphics-app-flow.png)
 
-- **Startup** - load external files, initialize values, and create programming objects  
-- **Main Loop** - includes tasks to **process input** from the user, **update** variables and objects, and **render** the graphics  
-- **Shutdown** - cancel any running processes and close the window  
+- **Startup** will load external files, initialize values, and create programming objects  
+- **Main Loop** will cycle through tasks that **process input** from the user, **update** variables and objects, and **render** the graphics  
+- **Shutdown** will cancel any running processes and close the window  
 
 The first component of our graphics framework will be a class called `WindowApp` that manages the application lifecycle. Let's create it inside a Python package for the core components of the framework.
 
@@ -112,9 +112,9 @@ The `GL_MULTISAMPLEBUFFERS` and `GL_MULTISAMPLESAMPLES` attributes control *anti
 | --- | --- |
 | antialiasing | A technique to make the edges of polygons appear smooth by blending the colors of pixels that render at the edges. |
 
-Finally, the `pygame.time.Clock` object will manage the frames per second (FPS). The main loop of the program will render a new frame everytime it completes a cycle. As a result, the FPS can be really high on good hardware and use up all the CPU power. But most computer displays only run at 60 Hz which means the image updates only 60 times per second, so we should conserve our CPU and set the FPS of our application to 60 as well.
+Finally, the `pygame.time.Clock` object will manage the frames per second (FPS). The main loop of the program will render a new frame everytime it completes a cycle. When running on good PC hardware, this can create an unnecessarily high FPS as the program uses up all the CPU power. Most computer displays only run at 60 Hz which means the image updates only 60 times per second, so we should conserve our CPU and set the FPS of our application to 60 as well.
 
-Next, we will add the two empty methods to the `WindowApp` class which must be implemented by all subclasses. These methods represent the **startup** step and the main loop's **update** step in the [application lifecycle](#creating-windows-with-pygame). Each of our apps will extend the `WindowApp` class and implement these two methods to define its specific behavior.
+Next, we will add two empty methods to the `WindowApp` class which must be implemented by all subclasses. These methods represent the **startup** step and the main loop's **update** step in the [application lifecycle](#creating-windows-with-pygame). Every new app we create will extend the `WindowApp` class and implement these two methods to define its specific behavior.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Add the following code inside the `WindowApp` class after the `__init__()` method.
@@ -162,11 +162,11 @@ The last method we will add to `WindowApp` is the one that will run the entire a
         sys.exit()
 ```
 
-We will call this `run` method to begin the execution of each new interactive application. The process for checking inputs will be handled by the `Input` class which we create next. 
+Calling this `run` method begins the execution of the interactive application. Next let's create the the `Input` class which handles the process for checking user inputs. 
 
 ## The `Input` Class
 
-A separate class will implement the default behavior for handling inputs. For now, that behavior is just to exit the program when the window closes.
+A separate class will implement the default behavior for handling inputs. For now, that behavior is just to exit the program when the user closes the window.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In the `core` folder, add the following code to `app.py` just **before** the `WindowApp` class:
@@ -184,7 +184,7 @@ class Input:
 
 Here we create an attribute in the `Input` class called `_quit`. We want to limit the control of its Boolean value to the `Input` class only, so we also make a special **getter** method with the `@property` decorator. This gives the class a read-only property named `quit` so other classes can read the value without changing it.  
 
-When the user closes a window that has been created with Pygame, the Pygame library adds an event to its event queue of type `pygame.QUIT`. The `Input` class will provide a method to check the event queue and change the Boolean to `True` when the window has been closed.
+When the user closes a window that has been created with Pygame, the Pygame library creates an event of type `pygame.QUIT` and adds it to an event queue. Our `Input` class should provide a method that checks the event queue and changes `_quit` to `True` when the window has been closed.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Add the following `update` method to the `Input` class.
@@ -209,10 +209,9 @@ Now we can use an instance of `Input` in our `WindowApp` class to implement the 
 ```
 
 <input type="checkbox" class="checkbox inline"> Go to the `run` method and find the `# !--not implemented yet--!` comment.  
-<input type="checkbox" class="checkbox inline"> Replace the comment with the following code under `# the "check inputs" process`:  
+<input type="checkbox" class="checkbox inline"> Delete the comment and add the following code under `# the "check inputs" process`:  
 
 ```python
-            # the "check inputs" process
             self.input.update()
             if self.input.quit:
                 running = False
@@ -228,11 +227,11 @@ Finally, let's check that everything works together so far with a simple test pr
 <input type="checkbox" class="checkbox inline"> Inside that file, add the following source code:
 
 ```python
-# graphics/test_2_1.py
-from core.app import WindowApp
+# test_2_1.py
+from graphics.core.app import WindowApp
 
 class Test_2_1(WindowApp):
-    """ Tests a basic window for rendering content """
+    """Tests a basic window for rendering content"""
     def startup(self):
         print("Starting up Test 2-1...")
 
@@ -243,7 +242,7 @@ class Test_2_1(WindowApp):
 Test_2_1().run()
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and open a terminal in your `graphics` folder.  
+<input type="checkbox" class="checkbox inline"> Save the file and open a terminal in the directory that contains your `graphics` folder.  
 <input type="checkbox" class="checkbox inline"> Run the test program with the following command:  
 
 ```bash
@@ -256,7 +255,7 @@ In this test, the `startup` and `update` methods don't add any functionality. Bu
 
 # Drawing a Point
 
-With OpenGL, we render images on screen by running programs with graphics hardware called the graphics processing unit (**GPU**). These programs include a **vertex shader** program and a **fragment shader** program which are written in the OpenGL Shading Language (**GLSL**). Here we will learn how to write simple shaders, link them to run together, and compile them into a program for the GPU. Once we do that, we will then extend our graphics framework with components that can handle these tasks for our CG apps going forward.  
+With OpenGL, we render images on screen by running programs with a special processor chip for graphics called the graphics processing unit (**GPU**). These programs include a **vertex shader** program and a **fragment shader** program which are written in the OpenGL Shading Language (**GLSL**). Here we will learn how to write simple shaders, link them to run together, and compile them into a program for the GPU. Once we do that, we will then extend our graphics framework with components that can handle these tasks for our CG apps going forward.  
 
 ## The OpenGL Shading Language (GLSL)
 
@@ -287,9 +286,9 @@ void main() {
 }
 ```
 
-The `fragColor` variable is a 4-dimensional vector of color values $r$, $g$, $b$, and $a$ defined as `float` values. The range of possible values in shaders is between -1.0 and 1.0 and cannot be replaced with `int` values.
+The `fragColor` variable is a 4-dimensional vector of color values $r$, $g$, $b$, and $a$ defined as `float` values. The range of possible values in shaders is between -1.0 and 1.0 and must have a decimal (that is, we cannot use `int` values).
 
-Here, the variable `fragColor` is declared with `out` which is a *type qualifier*. This means that the `fragColor` variable will be sent to the buffer after the fragment shader finishes. In general, the `out` qualifier shows that a variable will be sent to the next step, and the `in` qualifier shows that it is received from a previous step. For example, color data can be passed from our application through the color buffer to the vertex shader, then the fragment shader, and back to the buffer again for rendering.
+Here, the variable `fragColor` is declared with `out` which is a *type qualifier*. This means that the `fragColor` variable will be sent to the buffer after the fragment shader finishes. In general, the `out` qualifier shows that a variable will be sent to the next step, and the `in` qualifier shows that it is received from a previous step. For example, color data can be passed from our application through the color buffer to the vertex shader, then to the fragment shader, and then back to the buffer again for rendering.
 
 ![The ins and outs of a GPU program](/software-engineering-lab/assets/images/buffer-shader-dataflow.png)
 
@@ -411,11 +410,11 @@ A typical application will follow these steps in its **startup** process:
 In our applications, we do these steps in a method called `startup` which is defined in the `WindowApp` class but left empty there. We must implement the method in each of our apps that extend the `WindowApp` class. We will use special objects called *vertex array objects* (VAOs) to hold associations between VBOs and shader variables. OpenGL apps often requires at least one VAO. Our applications are simple and don't need to set up any buffers (VBOs), so the vertex and color data will come directly from our code instead.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your `graphics` folder, create a new file called `test_2_2.py`.  
+<input type="checkbox" class="checkbox inline"> In your main project folder, create a new file called `test_2_2.py`.  
 <input type="checkbox" class="checkbox inline"> Open the `test_2_2.py` file and add the following code:
 
 ```python
-# graphics/test_2_2.py
+# test_2_2.py
 import OpenGL.GL as GL
 
 from core.app import WindowApp
