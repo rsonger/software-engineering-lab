@@ -18,7 +18,7 @@ In our [last app](/software-engineering-lab/notes/windows-points/#rendering-in-t
 
 ## Using Vertex Buffers
 
-Recall from [`test_2_2.py`](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) that the **application stage** of the graphics pipeline creates **vertex buffer objects** (VBOs) in memory, stores data in those buffers, and associates vertex buffers with shader variables. These associations are then stored in a **vertex array object** (VAO) which is bound for use by the GPU. We had a single VAO in `test_2_2.py` but did not use any buffers with it. This time we will prepare an `Attribute` class which automatically binds vertex buffers, uploads data to them, and links them to shader variables so the shader can access the data.
+Recall from [`test_2_2.py`](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) that the **application stage** of the graphics pipeline creates **vertex buffer objects** (VBOs) in memory, stores data in those buffers, and associates shader program variables with data in those vertex buffers. These associations are then stored in a **vertex array object** (VAO) which is bound for use by the GPU. We had a single VAO in `test_2_2.py` but did not use any buffers with it. This time we will prepare an `Attribute` class which automatically binds vertex buffers, uploads data to them, and links them to shader variables so the shader can access the data.
 
 Here is an outline of the class and the OpenGL functions it will use:
 
@@ -29,7 +29,7 @@ Here is an outline of the class and the OpenGL functions it will use:
 - Then we associate the variable to the bound buffer with [`glVertexAttribPointer`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml){:target="_blank"}. This function needs the variable reference, the data type, and the number of components in the data. Basic data types like `int` and `float` have just 1 component, but vectors will have 2, 3, or 4 components.
 - Finally, we enable using the association to read the data by calling the [`glEnableVertexAttribArray`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml){:target="_blank"} function and giving it the reference to the variable.
 
-This all may sound complicated, but we only need to write code for it once the `Attribute` class. After that, we can easily make instances of `Attribute` in our apps and gain all the benefits of code already written. 
+This all may sound complicated, but we only need to write code for it once the `Attribute` class. After that, we only need to make instances of `Attribute` in our apps to gain all the benefits of this code already written. 
 
 ## The Attribute Class
 
@@ -43,7 +43,7 @@ import OpenGL.GL as GL
 import numpy
 
 class Attribute(object):
-    """ Manages a single attribute variable that uses data from a vertex buffer """
+    """Manages a single attribute variable that uses data from a vertex buffer"""
 
     # maps data types to their associated vertex size and component data type
     _ATTRIB_SIZE_TYPE = {
@@ -55,7 +55,7 @@ class Attribute(object):
     }
 
     def __init__(self, data_type, data):
-        # data types can be int, float, vec2, vec3, or vec4
+        # data types are defined by the dict above
         if data_type not in self._ATTRIB_SIZE_TYPE.keys():
             raise ValueError(data_type, "Unsupported data type")
 
@@ -69,9 +69,9 @@ class Attribute(object):
         self.upload_data()
 ```
 
-When we create a new vertex attribute, we give it data to store in a vertex buffer and specify the data type. The `Attribute` instance will get an available vertex buffer when it initializes and then immediately upload its data using the `upload_data` method below.
+When we create a new vertex attribute, we give it data to store in a vertex buffer and specify the data type. The `Attribute` instance will get an available vertex buffer when it initializes and then immediately upload its data using the `upload_data` method which we will define below.
 
-Here we also create a class variable called `_ATTRIB_SIZE_TYPE` to map data type parameters to their associated vertex size and component data types. The variable is a dictionary where each key is a valid parameter for `self.data_type`, and each value is a tuple containing the size and data type for OpenGL. As a class variable, the dictionary is shared among all instances and we can use it both in the `__init__` method and in the method we create later for associating variables with their data.  
+We also define a class variable called `_ATTRIB_SIZE_TYPE` to map data type parameters to their associated vertex size and component data types. The variable is a dictionary where each key is a valid parameter for `self.data_type`, and each value is a tuple containing the size and data type for OpenGL. As a class variable, the dictionary is shared among all instances and we can use it both in the `__init__` method and in the method we create later for associating variables with their data.  
 
 <input type="checkbox" class="checkbox inline"> Add the `upload_data` method to the `Attribute` class.  
 
@@ -87,7 +87,7 @@ Here we also create a class variable called `_ATTRIB_SIZE_TYPE` to map data type
         GL.glBufferData(GL.GL_ARRAY_BUFFER, data.ravel(), GL.GL_STATIC_DRAW)
 ```
 
-By putting this code in a separate `upload_data` method, we can easily update the data multiple times without needing to create a new attribute. This will be useful later when we create animations and interactive features. Before uploading the data, we need to make sure it is in the right format for GLSL: a one-dimensional array of 32-bit floating point numbers. The `numpy` library is very useful here with its array implementation and `ravel` function.
+By putting this code in a separate `upload_data` method, we can easily update the data for the same attribute multiple times. This will be useful later when we create animations and interactive features. Before uploading the data, we need to make sure it is in the right format for GLSL: a one-dimensional array of 32-bit floating point numbers. The `numpy` library is very useful here with its array implementation and `ravel` function.
 
 Next is another method for associating variables with their data, aptly named `associate_variable`. Once a variable association has been created, any changes to its data through the `upload_data` method will automatically be reflected at render time. This means we will only need to call `associate_variable` once for each attribute in an app, but the `upload_data` method will be called in every iteration of the application's **update** loop.
 
@@ -136,19 +136,19 @@ Our first test application will use the `Attribute` class from above to draw lin
 <input type="checkbox" class="checkbox inline"> Open `test_3_1.py` and add the following test application source code.
 
 ```python
-# graphics/test_3_1.py
+# test_3_1.py
 import OpenGL.GL as GL
 
-from core.app import WindowApp
-from core.openGLUtils import initialize_program
-from core.openGL import Attribute
+from graphics.core.app import WindowApp
+from graphics.core.openGLUtils import initialize_program
+from graphics.core.openGL import Attribute
 
 class Test_3_1(WindowApp):
-    """ Test the Attribute class by drawing lines between 6 points in a hexagon """
+    """Test the Attribute class by drawing lines between 6 points in a hexagon"""
     def startup(self):
         print("Starting up Test 3-1...")
 
-        # the vertex shader will receive buffer data for its position variable
+        # the vertex shader position variable will get data from a buffer
         vs_code = """
         in vec3 position;
         void main() {
@@ -156,7 +156,7 @@ class Test_3_1(WindowApp):
         }
         """
 
-        # fragment shader code
+        # th fragment shader will output fragColor to a buffer
         fs_code = """
         out vec4 fragColor;
         void main() {
@@ -175,12 +175,12 @@ class Test_3_1(WindowApp):
 
         # initialize the hexagon vertices as attribute data
         position_data = (
-            (0.8, 0.0, 0.0), 
-            (0.4, 0.6, 0.0), 
-            (-0.4, 0.6, 0.0),
-            (-0.8, 0.0, 0.0),
+            ( 0.8,  0.0, 0.0), 
+            ( 0.4,  0.6, 0.0), 
+            (-0.4,  0.6, 0.0),
+            (-0.8,  0.0, 0.0),
             (-0.4, -0.6, 0.0),
-            (0.4, -0.6, 0.0)
+            ( 0.4, -0.6, 0.0)
         )
 
         # set the number of vertices to be used in the draw function
@@ -232,15 +232,15 @@ Even though the position data for the triangle and square will be stored in sepa
 <input type="checkbox" class="checkbox inline"> Open `test_3_2.py` and add the following code.  
 
 ```python
-# graphics/test_3_2.py
+# test_3_2.py
 import OpenGL.GL as GL
 
-from core.app import WindowApp
-from core.openGLUtils import initialize_program
-from core.openGL import Attribute
+from graphics.core.app import WindowApp
+from graphics.core.openGLUtils import initialize_program
+from graphics.core.openGL import Attribute
 
 class Test_3_2(WindowApp):
-    """ Test multiple VAOs by rendering a square and a triangle together """
+    """Test multiple VAOs by rendering a square and a triangle together"""
     def startup(self):
         print("Starting up Test 3-2...")
 
@@ -273,7 +273,7 @@ class Test_3_2(WindowApp):
             self.program_ref, "position", self.vao_triangle
         )
 
-        # get a reference to a vertex array object for the square
+        # get another reference to a vertex array object for the square
         self.vao_square = GL.glGenVertexArrays(1)
         pos_data_square = (
             (0.8, 0.8, 0.0),
@@ -288,7 +288,7 @@ class Test_3_2(WindowApp):
         )
 
     def update(self):
-        # the same shader program renders both shapes
+        # the same shader program can render both shapes
         GL.glUseProgram(self.program_ref)
 
         # draw the triangle
@@ -357,15 +357,15 @@ Now let's create one more test app to demonstrate color data passing through att
 <input type="checkbox" class="checkbox inline"> Open `test_3_3.py` and add the following source code:
 
 ```python
-# graphics/test_3_3.py
+# test_3_3.py
 import OpenGL.GL as GL
 
-from core.app import WindowApp
-from core.openGLUtils import initialize_program
-from core.openGL import Attribute
+from graphics.core.app import WindowApp
+from graphics.core.openGLUtils import initialize_program
+from graphics.core.openGL import Attribute
 
 class Test_3_3(WindowApp):
-    """ Test passing color data between shaders with a colorful hexagon """
+    """Test passing color data between shaders with a colorful hexagon"""
     def startup(self):
         print("Starting up Test 3-3...")
 
@@ -436,15 +436,15 @@ Test_3_3().run()
 
 In `test_3_2.py`, we used two different vertex arrays to bind different buffers to the same program variable. This time we have two different program variables associated with two different buffers, so we can use a single VAO to store the associations.
 
-Now what happens if we change the draw mode from `GL_POINTS` to something like `GL_LINE_LOOP` or `GL_TRIANGLE_FAN`? In that case, we can see OpenGL's **rasterization** process in action as it *interpolates* the color values in between each vertex. Here, interpolation is a mathematical calculation of the RGB components for each pixel based on how far it is from the original vertices. It weighs the values of each component differently and combines them to get each pixel's final color.
+Now what happens if we change the draw mode from `GL_POINTS` to something like `GL_LINE_LOOP` or `GL_TRIANGLE_FAN`? In that case, we can see OpenGL's **rasterization** process in action as it *interpolates* the color values in between each vertex. Here, interpolation is a mathematical calculation of the RGB components for each pixel based on how far it is from the original vertices. It weighs the values of each vertex color value and combines them to get the final color values for each pixel.
 
-For example, if a point $P$ is halfway between a point with color $C_1=[1.0, 0.0, 0.0]$ (red) and a second point with color $C_2=[0.0, 0.0, 1.0]$ (blue), then its color $C_P$ would be half of $C_1$ and half of $C_2$, which is purple:
+For example, if a point $P$ is located three-quarters of the distance between a point with color $C_1=[1.0, 0.0, 0.0]$ (red) and a second point with color $C_2=[0.0, 0.0, 1.0]$ (blue), then its color $C_P$ would be one-quarter of $C_1$ and three-quarters of $C_2$. The results is a darker shade of blue:
 
 $$\begin{aligned}
-C_P &=0.5 \cdot C_1+0.5 \cdot C_2 \\
-    &=0.5 \cdot [1.0, 0.0, 0.0] + 0.5 \cdot [0.0, 0.0, 1.0] \\
-    &=[0.5, 0.0, 0.0] + [0.0, 0.0, 0.5] \\
-    &=[0.5, 0.0, 0.5]
+C_P &=0.25 \cdot C_1+0.75 \cdot C_2 \\
+    &=0.25 \cdot [1.0, 0.0, 0.0] + 0.75 \cdot [0.0, 0.0, 1.0] \\
+    &=[0.25, 0.0, 0.0] + [0.0, 0.0, 0.75] \\
+    &=[0.25, 0.0, 0.75]
 \end{aligned}$$
 
 The result of filling a shape with triangle draw modes will interpolate the colors between vertices, effectively creating a gradient effect. Now if we want all the points and the shape to be filled with the same color, we just need to change all the vertices of our `color_data` variable to be the same value. 

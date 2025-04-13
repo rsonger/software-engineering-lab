@@ -242,7 +242,7 @@ class Test_2_1(WindowApp):
 Test_2_1().run()
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and open a terminal in the directory that contains your `graphics` folder.  
+<input type="checkbox" class="checkbox inline"> Save the file and open a terminal in the directory that contains your `test_2_1.py` file.  
 <input type="checkbox" class="checkbox inline"> Run the test program with the following command:  
 
 ```bash
@@ -417,11 +417,11 @@ In our applications, we do these steps in a method called `startup` which is def
 # test_2_2.py
 import OpenGL.GL as GL
 
-from core.app import WindowApp
-from core.openGLUtils import initialize_program
+from graphics.core.app import WindowApp
+from graphics.core.openGLUtils import initialize_program
 
 class Test_2_2(WindowApp):
-    """Test compiling and linking a GPU program by rendering a single point."""
+    """Test compiling and linking a GPU program by rendering a single point"""
     def startup(self):
         print("Starting up Test 2-2...")
 
@@ -461,7 +461,7 @@ class Test_2_2(WindowApp):
 Test_2_2().run()
 ```
 
-<input type="checkbox" class="checkbox inline"> Save the file and open a terminal in your main folder.  
+<input type="checkbox" class="checkbox inline"> Save the file and open a terminal in the folder with your `test_2_2.py` file.  
 <input type="checkbox" class="checkbox inline"> Run the test program with the following command:  
 
 ```bash
