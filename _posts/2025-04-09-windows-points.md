@@ -14,21 +14,21 @@ toc_sticky: false
 
 *This lesson introduces the basic framework components for creating an application window and rendering a point on the screen.*
 
-The graphics pipeline model we will follow has the following four stages:
+The graphics pipeline model we will follow has these four stages:
 1. In the **Application** stage, we create a window to display the rendered graphics and then send data to the GPU.
 2. In the **Geometry Processing** stage, a *vertex shader* program calculates the positions of all the vertices that make up each object being rendered.
 3. In the **Rasterization** stage, we associate each pixel of the rendered image with the objects in the 3D scene that it will display.
 4. In the **Pixel Processing** stage, a *fragment shader* program calculates the color values of each pixel.
 
-The tasks of the **Application** stage include:  
+The steps of the **Application** stage are:  
 1. Create a window to read from the GPU framebuffer and display the rendered scene.
 2. Maintain a loop for checking inputs and animating objects in the scene.
 3. Run algorithms for physics simulations and collision detection.
 4. Send vertex attributes and shader source code to the GPU for rendering.  
 
-All of the applications we make in these lessons will perform tasks 1, 2, and 4. Task 3 is left as an exercise for the intrepid reader who would like to try building physics simulations or interactive games.  
+All of the applications we make in these lessons will perform steps 1, 2, and 4 above. The third step is left as an exercise for the intrepid reader who would like to try building physics simulations or interactive games.  
 
-In this lesson, we will use Pygame to complete tasks 1 and 2 in the section called [Creating Windows with Pygame](#creating-windows-with-pygame) below. A simple example of completing task 4 is then provided in the section called [Drawing a Point](#drawing-a-point).  
+In this lesson, we will use Pygame to complete steps 1 and 2 in the section called [Creating Windows with Pygame](#creating-windows-with-pygame) below. A simple example of completing step 4 is then provided in the section called [Drawing a Point](#drawing-a-point).  
 
 After the Application stage comes the **Geometry Processing** stage in which a **vertex shader** program calculates transformations on geometric objects and determines their final coordinates for rendering.  
 
@@ -38,7 +38,7 @@ Finally, the **Pixel Processing** stage executes a **fragment shader** program t
 
 We will write a very simple **vertex shader** program to render a single point and then set its color with an equally simple **fragment shader** program. The point coordinates and color values are fixed in program source code, so we do not need to bother with **geometry processing** or **rasterization** at this time.
 
-This lesson creates the first components of our own graphics framework that we will build over the duration of this course. The framework will follow good software engineering design practices, such as **reusability** and **extensibility** as each component is designed with a single responsibility and an openness to extensions.  
+This lesson creates the first components of our own graphics framework that we will build up and use over the throughout this course. The framework will follow good software engineering design practices, such as **reusability** and **extensibility** as each component is designed with a single responsibility and an openness to extension.  
 
 # Creating Windows with Pygame
 
@@ -48,17 +48,17 @@ The first thing we need for our framework is something to create an application 
 
 - **Startup** will load external files, initialize values, and create programming objects  
 - **Main Loop** will cycle through tasks that **process input** from the user, **update** variables and objects, and **render** the graphics  
-- **Shutdown** will cancel any running processes and close the window  
+- **Shutdown** will cancel any running processes and exit the program  
 
 The first component of our graphics framework will be a class called `WindowApp` that manages the application lifecycle. Let's create it inside a Python package for the core components of the framework.
 
 ## The `WindowApp` Class
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> First, make a folder called `graphics` in your project directory to store all the source code. This folder should be in the same place as your virtual environment and it will serve as your **main** working folder.  
-<input type="checkbox" class="checkbox inline"> In the `graphics` folder, create a new folder called `core`.  
-<input type="checkbox" class="checkbox inline"> Inside the `core` folder, create an empty file called `__init__.py` (with double underscores). This will let you import code from the `core` folder as a Python module.  
-<input type="checkbox" class="checkbox inline"> Create another file called `app.py` inside `core` and open the file for editing.  
+<input type="checkbox" class="checkbox inline"> First, make a folder called `graphics` in your main project directory to store the framework source code. This folder should be in the same place as your virtual environment.  
+<input type="checkbox" class="checkbox inline"> In the `graphics` folder, create an empty file called `__init__.py` (with double underscores). This will let you import code from the `graphics` folder as a Python module.  
+<input type="checkbox" class="checkbox inline"> Inside the `graphics` folder, create a new folder called `core` and another empty `__init__.py` file inside the `core` folder.  
+<input type="checkbox" class="checkbox inline"> Create one more file called `app.py` inside `core` and open the file for editing.  
 <input type="checkbox" class="checkbox inline"> Add the following code to the `app.py` file.
 
 ```python
@@ -98,7 +98,7 @@ This code creates the `WindowApp` class from which all of our CG apps will be ma
 
 The initialization method prepares the necessary Pygame modules and buffer settings before creating a window. The window size is set by the `screen_size` parameter which has a default 512 x 512 resolution. An object for rendering images on screen is then created with the `pygame.display.set_mode()` method and saved to the `self.screen` property.  
 
-Additional configuration for the display screen is specified by `display_flags` which we set to use OpenGL with double buffering. We can combine flags with the binary OR operator `|` when we want to use multiple options. For example, replacing that line with the following code would also allow the user to change the window size:
+Additional configuration for the display screen is specified by `display_flags` which we use to specify double buffering. We can combine flags with the binary OR operator `|` when we want to use multiple options. For example, we can allow the user to change the size of the window if we combine the double buffering flags with `pygame.RESIZABLE` like so:
 
 ```python
         display_flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE
@@ -108,9 +108,9 @@ Additional configuration for the display screen is specified by `display_flags` 
 
 The `GL_MULTISAMPLEBUFFERS` and `GL_MULTISAMPLESAMPLES` attributes control *antialiasing*. The number of samples indicates how many times to calculate the color of a pixel at the edge of a polygon. We calculate the color of a pixel with a slight offset so the pixel becomes a blend of the polygon color and the colors around it. This calculation is called "sampling".  
 
-| CG Word |  |
+|  |  |
 | --- | --- |
-| antialiasing | A technique to make the edges of polygons appear smooth by blending the colors of pixels that render at the edges. |
+| **antialiasing** | A technique to make the edges of polygons appear smooth by blending the colors of pixels that render at the edges. |
 
 Finally, the `pygame.time.Clock` object will manage the frames per second (FPS). The main loop of the program will render a new frame everytime it completes a cycle. When running on good PC hardware, this can create an unnecessarily high FPS as the program uses up all the CPU power. Most computer displays only run at 60 Hz which means the image updates only 60 times per second, so we should conserve our CPU and set the FPS of our application to 60 as well.
 
