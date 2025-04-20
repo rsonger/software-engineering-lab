@@ -855,29 +855,29 @@ class CameraRig(Group):
         rotate_amount = self._rotate_speed / 180 * pi * delta_time
 
         # move the body in all directions
-        if input.iskeypressed(self.KEY_MOVE_FORWARD):
+        if input.is_key_pressed(self.KEY_MOVE_FORWARD):
             self.translate(0, 0, -move_amount)
-        if input.iskeypressed(self.KEY_MOVE_BACKWARD):
+        if input.is_key_pressed(self.KEY_MOVE_BACKWARD):
             self.translate(0, 0,  move_amount)
-        if input.iskeypressed(self.KEY_MOVE_LEFT):
+        if input.is_key_pressed(self.KEY_MOVE_LEFT):
             self.translate(-move_amount, 0, 0)
-        if input.iskeypressed(self.KEY_MOVE_RIGHT):
+        if input.is_key_pressed(self.KEY_MOVE_RIGHT):
             self.translate( move_amount, 0, 0)
-        if input.iskeypressed(self.KEY_MOVE_UP):
+        if input.is_key_pressed(self.KEY_MOVE_UP):
             self.translate(0,  move_amount, 0)
-        if input.iskeypressed(self.KEY_MOVE_DOWN):
+        if input.is_key_pressed(self.KEY_MOVE_DOWN):
             self.translate(0, -move_amount, 0)
 
         # turn the body left and right
-        if input.iskeypressed(self.KEY_TURN_RIGHT):
+        if input.is_key_pressed(self.KEY_TURN_RIGHT):
             self.rotate_y(-rotate_amount)
-        if input.iskeypressed(self.KEY_TURN_LEFT):
+        if input.is_key_pressed(self.KEY_TURN_LEFT):
             self.rotate_y( rotate_amount)
 
         # turn the camera to look up or down
-        if input.iskeypressed(self.KEY_LOOK_UP):
+        if input.is_key_pressed(self.KEY_LOOK_UP):
             self._camera.rotate_x( rotate_amount)
-        if input.iskeypressed(self.KEY_LOOK_DOWN):
+        if input.is_key_pressed(self.KEY_LOOK_DOWN):
             self._camera.rotate_x(-rotate_amount)
 ```
 

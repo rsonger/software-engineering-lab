@@ -14,11 +14,11 @@ toc_sticky: false
 
 *In this lesson, we add a class to our framework to simplify the use of vertex buffers and then use the class to draw shapes with multiple vertices and colors.*
 
-In our [last app](/software-engineering-lab/notes/windows-points/#rendering-in-the-application), we drew a single point with only a single vertex. But we need more than a single vertex to draw anything that is more complicated than a point. For example, triangles have 3 vertices, squares have 4 vertices, and hexagons have 6 vertices. As the number of shapes and their vertices grow, we need to make use of memory objects called **vertex buffers** so it is easier to process the data.  
+In our [last app](/software-engineering-lab/notes/windows-points/#rendering-in-the-application), we drew a single point with only a single vertex. But we need more than a single vertex to draw shapes. For example, triangles have 3 vertices, squares have 4 vertices, and hexagons have 6 vertices. As the number of shapes and their vertices grow, we need to make use of memory objects called **vertex buffers** to process the data collectively.  
 
 ## Using Vertex Buffers
 
-Recall from [`test_2_2.py`](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) that the **application stage** of the graphics pipeline creates **vertex buffer objects** (VBOs) in memory, stores data in those buffers, and associates shader program variables with data in those vertex buffers. These associations are then stored in a **vertex array object** (VAO) which is bound for use by the GPU. We had a single VAO in `test_2_2.py` but did not use any buffers with it. This time we will prepare an `Attribute` class which automatically binds vertex buffers, uploads data to them, and links them to shader variables so the shader can access the data.
+Recall from [`test_2_2.py`](/software-engineering-lab/notes/windows-points/#rendering-in-the-application) that the **application stage** of the graphics pipeline creates **vertex buffer objects** (VBOs) in memory, stores data in those buffers, and associates the data in those buffers with shader program variables. These associations are stored in a **vertex array object** (VAO) which we bind for use by the GPU. In our last test program, we had a single VAO but did not use any buffers with it. This time we will prepare an `Attribute` class which automatically binds vertex buffers, uploads data to them, and links them to shader variables so the shader can access the data. By encapsulating the management of vertex buffers in `Attribute` objects, it will become a lot easier to handle multiple vertices and draw complicated shapes.
 
 Here is an outline of the class and the OpenGL functions it will use:
 
@@ -29,7 +29,7 @@ Here is an outline of the class and the OpenGL functions it will use:
 - Then we associate the variable to the bound buffer with [`glVertexAttribPointer`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml){:target="_blank"}. This function needs the variable reference, the data type, and the number of components in the data. Basic data types like `int` and `float` have just 1 component, but vectors will have 2, 3, or 4 components.
 - Finally, we enable using the association to read the data by calling the [`glEnableVertexAttribArray`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml){:target="_blank"} function and giving it the reference to the variable.
 
-This all may sound complicated, but we only need to write code for it once the `Attribute` class. After that, we only need to make instances of `Attribute` in our apps to gain all the benefits of this code already written. 
+This all may sound complicated, but we only need to write code for it once the `Attribute` class. After that, we can easily gain all the benefits of this code by simply using instances of `Attribute` in our apps. 
 
 ## The Attribute Class
 
@@ -45,13 +45,13 @@ import numpy
 class Attribute(object):
     """Manages a single attribute variable that uses data from a vertex buffer"""
 
-    # maps data types to their associated vertex size and component data type
+    # maps data types to their associated vertex size and data type
     _ATTRIB_SIZE_TYPE = {
-        "int":      (1, GL.GL_INT),
-        "float":    (1, GL.GL_FLOAT),
-        "vec2":     (2, GL.GL_FLOAT),
-        "vec3":     (3, GL.GL_FLOAT),
-        "vec4":     (4, GL.GL_FLOAT),
+        "int": (1, GL.GL_INT),
+        "float": (1, GL.GL_FLOAT),
+        "vec2": (2, GL.GL_FLOAT),
+        "vec3": (3, GL.GL_FLOAT),
+        "vec4": (4, GL.GL_FLOAT),
     }
 
     def __init__(self, data_type, data):
@@ -71,12 +71,13 @@ class Attribute(object):
 
 When we create a new vertex attribute, we give it data to store in a vertex buffer and specify the data type. The `Attribute` instance will get an available vertex buffer when it initializes and then immediately upload its data using the `upload_data` method which we will define below.
 
-We also define a class variable called `_ATTRIB_SIZE_TYPE` to map data type parameters to their associated vertex size and component data types. The variable is a dictionary where each key is a valid parameter for `self.data_type`, and each value is a tuple containing the size and data type for OpenGL. As a class variable, the dictionary is shared among all instances and we can use it both in the `__init__` method and in the method we create later for associating variables with their data.  
+We also define a class variable called `_ATTRIB_SIZE_TYPE` to map data type parameters to their associated vertex size and component data types. The variable is a dictionary where each key is a valid parameter for `self.data_type`, and each value is a tuple containing the number of components and data type of each component in OpenGL. As a class variable, the dictionary is shared among all instances and we can use it both in the `__init__` method and in the method we create later for associating variables with their data.  
 
 <input type="checkbox" class="checkbox inline"> Add the `upload_data` method to the `Attribute` class.  
 
 ```python
     def upload_data(self):
+        """Load data stored in this object into the associated buffer"""
         # convert data to numpy array of 32-bit floating point numbers
         data = numpy.array(self.data).astype(numpy.float32)
 
@@ -87,7 +88,7 @@ We also define a class variable called `_ATTRIB_SIZE_TYPE` to map data type para
         GL.glBufferData(GL.GL_ARRAY_BUFFER, data.ravel(), GL.GL_STATIC_DRAW)
 ```
 
-By putting this code in a separate `upload_data` method, we can easily update the data for the same attribute multiple times. This will be useful later when we create animations and interactive features. Before uploading the data, we need to make sure it is in the right format for GLSL: a one-dimensional array of 32-bit floating point numbers. The `numpy` library is very useful here with its array implementation and `ravel` function.
+By putting this code in a separate `upload_data` method, we can easily update the data for the same attribute multiple times. This will be useful later when we create animations and interactive features. Before uploading the data, we need to make sure it is in the right format for GLSL: a one-dimensional array of 32-bit floating point numbers. The `numpy` library is very useful here with its implementation of arrays and `ravel` function which converts arrays to one dimension.
 
 Next is another method for associating variables with their data, aptly named `associate_variable`. Once a variable association has been created, any changes to its data through the `upload_data` method will automatically be reflected at render time. This means we will only need to call `associate_variable` once for each attribute in an app, but the `upload_data` method will be called in every iteration of the application's **update** loop.
 
@@ -95,6 +96,10 @@ Next is another method for associating variables with their data, aptly named `a
 
 ```python
     def associate_variable(self, program_ref, variable_name, vao_ref=None):
+        """
+        Link the data in this object's buffer to a variable in a shader.
+        The association will be stored in the given VAO reference if provided.
+        """
         # get a reference for the program variable with the given name
         variable_ref = GL.glGetAttribLocation(program_ref, variable_name)
 
@@ -113,16 +118,15 @@ Next is another method for associating variables with their data, aptly named `a
         # get vertex parameters for this attribute's data type
         size, gl_type = self._ATTRIB_SIZE_TYPE[self.data_type]
 
-        # specify how data will be read from the currently bound buffer 
-        # into the specified variable. These associations are stored by
-        # whichever VAO is bound before calling this method.
+        # associate buffer data with the found variable and store the 
+        # association in the currently bound VAO
         GL.glVertexAttribPointer(variable_ref, size, gl_type, False, 0, None)
 
         # enable use of buffer data for this variable during rendering
         GL.glEnableVertexAttribArray(variable_ref)
 ```
 
-Before calling `glVertexAttribPointer` we need to bind both a vertex buffer object and a vertex array object. We bind the the vertex buffer with `glBindBuffer` using the stored VBO reference. As for the vertex array object, an app may bind a VAO itself, or it may pass a reference in the `vao_ref` parameter for this instance of `Attribute` to handle. In either case, binding both VBO and VAO is necessary for the current VAO to link data from the vertex buffer to the program variable. OpenGL manages the VAOs and associations once they are created, so we do not need to do anything more with the variable reference.
+Before calling `glVertexAttribPointer` we need to bind both a vertex buffer object and a vertex array object. We bind the the vertex buffer with `glBindBuffer` using the stored VBO reference. As for the vertex array object, an app may bind a VAO itself, or it may provide a reference with the `vao_ref` parameter. In either case, binding both VBO and VAO is necessary for the current VAO to link data from the vertex buffer to the program variable. OpenGL manages the VAOs and associations once they are created, so we do not need to do anything more with the variable reference.
 
 ## Hexagons, Triangles, and Squares
 
@@ -144,7 +148,7 @@ from graphics.core.openGLUtils import initialize_program
 from graphics.core.openGL import Attribute
 
 class Test_3_1(WindowApp):
-    """Test the Attribute class by drawing lines between 6 points in a hexagon"""
+    """Test the Attribute class by drawing lines between 6 vertices of a hexagon"""
     def startup(self):
         print("Starting up Test 3-1...")
 
@@ -262,28 +266,28 @@ class Test_3_2(WindowApp):
 
         # get a reference to a vertex array object for the triangle
         self.vao_triangle = GL.glGenVertexArrays(1)
-        pos_data_triangle = (
+        triangle_position_data = (
             (-0.5, 0.8, 0.0),
             (-0.2, 0.2, 0.0),
             (-0.8, 0.2, 0.0)
         )
-        self.vertex_count_triangle = len(pos_data_triangle)
-        pos_attrib_triangle = Attribute("vec3", pos_data_triangle)
-        pos_attrib_triangle.associate_variable(
+        self.vertex_count_triangle = len(triangle_position_data)
+        triangle_position = Attribute("vec3", triangle_position_data)
+        triangle_position.associate_variable(
             self.program_ref, "position", self.vao_triangle
         )
 
         # get another reference to a vertex array object for the square
         self.vao_square = GL.glGenVertexArrays(1)
-        pos_data_square = (
+        square_position_data = (
             (0.8, 0.8, 0.0),
             (0.8, 0.2, 0.0),
             (0.2, 0.2, 0.0),
             (0.2, 0.8, 0.0)
         )
-        self.vertex_count_square = len(pos_data_square)
-        pos_attrib_square = Attribute("vec3", pos_data_square)
-        pos_attrib_square.associate_variable(
+        self.vertex_count_square = len(square_position_data)
+        square_position = Attribute("vec3", square_position_data)
+        square_position.associate_variable(
             self.program_ref, "position", self.vao_square
         )
 
@@ -308,7 +312,7 @@ Test_3_2().run()
 
 ![Yellow outlines of a triangle and a square on a black background](/software-engineering-lab/assets/images/shape_outlines.png)
 
-This time we let the `Attribute` class handle each VAO inside our `startup` method. Since we have a different VAO for the triangle and square, we pass each respective VAO reference to the `associate_variable` method so it can be properly bound before making the associations.
+This time we specify which shape to draw by binding the respective VAO before drawing with `glDrawArrays` in the `update` method. In order to do this, we had to use different VAOs for the triangle and square when creating their position attributes inside our `startup` method. The `associate_variable` method allows us to pass the VAO reference to be bound rather than binding it ourselves in the `startup` method.  
 
 ## Passing Data Between Shaders
 

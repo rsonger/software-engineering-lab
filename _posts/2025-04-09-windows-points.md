@@ -436,7 +436,7 @@ class Test_2_2(WindowApp):
         fs_code = """
         out vec4 fragColor;
         void main() {
-            fragColor = vec4(1.0, 1.0, 0.0, 0.0);
+            fragColor = vec4(1.0, 1.0, 0.0, 1.0);
         }
         """
 

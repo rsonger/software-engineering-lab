@@ -298,19 +298,19 @@ As we did in the [Animations](/software-engineering-lab/notes/animations/#animat
 ```python
         # global translations
         # "w" is upward movement in the positive y direction
-        if self.input.iskeypressed("w"):
+        if self.input.is_key_pressed("w"):
             m = Matrix.translation(0, move_amount, 0)
             self.model_matrix.data = m @ self.model_matrix.data
         # "a" is leftward movement in the negative x direction
-        if self.input.iskeypressed("a"):
+        if self.input.is_key_pressed("a"):
             m = Matrix.translation(-move_amount, 0, 0)
             self.model_matrix.data = m @ self.model_matrix.data
         # "s" is downward movement in the negative y direction
-        if self.input.iskeypressed("s"):
+        if self.input.is_key_pressed("s"):
             m = Matrix.translation(0, -move_amount, 0)
             self.model_matrix.data = m @ self.model_matrix.data
         # "d" is rightward movement in the positive x direction
-        if self.input.iskeypressed("d"):
+        if self.input.is_key_pressed("d"):
             m = Matrix.translation(move_amount, 0, 0)
             self.model_matrix.data = m @ self.model_matrix.data
 ```
@@ -322,11 +322,11 @@ Similar to our [Test 4-6](/software-engineering-lab/notes/animations/#incorporat
 ```python
         # global rotations
         # "q" is counterclockwise rotation around the world z-axis
-        if self.input.iskeypressed("q"):
+        if self.input.is_key_pressed("q"):
             m = Matrix.rotation_z(turn_amount)
             self.model_matrix.data = m @ self.model_matrix.data
         # "e" is clockwise rotation around the world z-axis
-        if self.input.iskeypressed("e"):
+        if self.input.is_key_pressed("e"):
             m = Matrix.rotation_z(-turn_amount)
             self.model_matrix.data = m @ self.model_matrix.data
 ```
@@ -338,19 +338,19 @@ This code is similar to global translations except we use `Matrix.rotation_z` to
 ```python
         # local translations
         # "i" is movement in the triangle's positive y direction
-        if self.input.iskeypressed("i"):
+        if self.input.is_key_pressed("i"):
             m = Matrix.translation(0, move_amount, 0)
             self.model_matrix.data = self.model_matrix.data @ m
         # "j" is movement in the triangle's negative x direction
-        if self.input.iskeypressed("j"):
+        if self.input.is_key_pressed("j"):
             m = Matrix.translation(-move_amount, 0, 0)
             self.model_matrix.data = self.model_matrix.data @ m
         # "k" is movement in the triangle's negative y direction
-        if self.input.iskeypressed("k"):
+        if self.input.is_key_pressed("k"):
             m = Matrix.translation(0, -move_amount, 0)
             self.model_matrix.data = self.model_matrix.data @ m
         # "l" is movement in the triangle's positive x direction
-        if self.input.iskeypressed("l"):
+        if self.input.is_key_pressed("l"):
             m = Matrix.translation(move_amount, 0, 0)
             self.model_matrix.data = self.model_matrix.data @ m
 ```
@@ -362,11 +362,11 @@ Here we handle local coordinates instead of global coordinates. As discussed in 
 ```python
         # local rotations
         # "u" is counterclockwise rotation around the triangle's center
-        if self.input.iskeypressed("u"):
+        if self.input.is_key_pressed("u"):
             m = Matrix.rotation_z(turn_amount)
             self.model_matrix.data = self.model_matrix.data @ m
         # "o" is clockwise rotation around the triangle's center
-        if self.input.iskeypressed("o"):
+        if self.input.is_key_pressed("o"):
             m = Matrix.rotation_z(-turn_amount)
             self.model_matrix.data = self.model_matrix.data @ m
 ```
