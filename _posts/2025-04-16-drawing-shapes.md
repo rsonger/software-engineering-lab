@@ -442,7 +442,7 @@ In `test_3_2.py`, we used two different vertex arrays to bind different buffers 
 
 Now what happens if we change the draw mode from `GL_POINTS` to something like `GL_LINE_LOOP` or `GL_TRIANGLE_FAN`? In that case, we can see OpenGL's **rasterization** process in action as it *interpolates* the color values in between each vertex. Here, interpolation is a mathematical calculation of the RGB components for each pixel based on how far it is from the original vertices. It weighs the values of each vertex color value and combines them to get the final color values for each pixel.
 
-For example, if a point $P$ is located three-quarters of the distance between a point with color $C_1=[1.0, 0.0, 0.0]$ (red) and a second point with color $C_2=[0.0, 0.0, 1.0]$ (blue), then its color $C_P$ would be one-quarter of $C_1$ and three-quarters of $C_2$. The results is a darker shade of blue:
+For example, if a point $P$ is located three-quarters of the distance between a point with color $C_1=[1.0, 0.0, 0.0]$ (red) and a second point with color $C_2=[0.0, 0.0, 1.0]$ (blue), then its color $C_P$ would be one-quarter of $C_1$ and three-quarters of $C_2$. The result is a darker shade of blue:
 
 $$\begin{aligned}
 C_P &=0.25 \cdot C_1+0.75 \cdot C_2 \\

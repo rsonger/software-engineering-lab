@@ -246,7 +246,7 @@ Test_2_1().run()
 <input type="checkbox" class="checkbox inline"> Run the test program with the following command:  
 
 ```bash
-$ python test_2_1.py
+python test_2_1.py
 ```
 
 <input type="checkbox" class="checkbox inline"> Click the close button on the window and confirm that the program exits.  
@@ -465,7 +465,7 @@ Test_2_2().run()
 <input type="checkbox" class="checkbox inline"> Run the test program with the following command:  
 
 ```bash
-$ python test_2_2.py
+python test_2_2.py
 ```
 
 <input type="checkbox" class="checkbox inline"> Confirm that the program displays a yellow dot in the center of the window.  
