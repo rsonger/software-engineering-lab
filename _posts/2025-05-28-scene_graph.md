@@ -82,15 +82,15 @@ To this end, it must have the ability to add and remove other nodes as children.
 It will also enforce a rule for having only a single parent in its lifetime whenever its parent is assigned.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `scene_graph.py`.  
+<input type="checkbox" class="checkbox inline"> In your `graphics/core` folder, create a new file called `scene_graph.py`.  
 <input type="checkbox" class="checkbox inline"> Open `scene_graph.py` for editing and add the following code:  
 
 ```python
 # graphics/core/scene_graph.py
-from core.matrix import Matrix
+from graphics.core.matrix import Matrix
 
 class Object3D:
-    """ A node in the scene graph tree structure """
+    """A node in the scene graph tree structure"""
     def __init__(self):
         self._transform = Matrix.identity()
         self._parent = None
@@ -102,7 +102,7 @@ class Object3D:
 
     @parent.setter
     def parent(self, node):
-        """ Set or remove the parent of this node """
+        """Set or remove the parent of this node"""
         if not isinstance(node, Object3D):
             raise RuntimeError("Parent node must be an instance of Object3D.")
         if self._parent is not None and node is not None:
@@ -110,14 +110,14 @@ class Object3D:
         self._parent = node
 
     def add(self, child):
-        """ Add an object as the child to this object in the scene graph """
+        """Add an object as the child to this object in the scene graph"""
         if not isinstance(child, Object3D):
             raise RuntimeError("Child node must be an instance of Object3D.")
         child.parent = self
         self._children.append(child)
 
     def remove(self, child):
-        """ Remove a child object from this object """
+        """Remove a child object from this object"""
         self._children.remove(child)
         child.parent = None
 ```
@@ -132,7 +132,7 @@ Otherwise, if `parent` already has a value and the new value is not `None`, we r
 ```python
     @property
     def world_matrix(self):
-        """ Calculate the transformation of this node relative to the root node """
+        """Calculate the transformation of this node relative to the root node"""
         if self._parent is None:
             return self._transform
         else:
@@ -141,7 +141,7 @@ Otherwise, if `parent` already has a value and the new value is not `None`, we r
 
     @property
     def descendant_list(self):
-        """ Get a single list containing all the descendants of this node """
+        """Get a single list containing all the descendants of this node"""
         descendants = [self]
         for child in self._children:
             # more recursion!
@@ -157,34 +157,34 @@ The `descendant_list` property similarly uses recursion to build a list of each 
 
 ```python
     def apply_matrix(self, matrix, local=True):
-        """ Apply a geometric transformation to this object """
+        """Apply a geometric transformation to this object"""
         if local:
             self._transform = self._transform @ matrix
         else:
             self._transform = matrix @ self._transform
 
     def translate(self, x, y, z, local=True):
-        """ Calculate and apply a translation to this object """
+        """Calculate and apply a translation to this object"""
         m = Matrix.translation(x,y,z)
         self.apply_matrix(m, local)
     
     def rotate_x(self, angle, local=True):
-        """ Calculate and apply a rotation around the x-axis of this object """
+        """Calculate and apply a rotation around the x-axis of this object"""
         m = Matrix.rotation_x(angle)
         self.apply_matrix(m, local)
     
     def rotate_y(self, angle, local=True):
-        """ Calculate and apply a rotation around the y-axis of this object """
+        """Calculate and apply a rotation around the y-axis of this object"""
         m = Matrix.rotation_y(angle)
         self.apply_matrix(m, local)
     
     def rotate_z(self, angle, local=True):
-        """ Calculate and apply a rotation around the z-axis of this object """
+        """Calculate and apply a rotation around the z-axis of this object"""
         m = Matrix.rotation_z(angle)
         self.apply_matrix(m, local)
     
     def scale_uniform(self, s, local=True):
-        """ Calculate and apply a scaling transformation to this object """
+        """Calculate and apply a scaling transformation to this object"""
         m = Matrix.scale(s, s, s)
         self.apply_matrix(m, local)
 ```
@@ -199,14 +199,14 @@ Then, each method after that uses `apply_matrix` to apply a specific type of tra
 ```python
     @property
     def position(self):
-        """ Get the position of this object relative to its parent node """
+        """Get the position of this object relative to its parent node"""
         return [self._transform.item((0,3)),
                 self._transform.item((1,3)),
                 self._transform.item((2,3))]
 
     @position.setter
     def position(self, position):
-        """ Set the position of this object relative to its parent node """
+        """Set the position of this object relative to its parent node"""
         if not isinstance(position, (list, tuple)) or len(position) != 3:
             raise ValueError("Object3D position must be a list or tuple in the form (x,y,z).")
 
@@ -216,7 +216,7 @@ Then, each method after that uses `apply_matrix` to apply a specific type of tra
 
     @property
     def world_position(self):
-        """ Get the position of this object relative to the root node """
+        """Get the position of this object relative to the root node"""
         return [self.world_matrix.item((0,3)),
                 self.world_matrix.item((1,3)),
                 self.world_matrix.item((2,3))]
@@ -244,7 +244,7 @@ We will use the `Group` class to store transformations that we want to apply to 
 
 ```python
 class Scene(Object3D):
-    """ Represents the root node of the scene graph tree structure """
+    """Represents the root node of the scene graph tree structure"""
     def __init__(self):
         super().__init__()
 
@@ -263,7 +263,7 @@ Then we raise an exception if a program tries to assign a parent node to the sce
 
 ```python
 class Group(Object3D):
-    """ A node that represents a base for transforming a collection of child nodes """
+    """A node that represents a base for transforming a collection of child nodes"""
     def __init__(self):
         super().__init__()
 ```
@@ -295,7 +295,7 @@ from numpy.linalg import inv
 
 ```python
 class Camera(Object3D):
-    """ Represents the virtual camera used to view the scene """
+    """Represents the virtual camera used to view the scene"""
     def __init__(self, angle_of_view=60, aspect_ratio=1, near=0.1, far=1000):
         super().__init__()
         self._projection_matrix = Matrix.perspective(
@@ -326,7 +326,7 @@ The `Mesh` class represents objects that can be rendered in the scene. It will c
 
 ```python
 # graphics/geometries/__init__.py
-from .geometry import *
+from graphics.geometries.geometry import *
 ```
 
 This will allow us to import our `Geometry` class directly from the `geometries` module without needing to know the specific sub-module. 
@@ -336,10 +336,10 @@ Over the next few lessons we will create several kinds of geometries in differen
 
 ```python
 # graphics/geometries/geometry.py
-from core.openGL import Attribute
+from graphics.core.openGL import Attribute
 
-class Geometry(object):
-    """ Manages vertex data and attribute variables """
+class Geometry:
+    """Manages vertex data and attribute variables"""
     pass
 ```
 
@@ -350,7 +350,7 @@ class Geometry(object):
 
 ```python
 # graphics/materials/__init__.py
-from .material import *
+from graphics.materials.material import *
 ```
 
 <input type="checkbox" class="checkbox inline"> Open `material.py` and add the following code:  
@@ -359,11 +359,11 @@ from .material import *
 # graphics/materials/material.py
 import OpenGL.GL as GL
 
-from core.openGLUtils import initialize_program
-from core.openGL import Uniform
+from graphics.core.openGLUtils import initialize_program
+from graphics.core.openGL import Uniform
 
-class Material(object):
-    """ Manages shader program references, uniform variables, and OpenGL render settings """
+class Material:
+    """Manages shader program references, uniform variables, and OpenGL render settings"""
     pass
 ```
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
@@ -376,15 +376,15 @@ Now we can create the `Mesh` class with `Geometry` and `Material` even though th
 ```python
 import OpenGL.GL as GL
 
-from geometries import Geometry
-from materials import Material
+from graphics.geometries import Geometry
+from graphics.materials import Material
 ```
 
 <input type="checkbox" class="checkbox inline"> At the end of the `scene_graph.py` file, add the following code after the last code of the `Camera` class:  
 
 ```python
 class Mesh(Object3D):
-    """ A visible object in the scene with geometry and appearance data """
+    """A visible object in the scene with geometry and appearance data"""
     def __init__(self, geometry: Geometry, material: Material):
         super().__init__()
 
@@ -429,7 +429,7 @@ With the `self._vao_ref` property, we can easily keep track of which VAO has the
 
 ```python
     def render(self, view_matrix, projection_matrix):
-        """ Updates data and settings before drawing this 3D object """
+        """Updates data and settings before drawing this 3D object"""
         GL.glUseProgram(self._material.program_ref)
             
         GL.glBindVertexArray(self._vao_ref)
@@ -443,7 +443,7 @@ With the `self._vao_ref` property, we can easily keep track of which VAO has the
         self._material.upload_data()
         self._material.update_render_settings()
         GL.glDrawArrays(self._material.get_setting("drawStyle"), 0, 
-                     self._geometry.vertex_count)
+                        self._geometry.vertex_count)
 
         GL.glBindVertexArray(0)
 ```

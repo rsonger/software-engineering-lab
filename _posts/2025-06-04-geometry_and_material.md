@@ -37,11 +37,11 @@ As a base class, it holds only the shared properties and behaviors of all geomet
 So specific details about vertex data and attributes for certain types of geometric objects will be managed by different extensions of `Geometry`.  
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Open your `geometry.py` file from the `geometries` folder inside your main working folder.  
+<input type="checkbox" class="checkbox inline"> Open your `geometry.py` file from the `graphics/geometries` folder.  
 <input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Geometry` class and add the following code:  
 
 ```python
-    """ Store attribute data and their total number of vertices """
+    """Store attribute data and their total number of vertices"""
     def  __init__(self):
         self._attributes = {}
 
@@ -54,7 +54,7 @@ So specific details about vertex data and attributes for certain types of geomet
         return self.count_vertices()
 
     def set_attribute(self, variable_name, data, data_type=None):
-        """ Add or update an attribute of this geometric object """
+        """Add or update an attribute of this geometric object"""
         if variable_name in self._attributes:
             self._attributes[variable_name].data = data
             self._attributes[variable_name].upload_data()
@@ -64,7 +64,7 @@ So specific details about vertex data and attributes for certain types of geomet
             raise ValueError("A new Geometry attribute must have a data type.")
 
     def count_vertices(self, variable_name=None):
-        """ Count the number of vertices as the length of an attribute's data """
+        """Count the number of vertices as the length of an attribute's data"""
         if len(self._attributes) == 0:
             return 0
     
@@ -103,21 +103,21 @@ That means our position data for each rectangle will have six vertices instead o
 Also, the vertices must be listed in counterclockwise order so that the front sides of the triangles face in the positive $z$ direction.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In the `geometries` folder, create a new file called `basic_geometries.py`.  
-<input type="checkbox" class="checkbox inline"> Open the `__init__.py` file in the `geometries` folder and add the following code:
+<input type="checkbox" class="checkbox inline"> In the `graphics/geometries` folder, create a new file called `basic_geometries.py`.  
+<input type="checkbox" class="checkbox inline"> Open the `__init__.py` file in the `graphics/geometries` folder and add the following code:
 
 ```python
-from .basic_geometries import *
+from graphics.geometries.basic_geometries import *
 ```
 
 <input type="checkbox" class="checkbox inline"> Open the `basic_geometries.py` file for editing and add the following code:  
 
 ```python
 # graphics/geometries/basic_geometries.py
-from .geometry import Geometry
+from graphics.geometries.geometry import Geometry
 
 class RectangleGeometry(Geometry):
-    """ A rectangular object centered at (0,0) with a given width and height """
+    """A rectangular object centered at (0,0) with a given width and height"""
     def __init__(self, width=1, height=1):
         super().__init__()
 
@@ -169,7 +169,7 @@ The resulting image is called a *net diagram* and it helps us to easily see the 
 
 ```python
 class BoxGeometry(Geometry):
-    """ A 3D box centered at its origin with given width, height, and depth """
+    """A 3D box centered at its origin with given width, height, and depth"""
     def __init__(self, width=1, height=1, depth=1):
         super().__init__()
 
@@ -229,7 +229,7 @@ The `Material` base class will compile and initialize the shader program, store 
 <input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Material` class and add the following code:  
 
 ```python
-    """ Stores a shader program reference, Uniform objects, and OpenGL render settings """
+    """Stores a shader program reference, Uniform objects, and OpenGL render settings"""
     def __init__(self, vertex_shader_code, fragment_shader_code):
         self._program_ref = initialize_program(vertex_shader_code, fragment_shader_code)
 
@@ -248,7 +248,7 @@ The `Material` base class will compile and initialize the shader program, store 
         return self._program_ref
 
     def get_setting(self, setting_name):
-        """ Return a setting value if the setting exists; otherwise, return None """
+        """Return a setting value if the setting exists; otherwise, return None"""
         return self._settings.get(setting_name, None)
 ```
 
@@ -261,7 +261,7 @@ We also provide a getter for the program reference which will be necessary for t
 
 ```python
     def set_uniform(self, variable_name, data, data_type=None):
-        """ Set or add a Uniform object representing a property of this material """
+        """Set or add a Uniform object representing a property of this material"""
         if variable_name in self._uniforms:
             self._uniforms[variable_name].data = data
         elif data_type is not None:
@@ -272,12 +272,12 @@ We also provide a getter for the program reference which will be necessary for t
             raise ValueError("A new Material property must have a data type.")
 
     def upload_data(self):
-        """ Upload the data of all stored uniform variables """
+        """Upload the data of all stored uniform variables"""
         for uniform_obj in self._uniforms.values():
             uniform_obj.upload_data()
 
     def set_properties(self, properties):
-        """ Set multiple uniforms and settings from a dictionary """
+        """Set multiple uniforms and settings from a dictionary"""
         for name, data in properties.items():
             if name in self._uniforms:
                 self._uniforms[name].data = data
@@ -306,11 +306,11 @@ In our hierarchy of materials, the `BasicMaterial` class is a direct child of `M
 The shader program will be relatively simple with uniform variables for the projection matrix, view matrix, and model matrix along with attribute variables for the vertex position, and vertex color data. 
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In the `materials` folder, create a new file called `basic_materials.py`.  
-<input type="checkbox" class="checkbox inline"> Open the `__init__.py` file in the `materials` folder and add the following code:
+<input type="checkbox" class="checkbox inline"> In the `graphics/materials` folder, create a new file called `basic_materials.py`.  
+<input type="checkbox" class="checkbox inline"> Open the `__init__.py` file in the `graphics/materials` folder and add the following code:
 
 ```python
-from .basic_materials import *
+from graphics.materials.basic_materials import *
 ```
 
 <input type="checkbox" class="checkbox inline"> Open `basic_materials.py` for editing and add the following code:  
@@ -322,7 +322,7 @@ import OpenGL.GL as GL
 from .material import Material
 
 class BasicMaterial(Material):
-    """ A simple material for rendering objects in a solid color or vertex colors """
+    """A simple material for rendering objects in a solid color or vertex colors"""
     def __init__(self):
         vertex_shader_code = """
         uniform mat4 projectionMatrix;
@@ -383,10 +383,10 @@ It will use setting properties for `drawStyle` and `pointSize` to call the appro
 class PointMaterial(BasicMaterial):
     """
     Manages render settings for drawing vertices as rounded points.
-
-    drawStyle - the OpenGL draw setting (default is GL_POINTS)
-    pointSize - the width and height of each point in pixels (default is 8)
-    roundedPoints - renders points with smooth corners (default is True)
+    The following render properties are supported.
+    - drawStyle: the OpenGL draw setting (default is `GL_POINTS`)
+    - pointSize: the width and height of each point in pixels (default is `8`)
+    - roundedPoints: renders points with smooth corners (default is `True`)
     """
     def __init__(self, properties=None):
         super().__init__()
@@ -426,10 +426,10 @@ The "segments" type will draw separate lines between consecutive pairs of vertic
 class LineMaterial(BasicMaterial):
     """
     Manages render settings for drawing lines between vertices.
-
-    lineType: "connected" - draws through all vertices from first to last
-    lineType: "loop" - draws through all vertices and connects last to first
-    lineType: "segments" - draws separate lines between each pair of vertices
+    The following render properties are supported.
+    - lineType "connected": draws through all vertices from first to last
+    - lineType "loop": draws through all vertices and connects last to first
+    - lineType "segments": draws separate lines between each pair of vertices
     """
     def __init__(self, properties=None):
         super().__init__()
@@ -471,10 +471,10 @@ Additionally, we will make a "wireframe" setting for rendering only the lines of
 class SurfaceMaterial(BasicMaterial):
     """
     Manages render settings for drawing vertices as a colored surface.
-
-    drawStyle - the OpenGL draw setting (default is GL_TRIANGLES)
-    doubleSide - renders both sides of the surface (default is False)
-    wireframe - renders just the triangle outlines (default is False)
+    The following render properties are supported.
+    - drawStyle: the OpenGL draw setting (default is `GL_TRIANGLES`)
+    - doubleSide: renders both sides of the surface (default is `False`)
+    - wireframe: renders just the triangle outlines (default is `False`)
     """
     def __init__(self, properties=None):
         super().__init__()
@@ -510,25 +510,25 @@ It will initialize all the components of the scene including the camera and mesh
 Then it sets up and manages general processes for the scene such as depth testing, antialiasing, and clearing each frame.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In the `core` folder, create a new file called `renderer.py`.  
+<input type="checkbox" class="checkbox inline"> In the `graphics/core` folder, create a new file called `renderer.py`.  
 <input type="checkbox" class="checkbox inline"> Open `renderer.py` for editing and add the following code:  
 
 ```python
 # graphics/core/renderer.py
 import OpenGL.GL as GL
 
-from core.scene_graph import Mesh, Camera, Scene
+from graphics.core.scene_graph import Mesh, Camera, Scene
 
 class Renderer:
-    """ Manages the rendering of a given scene with basic OpenGL settings """
+    """Manages the rendering of a given scene with basic OpenGL settings"""
     def __init__(self, clear_color=(0,0,0)):
-        """ Initialize basic settings for depth testing, antialiasing and clear color """
+        """Initialize basic settings for depth testing, antialiasing and clear color"""
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glEnable(GL.GL_MULTISAMPLE)
         GL.glClearColor(*clear_color, 1) # unpack clear_color to pass its values separately
 
     def render(self, scene: Scene, camera: Camera):
-        """ Render the given scene as viewed through the given camera """
+        """Render the given scene as viewed through the given camera"""
         if not isinstance(scene, Scene):
             raise ValueError("The given scene must be an instance of Scene.")
         if not isinstance(camera, Camera):
@@ -568,17 +568,17 @@ Let's make a simple spinning cube in the center of the screen using the `BoxGeom
 <input type="checkbox" class="checkbox inline"> Open `test_9_1.py` for editing and add the following code:  
 
 ```python
-# graphics/test_9_1.py
+# test_9_1.py
 from math import pi
 
-from core.app import WindowApp
-from core.renderer import Renderer
-from core.scene_graph import Scene, Camera, Mesh
-from geometries.basic_geometries import BoxGeometry
-from materials.basic_materials import SurfaceMaterial
+from graphics.core.app import WindowApp
+from graphics.core.renderer import Renderer
+from graphics.core.scene_graph import Scene, Camera, Mesh
+from graphics.geometries import BoxGeometry
+from graphics.materials import SurfaceMaterial
 
 class Test_9_1(WindowApp):
-    """ Test basic scene graph elements by rendering a spinning cube """
+    """Test basic scene graph elements by rendering a spinning cube"""
     def startup(self):
         print("Starting up Test 9-1...")
 
@@ -635,13 +635,12 @@ Here we can use our `Group` class for the base mesh and add children to it for e
 
 ```python
 # graphics/extras/helpers.py
-from core.scene_graph import Mesh, Group
-from geometries import Geometry
-from geometries.basic_geometries import BoxGeometry
-from materials.basic_materials import SurfaceMaterial, LineMaterial
+from graphics.core.scene_graph import Mesh, Group
+from graphics.geometries import BoxGeometry, Geometry
+from graphics.materials import SurfaceMaterial, LineMaterial
 
 def get_axes_helper(length=1, thickness=0.1, colors=((1,0,0), (0,1,0), (0,0,1))):
-    """ Provides a mesh of the three coordinate axes with different colors """
+    """Provides a mesh of the three coordinate axes with different colors"""
     mesh = Group() # parent node for the three axes
 
     # translation distance for each box in the positive direction
@@ -692,7 +691,7 @@ The next helper component shows lines in a square grid so that the user can get 
 
 ```python
 def get_grid_helper(size=10, divisions=10, minor_color=(0,0,0), major_color=(0.5,0.5,0.5)):
-    """ Creates a flat square wireframe grid on the XY plane """
+    """Creates a flat square wireframe grid on the XY plane"""
     # prepare position and color data from the parameters
     position_data = []
     color_data = []
@@ -754,17 +753,17 @@ Like the `get_axes_helper` function, the `get_grid_helper` function directly ret
 Now let's make sure these two helper meshes render correctly with a test app.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside your graphics folder, create a new file called `test_9_2.py`.  
+<input type="checkbox" class="checkbox inline"> Inside your main folder, create a new file called `test_9_2.py`.  
 <input type="checkbox" class="checkbox inline"> Open `test_9_2.py` for editing and add the following code:  
 
 ```python
-# graphics/test_9_2.py
+# graphicstest_9_2.py
 from math import pi
 
-from core.app import WindowApp
-from core.renderer import Renderer
-from core.scene_graph import Scene, Camera
-from extras import helpers
+from graphics.core.app import WindowApp
+from graphics.core.renderer import Renderer
+from graphics.core.scene_graph import Scene, Camera
+from graphics.extras import helpers
 
 class Test_9_2(WindowApp):
     """Test rendering a grid and axes with helper classes."""
@@ -811,17 +810,17 @@ Inputs related to movement will apply to the `CameraRig` object itself while inp
 Keeping these as local transformations will make sure the camera always rotates with respect to its parent, the `CameraRig`.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `extras` folder, create a new file called `camera_rig.py`.  
+<input type="checkbox" class="checkbox inline"> Inside the `graphics/extras` folder, create a new file called `camera_rig.py`.  
 <input type="checkbox" class="checkbox inline"> Open `camera_rig.py` for editing and add the following lines of code:
 
 ```python
 # graphics/extras/camera_rig.py
 from math import pi
 
-from core.scene_graph import Group
+from graphics.core.scene_graph import Group
 
 class CameraRig(Group):
-    """ A camera that can look up and down while attached to a movable base """
+    """A camera that can look up and down while attached to a movable base"""
     KEY_MOVE_FORWARD = 'w'
     KEY_MOVE_BACKWARD = 's'
     KEY_MOVE_LEFT = 'a'
@@ -890,11 +889,11 @@ Notice that the `KEY_LOOK_UP` and `KEY_LOOK_DOWN` inputs apply a rotation to `se
 
 Finally, let's make our last test application to try out the camera rig. 
 
-<input type="checkbox" class="checkbox inline"> Inside your `graphics` folder, create a copy of the file called `test_9_2.py` and change its name to `test_9_3.py`.  
+<input type="checkbox" class="checkbox inline"> Inside your main folder, create a copy of the file called `test_9_2.py` and change its name to `test_9_3.py`.  
 <input type="checkbox" class="checkbox inline"> Open `test_9_3.py` for editing and add the following import statement just before the class definition:
 
 ```python
-from extras.camera_rig import CameraRig
+from graphics.extras.camera_rig import CameraRig
 ```
 
 <input type="checkbox" class="checkbox inline"> Scroll down to the `startup` method and **delete** the following lines of code:

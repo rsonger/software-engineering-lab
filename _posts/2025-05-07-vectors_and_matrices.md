@@ -32,20 +32,20 @@ $$P=(x,y)$$
 
 <span id="vectors">**Vectors**</span>  
 A *vector* represents *displacement* (the amount of change in a coordinate) and is drawn on graphs with an arrow.
-The arrow begins at at the *initial point*, also called the *tail*, and ends at the *terminal point*, also called the *head*.
+The arrow begins at at the *initial point*, called the *tail*, and ends at the *terminal point*, called the *head*.
 The distance between the tail and the head is the *length* or *magnitude* of the vector.
-When the vector's initial point is at the origin of the coordinate system, it is in *standard position*.  
-
-In the vector definition below, $dx$ is the change in the $x$-coordinate and $dy$ is the change in the $y$-coordinate:
+When the vector's initial point is at the origin of the coordinate system, it is in *standard position*. When a vector $v$ is in standard position, its components describe the coordinates of its terminal point.  
 
 $$v = \langle dx,dy \rangle$$
+
+In the vector definition above, $dx$ is the change in the $x$-coordinate and $dy$ is the change in the $y$-coordinate.
 
 ---
 # Geometric Operations
 
 ## Vector addition
 
-Vector addition happens when we place the tail of one vector at the head of another vector. Mathematically, this can be described as:
+Vector addition happens when we place the tail of one vector at the head of another vector. Mathematically, the addition of two vectors $v$ and $w$ can be described with the resulting vector $u$:
 
 $$\begin{aligned}
 v + w & = u \\
@@ -56,7 +56,7 @@ v + w & = u \\
 
 If we draw the vectors head-to-tail, the resulting vector $u$ will have the initial point of vector $v$ and terminal point of vector $w$.
 
-![The sum of two vectors is the sum of its parts.](/software-engineering-lab/assets/images/vector_addition.png)
+![The sum of two vectors is the sum of their parts.](/software-engineering-lab/assets/images/vector_addition.png)
 
 ---
 ## Vector/Point Addition
@@ -72,7 +72,7 @@ P+v & = Q \\
 The result represents translating from point $P$ to point $Q$. 
 This means $P$ is the initial point of $v$ and $Q$ is the terminal point of $v$.
 
-![Adding a vector to a point places its tail at that point and returns its head.](/software-engineering-lab/assets/images/vector-point_addition.png)
+![Adding a vector to a point places the point at its tail and the resulting point is its head.](/software-engineering-lab/assets/images/vector-point_addition.png)
 
 ---
 ## Point Subtraction
@@ -93,12 +93,12 @@ When the value of $c$ is negative, it effectively reverses the direction of the 
 
 $$c \cdot v=c\cdot\langle v_1,v_2 \rangle = \langle c \cdot v_1,c \cdot v_2 \rangle$$
 
-![Multiplying a vector by a scalar changes its length and direction.](/software-engineering-lab/assets/images/scalar_multiplication.png)
+![Multiplying a vector by a scalar changes its length and direction (when negative).](/software-engineering-lab/assets/images/scalar_multiplication.png)
 
 ---
 ## Standard Basis
 The properties of vector addition and scalar multiplication allow us to express vectors in terms of a *standard basis* of two vectors $i= \langle 1,0 \rangle$ and $j= \langle 0,1 \rangle$.
-The *standard basis* expresses a vector $v$ as the addition of the $i$ and $j$ vectors scaled by the $x$-coordinate and $y$-coordinate of $v$, respectively:
+The *standard basis* expresses a vector $v$ as the addition of the $i$ and $j$ vectors scaled to the respective $x$-coordinate and $y$-coordinate:
 $$\begin{aligned}
 v & = \langle x,y \rangle \\
   & = \langle x+0,0+y \rangle \\
@@ -113,23 +113,25 @@ This will become very useful later when we want to represent transformations wit
 # Linear Transformations and Matrices
 A *linear transformation* is a mathematical operation that converts coordinates from one vector space to another while maintaining relative structure.
 For example, in the figure below, the image on the left shows an object **S** with coordinates in terms of vectors **i** and **j** in its own vector space. 
-When rendering the same object from a certain camera angle in a 3D scene, it may appear as the image on the right showing **T** with coordinate vectors **m** and **n** in the screen's vector space.
+When rendering the same object from a certain camera angle in a 3D scene, it may appear as the image on the right, which shows **T** with coordinate vectors **m** and **n** in the screen's vector space.
 
 ![An example of a linear transformation](/software-engineering-lab/assets/images/linear_transformation.png)
 
-We use special functions for calculating the transformations based on whether they operate on a point, vector, or multiple vectors (a matrix).
+We use special functions for calculating transformations based on whether they operate on a point, a vector, or multiple vectors (a matrix).
 
 ---
 ## Point, Vector, and Matrix Transformations
 When moving 3D objects around a scene or adjusting the camera, we need to transform their vectors so they can render at the correct position, scale, pitch, rotation, etc.
-Transformations are represented mathematically as *vector functions*, or functions that have vector values as inputs and outputs instead of scalar values. 
-They can be written in three different ways:
+Transformations are represented mathematically as *vector functions*, or functions that take vectors as inputs and give vectors as outputs. 
+They can be written in three different ways depending on what the input vector represents:
 
 <span id="point-transformation">**Point transformation**</span>  
+Here, the input and output is the terminal point of a vector in standard position.  
 $$F \left( \left( p_1,p_2 \right) \right) = \left( q_1,q_2 \right)$$
 <span id="vector-transformation">**Vector transformation**</span>  
 $$F \left( \langle v_1,v_2 \rangle\right) = \langle w_1,w_2 \rangle$$
 <span id="matrix-transformation">**Matrix transformation**</span>  
+Matrices are regularly used to compute the vertices of multi-dimensional objects.
 $$F \left( 
     \begin{bmatrix} 
     v_1 \\ 
@@ -143,7 +145,7 @@ $$F \left(
 
 ---
 ## Standard Vector Functions
-Standard vector functions are simple examples of vector functions. These include the *zero function*, which converts any vector to the zero vector, and the *identity function*, which returns the input vector as it is:  
+Standard vector functions are simple examples of vector functions. These include the *zero function*, which converts any vector to the zero vector, and the *identity function*, which always returns the input vector without change:  
 
 <span id="zero-function">**Zero Function**</span>
 $$ F\left( \langle v_1,v_2 \rangle \right) = \langle v_1 \cdot 0,v_2 \cdot 0 \rangle = \langle 0,0 \rangle $$
@@ -154,9 +156,10 @@ $$ F\left( \langle v_1,v_2 \rangle \right) = \langle v_1 \cdot 1,v_2 \cdot 1 \ra
 ---
 ## Linear Functions
 Vector functions are essential to calculating transformations. 
-They are formally known as *linear functions* and when we use them to describe transformations, they become *linear transformations*.
+They are formally known as *linear functions*. 
+When we use them to describe transformations, they become *linear transformations*.
 
-Linear transformations are possible due to the properties of vector functions for *scalar multiplication* and *vector addition*.
+Linear transformations are very useful in CG due to the properties of vector functions for *scalar multiplication* and *vector addition*.
 
 **Scalar multiplication of vector functions**  
 $$ F(c \cdot v) = c \cdot F(v) $$
@@ -167,7 +170,7 @@ $$ F(v+w) = F(v) + F(w) $$
 And we can even combine scalar multiplication with vector addition:
 $$F(c \cdot v + d \cdot w) = c \cdot F(v) + d \cdot F(w)$$
 
-This shows that we can represent any complicated linear function as multiplication and addition of the same function applied to the vectors individually.
+This shows that we can simplify any complicated linear function by first the applying the function to the vectors individually and then combining the results.
 A common shortcut for calculating linear transformations is to rewrite them in terms of the *standard basis* vectors $i=\langle 1,0 \rangle$ and $j=\langle 0,1 \rangle$. 
 This way, we don't actually need to know how the function calculates any given transformation. 
 We only need to know the results of transforming the standard basis vectors. 
@@ -209,7 +212,7 @@ $$\begin{aligned}
     &= \langle a \cdot x+b \cdot y,c \cdot x+d \cdot y \rangle
   \end{aligned}$$
 
-Then, rewrite $F( \langle x,y \rangle) = \langle a \cdot x+b \cdot y,c \cdot x+d \cdot y \rangle$ with the matrix notation from [above](#matrix-transformation) and we see all the scalar values emerge into their own matrix:
+Then, rewrite $F( \langle x,y \rangle) = \langle a \cdot x+b \cdot y,c \cdot x+d \cdot y \rangle$ with the matrix notation from [above](#matrix-transformation) and we see all the scalar values can be expressed as a matrix by themselves:
 $$\begin{aligned}
   F \left( \begin{bmatrix}
       x \\
@@ -231,7 +234,7 @@ $$\begin{aligned}
     \end{bmatrix}
   \end{aligned}$$
 
-In other words, the transformation function $F$ can be expressed as $F(v)=A \cdot v$ where matrix $A$ transforms vector $v$ via matrix multiplication.
+In other words, the transformation function $F$ can be expressed as $F(v)=A \cdot v$ where $A$ is the transformation matrix applied to vector $v$.
 
 For example, let's consider again the transformation from above where $F(i)= \langle 2,1 \rangle$ and $F(j)= \langle -1,3 \rangle$, then calculate $F(\langle 4,5 \rangle)$:
 $$\begin{aligned}
@@ -316,7 +319,7 @@ The matrix from the definition of the identity function is called the *identity 
 
 $$I=\begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}$$
 
-Now since matrices of different sizes are used for multiple dimensions beyond 2D, we cannot continue to use $a$, $b$, $c$, and $d$ all the time. Instead, it is common to express matrix components with double subscripts such as $a_{mn}$ where $m$ is the row and $n$ is the column of the component $a_{mn}$. A 2x2 matrix written with this notation would be:
+Now since matrices of different sizes are used for multiple dimensions beyond 2D, things quickly become messy if we continue to use $a$, $b$, $c$, etc. Instead, it is common to express matrix components with double subscripts such as $a_{mn}$ where $m$ is the row and $n$ is the column of the component $a_{mn}$. A 2x2 matrix written with this notation would be:
 $$A=\begin{bmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{bmatrix}$$
 
 Then we can add more rows and columns by incrementing the values of $m$ and $n$ in the new components.
@@ -362,7 +365,7 @@ $$\begin{aligned}
 
 This means that we can represent any number of compositions as a **single matrix** which we find by simply multiplying together the matrices of each linear function!
 
-That is, when $F(v)=A \cdot v$ and $G(v)=B \cdot v$, then 
+That is, when $F(v)=A \cdot v$ and $G(v)=B \cdot v$, then $H(v)=C \cdot v$ where $C=A \cdot B$.
 $$H(v)=F(G(v))=A \cdot (B \cdot v)=(A \cdot B) \cdot v=C \cdot v$$
 
 When we expand $H(v)=C \cdot v$ in terms of components we get:

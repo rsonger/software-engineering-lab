@@ -21,7 +21,7 @@ Now that we have learned about the usefulness of [matrix calculations](/software
 Our `Matrix` class will have static methods that return different kinds of transformation matrices from the given parameters. With static methods, we do not need to create an instance of `Matrix` or manage state variables. Simply calling these methods will give us the matrix data we need to do geometric transformations.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> In your `core` folder, create a new file called `matrix.py`.  
+<input type="checkbox" class="checkbox inline"> In your `graphics/core` folder, create a new file called `matrix.py`.  
 <input type="checkbox" class="checkbox inline"> Open `matrix.py` for editing and add the following code:  
 
 ```python
@@ -36,7 +36,7 @@ We first import the `math` functions for sine, cosine and tangent to use when ca
 
 ```python
 class Matrix:
-    """ Provides four-dimensional matrices for various geometric transformations """
+    """Provides four-dimensional matrices for various geometric transformations"""
 
     # the 4D identity matrix
     __identity = np.array((
@@ -48,7 +48,7 @@ class Matrix:
 
     @classmethod
     def identity(cls):
-        """ A copy of the 4D identity matrix """
+        """A copy of the 4D identity matrix"""
         return cls.__identity.copy()
 ```
 
@@ -63,7 +63,7 @@ Note that when we create a NumPy array, all of its values must be the same type.
 ```python
     @staticmethod
     def translation(x, y, z):
-        """ 4D matrix for the translating along vector <x, y, z> """
+        """4D matrix for translating along vector <x, y, z>"""
         return np.array((
             (1, 0, 0, x),
             (0, 1, 0, y),
@@ -81,7 +81,7 @@ The parameters `x`, `y`, and `z` are the components of the translation vector. W
 ```python
     @staticmethod
     def rotation_x(angle):
-        """ 4D matrix for rotating around the x-axis by the given angle in radians """
+        """4D matrix for rotating around the x-axis by the given angle in radians"""
         c = cos(angle)
         s = sin(angle)
         return np.array((
@@ -93,7 +93,7 @@ The parameters `x`, `y`, and `z` are the components of the translation vector. W
 
     @staticmethod
     def rotation_y(angle):
-        """ 4D matrix for rotating around the y-axis by the given angle in radians """
+        """4D matrix for rotating around the y-axis by the given angle in radians"""
         c = cos(angle)
         s = sin(angle)
         return np.array((
@@ -105,7 +105,7 @@ The parameters `x`, `y`, and `z` are the components of the translation vector. W
 
     @staticmethod
     def rotation_z(angle):
-        """ 4D matrix for rotating around the z-axis by the given angle in radians """
+        """4D matrix for rotating around the z-axis by the given angle in radians"""
         c = cos(angle)
         s = sin(angle)
         return np.array((
@@ -123,7 +123,7 @@ These methods all take the angle of rotation in radians. Then we can simply calc
 ```python
     @staticmethod
     def scale(r, s, t):
-        """ 4D matrix for scaling dimensions x, y, and z by magnitudes r, s, and t respectively """
+        """4D matrix for scaling dimensions x, y, and z by magnitudes r, s, and t respectively"""
         return np.array((
             (r, 0, 0, 0),
             (0, s, 0, 0),
@@ -139,7 +139,7 @@ Scaling can happen on any dimension, so we want to allow for scaling each dimens
 ```python
     @staticmethod
     def perspective(angle_of_view=60, aspect_ratio=1, near=0.1, far=1000):
-        """ 4D matrix for a projection transformation to the given perspective """
+        """4D matrix for a projection transformation to the given perspective"""
         a = angle_of_view * pi / 180.0
         d = 1.0 / tan(a/2)
         r = aspect_ratio
@@ -164,11 +164,11 @@ Remember that our `Uniform` class manages a link between a vertex buffer and a `
 GLSL uses the `mat4` data type for 4x4 matrices and we can use the `glUniformMatrix4fv` function to upload data for `mat4` shader variables.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Open the `openGL.py` file from your `core` folder and scroll down to the `Uniform` class.  
+<input type="checkbox" class="checkbox inline"> Open the `openGL.py` file from your `graphics/core` folder and scroll down to the `Uniform` class.  
 <input type="checkbox" class="checkbox inline"> Find the `_VALID_TYPES` variable inside the `Uniform` class and add ***ONLY*** the `'mat4'` value to the tuple.  
 
 ```python
-    _VALID_TYPES = ('int','bool','float','vec2','vec3','vec4','mat4')
+    _VALID_TYPES = ('int', 'bool', 'float', 'vec2', 'vec3', 'vec4', 'mat4')
 ```
 
 <input type="checkbox" class="checkbox inline"> Then, find the long `if` statement inside the `upload_data` method and add the following code at the end:  
@@ -203,17 +203,17 @@ Remember that the position vector stays the same and all of the transformations 
 <input type="checkbox" class="checkbox inline"> Open `test_7.py` for editing and add the following code:  
 
 ```python
-# graphics/test_7.py
+# test_7.py
 from math import pi
 import OpenGL.GL as GL
 
-from core.app import WindowApp
-from core.openGLUtils import initialize_program
-from core.openGL import Attribute, Uniform
-from core.matrix import Matrix
+from graphics.core.app import WindowApp
+from graphics.core.openGLUtils import initialize_program
+from graphics.core.openGL import Attribute, Uniform
+from graphics.core.matrix import Matrix
 
 class Test_7(WindowApp):
-    """ Tests geometric transformations by moving a triangle around the screen """
+    """Tests geometric transformations by moving a triangle around the screen"""
 
     def startup(self):
         print("Starting up Test 7...")

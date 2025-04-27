@@ -53,7 +53,7 @@ To make triangles for OpenGL, we need to list these points as vertices in sets o
 The initialization method for the `PolygonGeometry` class will do that after calculating all the vertices of the polygon from the given number of sides and radius.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometries` folder, open the file called `basic_geometries.py` and add the following import statement to the top of it.
+<input type="checkbox" class="checkbox inline"> Inside the `graphics/geometries` folder, open the file called `basic_geometries.py` and add the following import statement to the top of it.
 
 ```python
 from math import sin, cos, pi
@@ -63,7 +63,7 @@ from math import sin, cos, pi
 
 ```python
 class PolygonGeometry(Geometry):
-    """ Renders a regular polygon with the given number of sides and radius """
+    """Renders a regular polygon with the given number of sides and radius"""
     def __init__(self, sides=3, radius=1):
         super().__init__()
 
@@ -132,11 +132,11 @@ When initialized, the geometry will calculate all the points along its surface b
 Let's see how this works in code.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `geometries` folder, create a new file called `parametric_geometries.py`.  
-<input type="checkbox" class="checkbox inline"> Open the `__init__.py` file in the `geometries` folder and add the following code:
+<input type="checkbox" class="checkbox inline"> Inside the `graphics/geometries` folder, create a new file called `parametric_geometries.py`.  
+<input type="checkbox" class="checkbox inline"> Open the `__init__.py` file in the `graphics/geometries` folder and add the following code:
 
 ```python
-from .parametric_geometries import *
+from graphics.geometries.parametric_geometries import *
 ```
 
 <input type="checkbox" class="checkbox inline"> Open `parametric_geometries.py` for editing and add the following code:  
@@ -145,10 +145,10 @@ from .parametric_geometries import *
 # graphics/geometries/parametric_geometries.py
 import numpy as np
 
-from geometries.geometry import Geometry
+from graphics.geometries.geometry import Geometry
 
 class ParametricGeometry(Geometry):
-    """ A geometric surface rendered from the given function with parameters u and v """
+    """A geometric surface rendered from the given function with parameters u and v"""
     def __init__(self, u_start, u_stop, u_resolution,
                        v_start, v_stop, v_resolution, surface_function):
         super().__init__()
@@ -219,7 +219,7 @@ We will refer to the range of $u$ as the width and the range of $v$ as the heigh
 
 ```python
 class PlaneGeometry(ParametricGeometry):
-    """ A 2D plane divided into segments """
+    """A 2D plane divided into segments"""
     def __init__(self, width=1, height=1, width_segments=8, height_segments=8):
         # the surface function S(u, v) = (u, v, 0)
         surface_function = lambda u, v: (u, v, 0)
@@ -283,7 +283,7 @@ from math import sin, cos, pi
 
 ```python
 class EllipsoidGeometry(ParametricGeometry):
-    """ A unit sphere with dimensions scaled by the given width, height, and depth """
+    """A unit sphere with dimensions scaled by the given width, height, and depth"""
     def __init__(self, width=1, height=1, depth=1, 
                        radial_segments=32, height_segments=16):
         # the surface function calculates points on the surface
@@ -321,7 +321,7 @@ When we want to create a perfect sphere, it is useful to have a simpler interfac
 
 ```python
 class SphereGeometry(EllipsoidGeometry):
-    """ A perfect sphere with the given radius """
+    """A perfect sphere with the given radius"""
     def __init__(self, radius=1, radial_segments=32, height_segments=16):
         super().__init__(
             width=2*radius,
@@ -357,8 +357,8 @@ In that case, we can express the cross-section radius $r_c$ relative to the top 
 <input type="checkbox" class="checkbox inline"> Inside the `parametric_geometries.py` folder, add the following import statements just before the `ParametricGeometry` class.  
 
 ```python
-from geometries.basic_geometries import PolygonGeometry
-from core.matrix import Matrix
+from graphics.core.matrix import Matrix
+from graphics.geometries.basic_geometries import PolygonGeometry
 ```
 
 <input type="checkbox" class="checkbox inline"> Scroll to the end of the `parametric_geometries.py` file and add the following code after the `SphereGeometry` class:  
@@ -399,12 +399,12 @@ Without this merge functionality, the top and bottom surfaces of cylinders would
 
 These are generic features that should not depend on the type of geometry, so let's add them to the `Geometry` class.
 
-<input type="checkbox" class="checkbox inline"> In the `geometries` folder, open `geometry.py` for editing.  
+<input type="checkbox" class="checkbox inline"> In the `graphics/geometries` folder, open `geometry.py` for editing.  
 <input type="checkbox" class="checkbox inline"> Scroll down to the bottom of the file and add the following method to the `Geometry` class:  
 
 ```python
     def apply_matrix(self, matrix, variable_name="vertexPosition"):
-        """ Transform the data in an attribute using the given matrix """
+        """Transform the data in an attribute using the given matrix"""
         if variable_name not in self._attributes.keys():
             raise ValueError(f"Unable to apply matrix to unknown attribute: {variable_name}")
 
@@ -488,7 +488,7 @@ The `CylinderGeometry` class is a simple interface for the `CylindricalGeometry`
 
 ```python
 class CylinderGeometry(CylindricalGeometry):
-    """ A cylindrical object with the same radius at the top and bottom """
+    """A cylindrical object with the same radius at the top and bottom"""
     def __init__(self, radius=1, height=1, radial_segments=32,
                        height_segments=4, top_closed=True, bottom_closed=True):
         super().__init__(
@@ -519,7 +519,7 @@ As with cylinders, we create a simple interface to `CylindricalGeometry` in the 
 
 ```python
 class ConeGeometry(CylindricalGeometry):
-    """ A cylindrical object that comes to a point at the top """
+    """A cylindrical object that comes to a point at the top"""
     def __init__(self, radius=1, height=1, radial_segments=32,
                        height_segments=4,  closed=True):
         super().__init__(

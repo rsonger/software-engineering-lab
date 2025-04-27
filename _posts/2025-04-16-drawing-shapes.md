@@ -42,7 +42,7 @@ This all may sound complicated, but we only need to write code for it once the `
 import OpenGL.GL as GL
 import numpy
 
-class Attribute(object):
+class Attribute:
     """Manages a single attribute variable that uses data from a vertex buffer"""
 
     # maps data types to their associated vertex size and data type
