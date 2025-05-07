@@ -22,14 +22,14 @@ But there is an easier way! In situations like this we can use a special kind of
 
 # Working with Uniform Data
 
-Uniform variables are useful when we want to send data directly from our application to variables in the GPU program. They do not store data in vertex buffers, and we do not need VAOs to manage their associations. Instead, we just use [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} to get a reference to the uniform variable inside the GPU program and then assign a value to it with one of the many [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions. The `glUniform` function we use will depend on the data type and number of values it holds as indicated in the function name. For example, sending a single integer (or Boolean value) would use `glUniform1i` (here `i` means `int`) but sending a `vec3` would require `glUniform3f` (and `f` means `float`). Then the shader programs will reference that data every time it draws a frame.
+Uniform variables are useful when we want to send data directly from our application to variables in the GPU program. They do not store data in vertex buffers, and we do not need VAOs to manage their associations. Instead, we just use [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} to get a reference to the uniform variable inside the GPU program and then assign a value to it with one of the many [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions. The `glUniform` function we use will depend on the data type and number of values it holds as indicated in the function name. For example, sending a single integer (or Boolean value) would use `glUniform1i` (where `i` means `int`) but sending a `vec3` would require `glUniform3f` (where `f` means `float`). Then the shader programs will reference that data every time it draws a frame.
 
 ## The Uniform Class
 
 Similar to how we made the `Attribute` class for attribute variables in the previous post, we will now create the `Uniform` class to handle uniform variables. The responsibilities of this class are to:  
-- store the data and data type of the uniform variable in the GPU program;
-- get and store a reference to the uniform variable in the GPU program;
-- and load the data into the uniform variable as needed.
+- store the data and data type of the uniform variable in the GPU program
+- get and store a reference to the uniform variable in the GPU program
+- load the data into the uniform variable as needed
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your `graphics/core` folder, open the file called `openGL.py`.  
@@ -75,12 +75,10 @@ Here we use the [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL
         """Store data in a previously located uniform variable"""
         # check that the variable reference exists
         assert self.variable_ref is not None, (
-            "Call locate_variable() before upload_data()."
+            "No variable reference; get a reference with locate_variable() before uploading data."
         )
 
-        if self.data_type == "int":
-            GL.glUniform1i(self.variable_ref, self.data)
-        elif self.data_type == "bool":
+        if self.data_type in {"int", "bool"}:
             GL.glUniform1i(self.variable_ref, self.data)
         elif self.data_type == "float":
             GL.glUniform1f(self.variable_ref, self.data)
@@ -92,7 +90,7 @@ Here we use the [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL
             GL.glUniform4f(self.variable_ref, *self.data)
 ```
 
-The first thing we do is confirm that we have a reference to the uniform variable.  When the `Uniform` object initializes, `self.variable_ref` is set to `None` but then it receives a value when the `locate_variable` method is called. So our message to the programmer is a reminder to call `locate_variable` before `upload_data`. Then we check the data type of this uniform variable and upload the data with the appropriate [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} function. If the data stores more than one value (such as a `list` or `tuple`), then we [unpack the data](https://docs.python.org/3/tutorial/controlflow.html#tut-unpacking-arguments) to pass its values as separate arguments to the GL function.
+The first thing we do is confirm that we have a reference to the uniform variable.  When the `Uniform` object initializes, `self.variable_ref` is set to `None` but then it receives a value when the `locate_variable` method is called. So our message to the programmer is a reminder to call `locate_variable` before `upload_data`. Then we check the data type of this uniform variable and upload the data with the appropriate [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} function. If the data stores more than one value (as with a `list` or `tuple`), we [unpack the data](https://docs.python.org/3/tutorial/controlflow.html#tut-unpacking-arguments) to pass its values as separate arguments to the GL function.
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the `openGL.py` file.
 
@@ -196,9 +194,9 @@ class Test_4_1(WindowApp):
         self.blue_color = Uniform("vec3", [0.0, 0.0, 1.0])
         self.blue_color.locate_variable(self.program_ref, "baseColor")
 
-    def update(self):
         GL.glUseProgram(self.program_ref)
 
+    def update(self):
         # load and draw the left, red triangle
         self.left_translation.upload_data()
         self.red_color.upload_data()
@@ -295,6 +293,8 @@ class Test_4_2(WindowApp):
         # specify the color to use for clearing the screen
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
 
+        GL.glUseProgram(self.program_ref)
+
     def update(self):
         # update the translation value to move the triangle to the right
         self.translation.data[0] += 0.01
@@ -305,8 +305,6 @@ class Test_4_2(WindowApp):
 
         # reset the color buffer to clear the screen
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-
-        GL.glUseProgram(self.program_ref)
 
         # use the updated translation values
         self.translation.upload_data()
