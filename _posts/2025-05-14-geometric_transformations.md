@@ -10,7 +10,7 @@ categories:
   - Notes
 ---
 
-*This lesson explains the mathematical concepts behind matrix calculations for common transformations in computer graphics including scaling, rotation, translation, and projection.*
+*This lesson explains the mathematical calculations of common transformations in computer graphics using matrices, such as scaling, rotation, translation, and projection.*
 
 # Overview
 
@@ -79,18 +79,20 @@ A &= \begin{bmatrix}
 Rotating an object requires the trigonometric functions $\sin(\theta)=b/h$, $\cos(\theta)=a/h$, and $\tan(\theta)=b/a$ where  $\theta$ is the angle of a right triangle, $a$ is the length of the side adjacent to $\theta$, $b$ is the length of the side opposite of $\theta$, and $h$ is the hypotenuse.
 
 We can use the standard basis vectors $i= \langle 1,0 \rangle$ and $j= \langle 0,1 \rangle$ to represent the rotation on the $x$ and $y$ coordinates respectively. 
-When we draw vectors $i$ and $j$ together with their rotations $F(i)$ and $F(j)$, we can see right triangles map to the components of the rotated vectors.
+When we draw vectors $i$ and $j$ together with their rotations $F(i)$ and $F(j)$, we can see right triangles map to the components of the rotated vectors. 
+This allows us to express the transformation in terms of the right triangles formed between the rotated standard basis vectors and their axes of origin. 
+That is, $F(i) = \langle a,b \rangle$ and $F(j) = \langle -b,a \rangle$.
 
 ![Rotating basis vectors $i$ and $j$ by angle $\theta$.](/software-engineering-lab/assets/images/vector_rotation.png)
 
-Rotating a vector does not change its length, so we know the hypotenuse $h$ will always have a length of $1$ for basis vectors. 
-That means $\sin(\theta)=\frac{b}{1}=b$ and $\cos(\theta)=\frac{a}{1}=a$, so we can replace $b$ with $\sin(\theta)$ and $a$ with $\cos(\theta)$:
+Since the length of a rotated vector does not change, we know the hypotenuse $h$ will always have a length of $1$ for basis vectors. 
+That means $\sin(\theta)=\frac{b}{1}=b$ and $\cos(\theta)=\frac{a}{1}=a$ and we can express $b$ and $a$ in terms of $\theta$ as  $b = \sin(\theta)$ and $a = \cos(\theta)$.
 $$\begin{aligned}
     F(i) &= \langle a,b \rangle = \langle\cos(\theta),\sin(\theta)\rangle \\
     F(j) &= \langle -b,a \rangle = \langle -\sin(\theta),\cos(\theta)\rangle
 \end{aligned}$$
 
-Since we know that $F(i)$ and $F(j)$ together determine the transformation matrix, then we can find $A$:
+Since we know that $F(i)$ and $F(j)$ together determine the transformation matrix $A$, then we can express $A$ in terms of the angle of rotation $\theta$:
 $$\begin{aligned}
 F\left(\begin{bmatrix}
     x \\
@@ -113,18 +115,18 @@ A &= \begin{bmatrix}
     \sin(\theta) & \cos(\theta)
 \end{bmatrix}\end{aligned}$$
 
-In 2D rotations, the angle $\theta$ revolves around a single point, but in 3D that point becomes a line extending perpendicular to the plane of the angle itself. 
-That is, the $xy$-plane is perpendicular to the $z$-axis, so we can say that rotation in 2D space (the $xy$ plane) is the same as rotation around the $z$-axis in 3D space. 
-The difference is that vectors in 3D space have three components and there is a third standard basis vector $k$ for the $z$ component where $i= \langle 1,0,0 \rangle$, $j= \langle 0,1,0 \rangle$, and $k= \langle 0,0,1 \rangle$.
+In 2D rotations, the angle $\theta$ revolves around a single point, but in 3D that point becomes a line extending perpendicular to the angle of rotation. 
+For example, the $xy$-plane is perpendicular to the $z$-axis, so we can say that rotation in 2D space (the $xy$ plane) is the same as rotation around the $z$-axis in 3D space. 
+The difference is that vectors in 3D space have three components and a third standard basis vector $k$ for the $z$ component is required: $i= \langle 1,0,0 \rangle$, $j= \langle 0,1,0 \rangle$, and $k= \langle 0,0,1 \rangle$.
 
 ## $z$-Axis Rotation
 
 When rotating around the $z$-axis, the $z$ coordinates do not change while the $x$ and $y$ coordinates change in the same way as 2D rotation. 
-So the basis vector transformations are,
+So the standard basis vector transformations are,
 $$\begin{aligned}
-F(i) &= \langle \cos(\theta),\sin(\theta),0 \rangle \\
-F(j) &= \langle -\sin(\theta),\cos(\theta),0 \rangle \\
-F(k) &= \langle 0,0,1 \rangle
+F(i) &= \langle \cos(\theta), \sin(\theta), 0 \rangle \\
+F(j) &= \langle -\sin(\theta), \cos(\theta), 0 \rangle \\
+F(k) &= \langle 0, 0, 1 \rangle
 \end{aligned}$$
 And the transformation matrix is,
 $$A_z=\begin{bmatrix}
@@ -135,14 +137,16 @@ $$A_z=\begin{bmatrix}
 
 ## $x$-Axis Rotation
 
-Graphically, we can represent a rotation of angle $\theta$ around the $x$-axis by drawing the $i$ vector perpendicular to the rotation plane. 
-Then, if we draw the $j$ vector extending to the right, the $k$ vector will point up according to the structure of the 3D coordinate axes. 
-Since the $x$-axis is perpendicular to $\theta$ and the $x$-components do not change, the vector components represent the components of $y$ and $z$. 
-Then the drawing looks like this:
+When the axis of rotation is the $x$-axis, the standard basis vector $i$ becomes parallel to the axis of rotation, and perpendicular to the rotation plane. 
+This means the $x$-components do not change in the same way that $z$-components do not change when we rotate around the $z$-axis. 
+Graphically, we can represent this with a diagram in which the $i$ vector is perpendicular to the rotation plane and the $j$ vector extends to the right. 
+Then the $k$ vector will point up according to the structure of the 3D coordinate axes. 
+In this diagram, the vector components $a$ and $b$ represent sides of the right triangles on the $yz$ plane at $x=0$. 
+Here we show the vectors in terms of $\langle y, z \rangle$ for simplicity since we know $x = 0$.
 
 ![3D rotation of basis vectors $j$ and $k$ around the $x$-axis](/software-engineering-lab/assets/images/vector_rotation_x-axis.png)
   
-Now we can rewrite $F(j)=\langle a,b \rangle$ and $F(k)=\langle -b,a \rangle$ in terms of $\theta$ to get our transformation matrix:
+Now we can express $F(j)=\langle a,b \rangle$ and $F(k)=\langle -b,a \rangle$ in terms of $\theta$ to get our transformation matrix:
 $$A_x=\begin{bmatrix}
     1 & 0 & 0 \\
     0 & a & -b \\
@@ -155,18 +159,19 @@ $$A_x=\begin{bmatrix}
 
 ## $y$-Axis Rotation
 
-Rotating around the $y$-axis is a little more complicated. The points to remember when visualizing it are:
+Rotating around the $y$-axis is a little more complicated. To draw this diagram, it is important to remember the following points:
 - The positive axis of rotation is perpendicular to the angle and points towards the viewer.
 - The basis vector along the axis of rotation is ignored, and the other basis vectors are written in terms of the components on the plane of angle $\theta$.
 - The first basis vector is drawn horizontally so that $\theta$ rotates counterclockwise from $\langle 1,0 \rangle$.
 - And the second basis vector with value $\langle 0,1 \rangle$ is drawn vertically with its positive direction relative to the other two axes.
 
-Following these rules, the drawing will look down the positive $y$-axis so we will ignore the $j$ vector and write the components in terms of $x$ and $z$. 
+Following these rules, the diagram will have the $y$-axis pointing towards the viewer from the origin. 
+We ignore the $j$ vector and write the components of the $i$ and $k$ vectors in terms of $x$ and $z$. 
 Then the $x$-axis and its vector $i$ will point to the right while the $z$-axis and its vector $k$ will point down:
 
 ![3D rotation of basis vectors $i$ and $k$ around the $y$-axis](/software-engineering-lab/assets/images/vector_rotation_y-axis.png)
 
-Now we can write our transformation matrix from $F(i)$ and $F(k)$ above in terms of $\theta$:
+Now we can find our transformation matrix in terms of $\theta$ from $F(i)$ and $F(k)$ above:
 $$A_y=\begin{bmatrix}
     a & 0 & b \\
     0 & 1 & 0 \\
@@ -177,12 +182,14 @@ $$A_y=\begin{bmatrix}
     -\sin(\theta) & 0 & \cos(\theta)
 \end{bmatrix}$$
 
-Finally, you might wonder what happens when $\theta =0$. 
-Since $\cos(0)=1$ and $\sin(0)=0$, all of these matrices will become the *identity matrix* as expected.
+Finally, we can verify these matrices by considering what happens when $\theta =0$. 
+At $\theta =0$, there should be no change to the coordinates since no rotation happens. 
+In this case, plugging in $0$ for $\theta$ in each of these matrices will result in the *identity matrix* since $\cos(0)=1$ and $\sin(0)=0$. 
+This is true for all three axes of rotation.
 
 # Translation
 
-A translation simply changes the coordinate position of a vertex by constant values. 
+A translation simply changes the coordinate position of a vertex by a fixed value. 
 Let's use the constants $m$ and $n$ to show the change of $x$ and $y$ from translation $\langle m,n \rangle$:
 $$F\left(\begin{bmatrix}
     x \\
@@ -208,11 +215,11 @@ $$\begin{bmatrix}
     y+2
 \end{bmatrix}$$
 From above, $a \cdot x+b \cdot y=x$ gives us the values $a=1$ and $b=0$. 
-However, $c \cdot x+d \cdot y=y+2$ tells us that $d=1$ and $c=2/x$ which is not constant. 
-Even if we wanted to define our transformation matrix with $c=2/x$, then we would not be able to transform any coordinates where $x=0$ because $2/0$ is undefined. 
-You might also recognize that $c=0$ would give us the identity matrix, so $c$ must be some non-zero value. 
+However, from $c \cdot x+d \cdot y=y+2$ we get $d=1$ and $c=2/x$ which is not constant. 
+Even if we try to define our transformation matrix with $c=2/x$, then we would not be able to transform any coordinates where $x=0$ because $2/0$ is undefined. 
+You might also recognize that $c=0$ would give us the identity matrix, which implies that $c$ must be some non-zero value. 
 
-Consider the matrix with $c=2$ applied to a square with points $(0,0)$, $(1,0)$, $(0,1)$ and $(1,1)$. Then we get,
+Now if we try using a fixed value $c=2$ and apply the transformation to a square with points $(0,0)$, $(1,0)$, $(0,1)$ and $(1,1)$, we find another problem.
 $$F\left( (0,0) \right) = \begin{bmatrix}
     1 & 0 \\
     2 & 1
@@ -243,7 +250,7 @@ F\left( (1,1) \right) = \begin{bmatrix}
 \end{bmatrix} = (1,3) \\
 $$
 
-We can see that the $y$-coordinates remain the same for points where $x=0$ and the translation only changes the $x$-coordinates. 
+We can see that the transformation only changes the $y$-coordinates for points where $x \neq 0$. 
 This is called a *shear translation* and it warps the shape of the object. If we were to try this with a 3D object as well, then we would see only two of the three coordinates being translated. 
 In other words, using a transformation matrix only applies the translation to a *subset* of the coordinate space.
 
@@ -308,7 +315,7 @@ A &= \begin{bmatrix}
 \end{aligned}$$
 
 3D computer graphics always use 4D vectors and matrices to do 3D calculations. 
-This system is called *homogeneous coordinates*. When we set the extra dimension equal to $1$, then we get a useful correspondence between the 3D and 4D representatons of the point. 
+This system is called *homogeneous coordinates*. When we set the extra dimension equal to $1$, we get a useful correspondence between the 3D and 4D representatons of the point. 
 That is, with 4D point $(x,y,z,w)$ we can divide $x$, $y$, and $z$ by $w$ to get the same point in 3D:
 $$(x/w,y/w,z/w)=(x/1,y/1,z/1)=(x,y,z)$$
 
@@ -338,10 +345,10 @@ $$\begin{bmatrix}
     0 & 0 & 1
 \end{bmatrix}$$
 
-Here we can see the matrix for scaling and rotation combines nicely with the matrix for translation. 
+Here we can see the matrices for scaling and rotation combine nicely with the matrix for translation. 
 The values $a_{11}$ to $a_{22}$ represent the scaling and rotation transformations while $m_1$ and $m_2$ are the translation values.
 
-So the three transformations of scaling, rotation and translation (collectively called *affine transformations*) can be represented together in a single matrix. 
+So the three transformations of scaling, rotation and translation (collectively called *affine transformations*) can be expressed together in a single matrix. 
 If we further expand this out to 3D, that matrix will have an extra dimension as well:
 $$\begin{bmatrix}
     a_{11} & a_{12} & a_{13} & m_1 \\
@@ -533,32 +540,46 @@ $$A=\begin{bmatrix}
     0 & 0 & -1 & 0
 \end{bmatrix}$$
 
-Here, $r$ is the aspect ratio, $a$ is the angle of view, $n$ is the near clipping distance, and $f$ is the far clipping distance. All of these will be configured by our applications.
+Here, $r$ is the aspect ratio, $a$ is the angle of view, $n$ is the near clipping distance, and $f$ is the far clipping distance. 
+All of these will be configured by our applications.
 
 # Local Transformations
 
-One important note about all these transformations so far is that they operate on vectors based at the origin. For example, if we have a rotation transformation $R$ of $45^{\circ}$ for an object with a set of points $P$ centered at $(0,0)$, then the transformation $R \cdot P$ rotates the object around its own center. However, if $P$ is centered on $(1,0)$ in the world space, then $R \cdot P$ effectively rotates the object around the world origin. 
+One important note about all these transformations so far is that they operate on vectors based at the origin. 
+For example, if we have a rotation transformation $R$ of $45^{\circ}$ for an object with a set of points $P$ centered at $(0,0)$, then the transformation $R \cdot P$ rotates the object around its own center. 
+However, if $P$ is centered on $(1,0)$ in the world space, then $R \cdot P$ applies the rotation to the object's translation vector $\langle 1,0 \rangle$ and effectively rotates the object around the world origin. 
 
 ![Rotating an object at its local origin is not always the same as rotating it at the world origin.](/software-engineering-lab/assets/images/local_v_world_rotation.png)
 
-The picture on the left shows a rotation of *object coordinates* or *local coordinates*. Here, the rotation effectively transforms the object's coordinate axes, which are shown as $x_l$ and $y_l$. The picture on the right shows the rotation on an object with its center at $(1,0)$ in the *world coordinates* or *global coordinates* defined by the $x_g$-axis and $y_g$-axis. Then, a *local transformation* is any transformation that applies relative to the local coordinates of an object. When an object's local coordinates are the same as the world coordinates, any global transformation is also a local transformation on that object, as shown in the first image.  
+The picture on the left shows a rotation applied to *object coordinates* or *local coordinates*. 
+Here, the rotation effectively transforms the object's coordinate axes, which are shown as $x_l$ and $y_l$. 
+The picture on the right shows the rotation applied to an object with its center at $(1,0)$ in the *world coordinates* or *global coordinates* defined by the $x_g$-axis and $y_g$-axis. 
+
+A *local transformation* is any transformation that applies relative to the local coordinates of an object. 
+When an object's local coordinates are the same as the world coordinates, any global transformation is also a local transformation on that object, as shown in the first image.  
 
 So how can we use our matrix multiplication method to perform a local transformation when the object is not at the global origin?
 
 ![A local transformation not at the origin of world space.](/software-engineering-lab/assets/images/local_rotation.png)
 
-We must first understand that an object's points are defined using local coordinates and OpenGL does not change these points when there is a transformation. Instead, it keeps a separate matrix, called a *model matrix* as the cumulative product of all transformations on the object. Then, it calculates the world coordinates $P_g$ by multiplying the object's local coordinates $P_l$ by the model matrix $M$. That is,  
+We must first understand that an object's points are defined using local coordinates and OpenGL does not change these points when there is a transformation. 
+Instead, it keeps a separate matrix, called a *model matrix* which is the cumulative product of all transformations on the object. 
+Then, it calculates the world coordinates $P_g$ by multiplying the object's local coordinates $P_l$ by the model matrix $M$.
 
 $$P_g =M \cdot P_l$$  
 
 Naturally, when there are no transformations acting on the object, $M$ is the identity matrix.  
+
 $$P_g = M \cdot P_l = I \cdot P_l = P_l$$
 
-If $M$ is the product of all transformations leading to the world coordinates of the object, then we know the inverse of $M$, denoted $M^{-1}$, will undo those transformations and produce the original object coordinates in local space. In other words, this converts the object's vertices in world space back to local coordinate space, like so:
+If $M$ is the product of all transformations leading to the world coordinates of the object, then we know the inverse of $M$, denoted $M^{-1}$, will undo those transformations and give us the original object coordinates in local space. 
+In other words, this converts the object's coordinates from world space back to local coordinate space, like so:
 
 $$P_l=M^{-1} \cdot P_g =M^{-1} \cdot M \cdot P_l$$  
 
-Once we have the local coordinates of the object, we can apply our rotation $R$ as a local transformation. Then, we move the object back to its previous world coordinates with transformation $M$ once more. In terms of the matrix multiplication of this entire process, we can express the local rotation $R$ for an object in world space as $P_g'$ where,
+Once we have the local coordinates of the object, we can apply our rotation $R$ as a local transformation. 
+Then, we move the object back to its previous world coordinates with transformation $M$ once more. 
+Using matrix multiplication for this entire process, we can express the result $P_g'$ of applying local rotation $R$ to an object in world space as follows:
 $$\begin{aligned}
 P_g' &= M \cdot R \cdot M^{-1} \cdot P_g \\
     &= M \cdot R \cdot M^{-1} \cdot M \cdot P_l \\
@@ -566,8 +587,7 @@ P_g' &= M \cdot R \cdot M^{-1} \cdot P_g \\
     &= M \cdot R \cdot P_l
 \end{aligned}$$
 
-As a **global transformation**, $R$ is applied **after** the model matrix: $P' = R \cdot M \cdot P$.
-
-As a **local transformation**, $R$ is applied **before** the model matrix: $P' = M \cdot R \cdot P$.
+Remember that the nature of matrix multiplication implies the order of applying transormations goes from right to left. So for a **local transformation**, $R$ is applied **before** the model matrix: $P' = M \cdot R \cdot P$. 
+When we want to apply a **global transformation**, the transformation matrix $R$ is applied **after** the model matrix: $P' = R \cdot M \cdot P$.
 
 This conveniently applies to all previously discussed geometric transformations in addition to rotation.
