@@ -177,19 +177,20 @@ In that case, we just need to use the same value for `r`, `s`, and `t`.
 ```
 
 This method definition provides values for a default perspective so we do not need to specify them in every app. 
-The angle of view parameter uses degrees for its units, so we need to convert it into radians before applying it to the tangent function for calculating the distance between the projection window and the camera. 
-The depth components `b` and `c` are calculated from the *near clipping distance* and *far clipping distance* as explained in the [previous lesson](http://127.0.0.1:4000/software-engineering-lab/notes/geometric_transformations/#perspective-projection).
+The `angle_of_view` parameter should have a value in degrees, so we need to convert it into radians `a` before we can calculate the distance between the projection window and the camera `d`. 
+The depth components `b` and `c` are calculated from the *near clipping distance* and *far clipping distance* as explained in the [previous lesson](http://127.0.0.1:4000/software-engineering-lab/notes/geometric_transformations/#perspective-projection). The `aspect_ratio` is just abbreviated as `r` for the sake of readibility.
 
 Now we have everything we need in the `Matrix` class. 
-But before we can use it, we need to update our `Uniform` class to handle 4x4 matrix data for uniform variables in our shader programs.
+But before we can use it, we need to update our `Uniform` class to support 4x4 matrix data for uniform variables in our shader programs.
 
 # Updating the `Uniform` Class
 
-Remember that our `Uniform` class manages a link between a vertex buffer and a `uniform` variable in a shader program. 
+Remember that our `Uniform` class manages a link between data in a vertex buffer and a `uniform` variable in a shader program. 
 The class uses [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions to assign data based on its data type. 
-Now that we want to use matrix data in our framework, we need to update the `Uniform` class so it can associate matrix data with variables as well.
+Now we want to use matrix data in our framework, so we need to update the `Uniform` class to associate matrix data with variables as well.
 
-GLSL uses the `mat4` data type for 4x4 matrices and we can use the `glUniformMatrix4fv` function to upload data for `mat4` shader variables.
+The shader language GLSL uses the `mat4` data type for 4x4 matrices.
+We can use the `glUniformMatrix4fv` function to upload data for `mat4` shader variables.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Open the `openGL.py` file from your `graphics/core` folder and scroll down to the `Uniform` class.  
@@ -206,9 +207,9 @@ GLSL uses the `mat4` data type for 4x4 matrices and we can use the `glUniformMat
             GL.glUniformMatrix4fv(self.variable_ref, 1, GL.GL_TRUE, self.data)
 ```
 
-When calling the `glUniformMatrix4fv` function, the second parameter is the number of matrices which will always be `1` for our `Uniform` objects. 
+When calling the `glUniformMatrix4fv` function, the second parameter specifies the number of matrices to associate with the variable. For our `Uniform` objects, this will always be `1`. 
 The third parameter tells OpenGL that our matrix data is stored as an array of *row* vectors. 
-If we ever give the data as an array of *column* vectors (we won't), then that parameter would be `GL.GL_FALSE` instead.
+If we ever give the data as an array of *column* vectors (spoiler alert; we won't), then that parameter would be `GL.GL_FALSE` instead.
 
 # A Test of Transformations
 
@@ -231,8 +232,10 @@ void main() {
 }
 ```
 
-Remember that the position vector stays the same and all of the transformations will apply to the `modelMatrix`. 
-Then, the `projectionMatrix` will adjust the positions based on the perspective, which makes shapes look smaller as they move away from the camera.
+Remember that the position vector won't change while the program is running. 
+Instead, all of the transformations for the object will apply to its `modelMatrix`. 
+Then, the `projectionMatrix` will adjust the object's vectors based on the perspective of the camera. 
+This effectively makes shapes look smaller as they move away from the camera and bigger as they move closer. 
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your main working folder, create a new file called `test_7.py`.  
@@ -274,13 +277,13 @@ class Test_7(WindowApp):
 ```
 
 Next, we create an `Attribute` object for the position data and two `Uniform` objects for the two matrices. 
-We will use `translation` and `rotation_z` to update the model matrix whenever the user moves or rotates the triangle. 
-The `perspective` method is only called once in our `startup` method since the perspective will always stay the same.
+We use `Matrix.translation` once to set the initial value of the model matrix to the triangle's initial position. Our `update` method later will also use `Matrix.translation` and `Matrix.rotation_z` to update the model matrix whenever the user moves or rotates the triangle. 
+The camera itself stays stationary, so we call `Matrix.perspective` just once here in our `startup` method. 
 
 <input type="checkbox" class="checkbox inline"> Inside the `startup` method of `test_7.py`, add the following code:  
 
 ```python
-        # one VAO for the single triangle
+        # one VAO for the singular triangle
         vao_ref = GL.glGenVertexArrays(1)
         GL.glBindVertexArray(vao_ref)
 
@@ -312,20 +315,22 @@ The `perspective` method is only called once in our `startup` method since the p
         # render settings
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
         GL.glEnable(GL.GL_DEPTH_TEST)
+
+        GL.glUseProgram(self.program_ref)
 ```
 
-Our triangle will be taller than it is wide so that we can see its orientation as it rotates around the screen. 
-When we create the model matrix, we make it from a translation matrix that shifts the triangle backwards down the $z$-axis. 
-Since the camera is located at the origin, we would not be able to see the triangle if it was also on the $z=0$ plane, so we move it in front of the camera at $z=-5$.
+Our triangle's shape will be taller than it is wide so that we can see its orientation as it rotates around the screen. 
+Since the camera is located at the origin, we would not be able to see the triangle if it was also on the $z=0$ plane. 
+So we move the triangle in front of the camera by setting its intial model matrix to a translation matrix that moves the triangle down the $z$-axis to $z=-5$. 
 
 The movement speed is set to units in world space. 
 This means that the greater the distance between the object and the camera, the slower it appears to move. 
-On the other hand, the rotation speed is not influenced by the object's distance from the camera, but it does appear to speed up as the object moves away from the center of rotation, the $z$-axis. 
+On the other hand, the rotation speed is not influenced by the object's distance from the camera, but it does appear to speed up as the object moves away from the center of rotation (that is, the $z$-axis). 
 This will be clear when we compare local rotation (with the $z$-axis at the center of the triangle) to global rotation (with the $z$-axis at the center of the screen).
 
-The last line of the `startup` method is a function that enables OpenGL's depth testing feature. 
+Towards the end of the `startup` method, we use `glEnable` to enable OpenGL's depth testing feature. 
 Since we are rendering a 3D scene, we need depth testing to determine whether objects in the scene will block each other from view. 
-There is only one object in the scene, but we turn it on now in case we want to add more objects to the scene later.
+This is an unnecessary calculation when there is only one object in the scene, but we turn it on now in case we want to add more objects to the scene later.
 
 <input type="checkbox" class="checkbox inline"> Now add the `update` method to the `Test_7` class with the following code:  
 
@@ -337,7 +342,7 @@ There is only one object in the scene, but we turn it on now in case we want to 
 ```
 
 As we did in the [Animations](/software-engineering-lab/notes/animations/#animations) lesson, we first calculate distances based on the time that has passed between frames. 
-This time we also have a rotation distance to calculate separately from the move distance.
+This time we also have a rotation distance calculated as the size of the rotation angle in radians.
 
 <input type="checkbox" class="checkbox inline"> Next, add code for handling translations in the global context to the `update` method.  
 
@@ -345,25 +350,25 @@ This time we also have a rotation distance to calculate separately from the move
         # global translations
         # "w" is upward movement in the positive y direction
         if self.input.is_key_pressed("w"):
-            m = Matrix.translation(0, move_amount, 0)
-            self.model_matrix.data = m @ self.model_matrix.data
+            mat = Matrix.translation(0, move_amount, 0)
+            self.model_matrix.data = mat @ self.model_matrix.data
         # "a" is leftward movement in the negative x direction
         if self.input.is_key_pressed("a"):
-            m = Matrix.translation(-move_amount, 0, 0)
-            self.model_matrix.data = m @ self.model_matrix.data
+            mat = Matrix.translation(-move_amount, 0, 0)
+            self.model_matrix.data = mat @ self.model_matrix.data
         # "s" is downward movement in the negative y direction
         if self.input.is_key_pressed("s"):
-            m = Matrix.translation(0, -move_amount, 0)
-            self.model_matrix.data = m @ self.model_matrix.data
+            mat = Matrix.translation(0, -move_amount, 0)
+            self.model_matrix.data = mat @ self.model_matrix.data
         # "d" is rightward movement in the positive x direction
         if self.input.is_key_pressed("d"):
-            m = Matrix.translation(move_amount, 0, 0)
-            self.model_matrix.data = m @ self.model_matrix.data
+            mat = Matrix.translation(move_amount, 0, 0)
+            self.model_matrix.data = mat @ self.model_matrix.data
 ```
 
 Similar to our [Test 4-6](/software-engineering-lab/notes/animations/#incorporating-with-graphics-programs) application, we move the triangle in the direction specified by the key press. 
 Here, we make a translation matrix for the movement and then multiply it by the existing model matrix to get a new model matrix. 
-We are using the `@` operator since both of the matrices are NumPy arrays.
+We use the `@` operator to compose the matrices since they are NumPy arrays.
 
 <input type="checkbox" class="checkbox inline"> Now add code for handling global rotations to the `update` method.  
 
@@ -371,12 +376,12 @@ We are using the `@` operator since both of the matrices are NumPy arrays.
         # global rotations
         # "q" is counterclockwise rotation around the world z-axis
         if self.input.is_key_pressed("q"):
-            m = Matrix.rotation_z(turn_amount)
-            self.model_matrix.data = m @ self.model_matrix.data
+            mat = Matrix.rotation_z(turn_amount)
+            self.model_matrix.data = mat @ self.model_matrix.data
         # "e" is clockwise rotation around the world z-axis
         if self.input.is_key_pressed("e"):
-            m = Matrix.rotation_z(-turn_amount)
-            self.model_matrix.data = m @ self.model_matrix.data
+            mat = Matrix.rotation_z(-turn_amount)
+            self.model_matrix.data = mat @ self.model_matrix.data
 ```
 
 This code is similar to global translations except we use `Matrix.rotation_z` to get a rotation matrix instead. 
@@ -388,20 +393,20 @@ The <kbd>Q</kbd> key rotates in the positive (counterclockwise) direction and <k
         # local translations
         # "i" is movement in the triangle's positive y direction
         if self.input.is_key_pressed("i"):
-            m = Matrix.translation(0, move_amount, 0)
-            self.model_matrix.data = self.model_matrix.data @ m
+            mat = Matrix.translation(0, move_amount, 0)
+            self.model_matrix.data = self.model_matrix.data @ mat
         # "j" is movement in the triangle's negative x direction
         if self.input.is_key_pressed("j"):
-            m = Matrix.translation(-move_amount, 0, 0)
-            self.model_matrix.data = self.model_matrix.data @ m
+            mat = Matrix.translation(-move_amount, 0, 0)
+            self.model_matrix.data = self.model_matrix.data @ mat
         # "k" is movement in the triangle's negative y direction
         if self.input.is_key_pressed("k"):
-            m = Matrix.translation(0, -move_amount, 0)
-            self.model_matrix.data = self.model_matrix.data @ m
+            mat = Matrix.translation(0, -move_amount, 0)
+            self.model_matrix.data = self.model_matrix.data @ mat
         # "l" is movement in the triangle's positive x direction
         if self.input.is_key_pressed("l"):
-            m = Matrix.translation(move_amount, 0, 0)
-            self.model_matrix.data = self.model_matrix.data @ m
+            mat = Matrix.translation(move_amount, 0, 0)
+            self.model_matrix.data = self.model_matrix.data @ mat
 ```
 
 Here we handle local coordinates instead of global coordinates. 
@@ -414,15 +419,15 @@ The order of composition for local transformations is the reverse of that for gl
         # local rotations
         # "u" is counterclockwise rotation around the triangle's center
         if self.input.is_key_pressed("u"):
-            m = Matrix.rotation_z(turn_amount)
-            self.model_matrix.data = self.model_matrix.data @ m
+            mat = Matrix.rotation_z(turn_amount)
+            self.model_matrix.data = self.model_matrix.data @ mat
         # "o" is clockwise rotation around the triangle's center
         if self.input.is_key_pressed("o"):
-            m = Matrix.rotation_z(-turn_amount)
-            self.model_matrix.data = self.model_matrix.data @ m
+            mat = Matrix.rotation_z(-turn_amount)
+            self.model_matrix.data = self.model_matrix.data @ mat
 ```
 
-As local transformations, these rotations will apply to the object's local coordinate axes and the triangle will always spin in place around its own center when pressing the <kbd>U</kbd> and <kbd>O</kbd> keys.
+As local transformations, these rotations will apply to the object's local coordinate axes. This effectively makes the triangle spin in place around its own center when pressing the <kbd>U</kbd> and <kbd>O</kbd> keys.
 
 <input type="checkbox" class="checkbox inline"> Finally, add code for clearing the screen and drawing with our matrix data at the end of the `update` method.  
 
@@ -431,8 +436,6 @@ As local transformations, these rotations will apply to the object's local coord
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         # draw the scene
-        GL.glUseProgram(self.program_ref)
-        
         self.projection_matrix.upload_data()
         self.model_matrix.upload_data()
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.vertex_count)
@@ -441,8 +444,8 @@ As local transformations, these rotations will apply to the object's local coord
 Test_7().run()
 ```
 
-Since we enabled depth testing, we want to reset the depth buffer every frame along with the color buffer. 
-Then we can specify our shader program and upload the matrix data to draw the triangle. 
+Just as we reset the color buffer for every frame, we also want to reset the depth buffer when depth testing is enabled. 
+Then we upload the data for both the model matrix and the projection matrix before drawing the triangle. 
 Don't forget to also include the last line for running this test app!
 
 <input type="checkbox" class="checkbox inline"> Save the file and run it with the `python test_7.py` command in the terminal.  
@@ -454,4 +457,4 @@ Don't forget to also include the last line for running this test app!
 
 Now that we have geometric transformations built into our framework, we can start thinking about 3D objects. 
 Next time we will set up the basic components for rendering a scene with multiple 3D objects in it. 
-Look forward to it!
+Look forward to it! 
