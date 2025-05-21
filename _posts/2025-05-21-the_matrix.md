@@ -18,7 +18,7 @@ Now that we have learned about the usefulness of [matrix calculations](/software
 Our framework will always use 4x4 matrices so that we can easily handle both 2D and 3D graphics. 
 When rendering in 2D, we simply use a consistent value for all the $z$ coordinates so everything renders on the same plane.
 
-# The `Matrix` Class
+# The Matrix Class
 
 Our `Matrix` class will have static methods that return different transformation matrices from the given parameters. 
 With static methods, we do not need to create an instance of the `Matrix` class or manage state variables. 
