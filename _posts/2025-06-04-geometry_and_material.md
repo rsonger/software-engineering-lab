@@ -12,37 +12,36 @@ classes: wide
 toc_sticky: false
 ---
 
-*In this lesson, we implement the classes `Geometry` and `Material` for handling all the attributes, vertices, shader programs, uniform data, and rendering settings of different 3D objects. 
-We then introduce some extra components to aid the design and develop of 3D scenes.*  
+*In this lesson, we implement some basic `Geometry` and `Material` classes for rendering a spinning box, and then introduce some extra components to aid in the design and development of 3D scenes.*  
 
 In the previous lesson, we outlined the scene graph components for our framework and created many of the basic components, including `Object3D`, `Scene`, `Group`, `Camera`, and `Mesh`. 
-At the time, we also created an empty `Geometry` class and `Material` class. 
-In the first part of this lesson, we will finish implementing `Geometry` and `Material` in full detail and show some their use with some simple extensions.
+At that time, we also created empty classes for `Geometry` and `Material`. 
+Now we will finish implementing `Geometry` and `Material` in full detail and demonstrate their use with some basic extensions.
 
 ![A class diagram shows Renderer, Geometry, Material, BoxGeometry, BasicMaterial, and SurfaceMaterial as the targets for this lesson.](/software-engineering-lab/assets/images/scene_graph_uml-2.png)
 
 The classes we will make this time include `BoxGeometry`, `BasicMaterial`, and `SurfaceMaterial` which will allow us to render a 3D box with sides of different colors. 
-The `BasicMaterial` class maintains a reference to a basic shader program that renders vertices with a white base color by default. 
-The `BoxGeometry` class will define vertex colors separately so each side of the box can be a different color. 
+The `BasicMaterial` class will have a simple shader program that renders vertices with a default base color (set to white initially). 
+The `BoxGeometry` class will define vertex colors separately so that each side of the box can be a different color. 
 This makes it easier to see the box clearly. 
-Each extension of the `BasicMaterial` class will manage OpenGL render settings for its own draw style such as points, lines, or surfaces.
+Each extension of the `BasicMaterial` class will manage OpenGL render settings for its specific draw style such as points, lines, or surfaces.
 
 Once we have a basic geometry and material to use in a `Mesh`, we will then create the `Renderer` class that can draw every `Mesh` using `Scene` and `Camera` objects. 
 After that we will have all the components we need to draw a 3D box in a test application. 
 
 # Geometry Objects
 
-The `Geometry` class contains a dictionary of `Attribute` objects associated with a geometric object. 
-As a base class, it holds only the shared properties and behaviors of all geometry objects. 
-So specific details about vertex data and attributes for certain types of geometric objects will be managed by different extensions of `Geometry`.  
+The `Geometry` class contains a dictionary of `Attribute` objects that represent the features of a specific geometric object. 
+As a base class, it only holds the shared properties and behaviors of all geometric objects. 
+Specific details about vertex data and attributes for certain types of geometric objects will be managed by their respective extensions of `Geometry`.  
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Open your `geometry.py` file from the `graphics/geometries` folder.  
 <input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Geometry` class and add the following code:  
 
 ```python
-    """Store attribute data and their total number of vertices"""
-    def  __init__(self):
+    """Stores attribute data and their associated shader variable names"""
+    def __init__(self):
         self._attributes = {}
 
     @property
