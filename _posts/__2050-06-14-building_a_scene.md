@@ -57,12 +57,12 @@ class Test_4_2(WindowApp):
         print("Starting up Test 4-2...")
 
         # initialize renderer, scene, and camera
-        self.renderer = Renderer()
-        self.scene = Scene()
-        self.camera = Camera(aspect_ratio=800/600)
+        scene = Scene()
+        camera = Camera(aspect_ratio=800/600)
+        self.renderer = Renderer(scene, camera)
 
         # set the camera's (x,y,z) coordinates
-        self.camera.position = (0, 0, 1)
+        camera.position = (0, 0, 1)
 
         # prepare the vertex data
         P0 = (-0.1,  0.1, 0.0)
@@ -86,12 +86,12 @@ class Test_4_2(WindowApp):
         material = SurfaceMaterial({"useVertexColors": True})
 
         # create a mesh from the geometry and material, then add it to the scene graph
-        self.mesh = Mesh(geometry, material)
-        self.scene.add(self.mesh)
+        mesh = Mesh(geometry, material)
+        scene.add(mesh)
 
     def update(self):
         # render the scene
-        self.renderer.render(self.scene, self.camera)
+        self.renderer.render()
 
 # initialize and run this test
 Test_4_2(screen_size=(800,600)).run()
@@ -127,10 +127,10 @@ class Test_4_3(WindowApp):
         print("Starting up Test 4-3...")
 
         # initialize renderer, scene, and camera
-        self.renderer = Renderer()
-        self.scene = Scene()
-        self.camera = Camera(aspect_ratio=800/600)
-        self.camera.position = (0, 0, 5)
+        scene = Scene()
+        camera = Camera(aspect_ratio=800/600)
+        camera.position = (0, 0, 5)
+        self.renderer = Renderer(scene, camera)
 
         # create a geometry for a sine curve using an x range of [-pi, pi)
         position_data = []
@@ -154,12 +154,12 @@ class Test_4_3(WindowApp):
         points_mesh = Mesh(geometry, points)
         line_mesh = Mesh(geometry, line)
 
-        self.scene.add(points_mesh)
-        self.scene.add(line_mesh)
+        scene.add(points_mesh)
+        scene.add(line_mesh)
 
     def update(self):
         # render the scene
-        self.renderer.render(self.scene, self.camera)
+        self.renderer.render()
 
 # initialize and run this test
 Test_4_3(screen_size=(800,600)).run()
@@ -200,10 +200,10 @@ class Test_4_4(WindowApp):
         print("Starting up Test 4-4...")
 
         # initialize renderer, scene, and camera
-        self.renderer = Renderer()
-        self.scene = Scene()
-        self.camera = Camera(aspect_ratio=800/600)
-        self.camera.position = (0, 0, 7)
+        scene = Scene()
+        camera = Camera(aspect_ratio=800/600)
+        camera.position = (0, 0, 7)
+        self.renderer = Renderer(scene, camera)
 
         # create a large box geometry to show off the color pattern
         geometry = BoxGeometry(3, 3, 3)
@@ -239,7 +239,7 @@ class Test_4_4(WindowApp):
 
         # create the mesh from the box geometry and custom material
         self.mesh = Mesh(geometry, material)
-        self.scene.add(self.mesh)
+        scene.add(self.mesh)
 
         # set local constants
         self.rotate_speed_y = pi / 3
@@ -253,7 +253,7 @@ class Test_4_4(WindowApp):
         self.mesh.rotate_x(x_distance)
 
         # render the scene
-        self.renderer.render(self.scene, self.camera)
+        self.renderer.render()
 
 # initialize and run this test
 Test_4_4(screen_size=(800,600)).run()
@@ -290,10 +290,10 @@ class Test_4_5(WindowApp):
         print("Starting up Test 4-5...")
 
         # initialize renderer, scene, and camera
-        self.renderer = Renderer()
-        self.scene = Scene()
-        self.camera = Camera(aspect_ratio=800/600)
-        self.camera.position = (0, 0, 7)
+        scene = Scene()
+        camera = Camera(aspect_ratio=800/600)
+        camera.position = (0, 0, 7)
+        self.renderer = Renderer(scene, camera)
 
         # create a large box geometry that will be warped by the material
         geometry = BoxGeometry(6, 6, 6)
@@ -336,17 +336,17 @@ class Test_4_5(WindowApp):
         self.wavy_material.set_uniform("time", 0, "float")
 
         # put the mesh together and rotate it before adding it to the scene graph
-        self.mesh = Mesh(geometry, self.wavy_material)
-        self.mesh.rotate_x(pi/6)
-        self.mesh.rotate_y(pi/6)
-        self.scene.add(self.mesh)
+        mesh = Mesh(geometry, self.wavy_material)
+        mesh.rotate_x(pi/6)
+        mesh.rotate_y(pi/6)
+        scene.add(mesh)
 
     def update(self):
         # update the shader time variable to animate the material
         self.wavy_material.set_uniform("time", self.time)
 
         # render the scene
-        self.renderer.render(self.scene, self.camera)
+        self.renderer.render()
 
 # initialize and run this test
 Test_4_5(screen_size=(800,600)).run()

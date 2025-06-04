@@ -220,9 +220,10 @@ Then, each transformation method uses `apply_matrix` to apply a specific type of
     @property
     def world_position(self):
         """Get the position of this object relative to the root node"""
-        return [self.world_matrix.item((0,3)),
-                self.world_matrix.item((1,3)),
-                self.world_matrix.item((2,3))]
+        world_matrix = self.world_matrix
+        return [world_matrix.item((0,3)),
+                world_matrix.item((1,3)),
+                world_matrix.item((2,3))]
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  

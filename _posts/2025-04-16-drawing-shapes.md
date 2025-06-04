@@ -99,6 +99,7 @@ Next is another method for associating variables with their data, aptly named `a
         """
         Link the data in this object's buffer to a variable in a shader.
         The association will be stored in the given VAO reference if provided.
+        Otherwise, the currently bound VAO will be used.
         """
         # get a reference for the program variable with the given name
         variable_ref = GL.glGetAttribLocation(program_ref, variable_name)
