@@ -213,9 +213,9 @@ Then, each transformation method uses `apply_matrix` to apply a specific type of
         if not isinstance(position, (list, tuple)) or len(position) != 3:
             raise ValueError("Value for position must be in the form (x,y,z)")
 
-        self._transform.itemset((0,3), position[0])
-        self._transform.itemset((1,3), position[1])
-        self._transform.itemset((2,3), position[2])
+        self._transform[0][3] = position[0]
+        self._transform[1][3] = position[1]
+        self._transform[2][3] = position[2]
 
     @property
     def world_position(self):
@@ -233,7 +233,7 @@ This method returns the value inside the NDArray matrix at the given location.
 Remember, we use a 4x4 matrix to represent 3D transformations and the numbers in the first three rows (indices 0, 1, and 2) of the last column (index 3) are the translation values for $x$, $y$, and $z$.
 So, we just extract the values from these indices and return them as the object's position. 
 
-The `position` setter uses another Numpy array method called [`itemset()`](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.itemset.html) which inserts values into a NDArray matrix. 
+The `position` setter uses standard array notation to insert values into a NDArray matrix. 
 In this way, we can directly set the position of an object without applying a translation matrix.
 
 ## Scene and Group

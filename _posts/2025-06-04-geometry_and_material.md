@@ -41,7 +41,6 @@ Specific details about vertex data and attributes for certain types of geometric
 <input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Geometry` class and add the following code:  
 
 ```python
-    """Stores shader variable names and their associated data as attributes"""
     def __init__(self):
         self._attributes = {}
 
@@ -136,10 +135,10 @@ class RectangleGeometry(Geometry):
         P3 = ( w,  h, 0)
 
         # color data for white, red, green, and blue vertices
-        C0 = (1,1,1)
-        C1 = (1,0,0)
-        C2 = (0,1,0)
-        C3 = (0,0,1)
+        C0 = (1, 1, 1)
+        C1 = (1, 0, 0)
+        C2 = (0, 1, 0)
+        C3 = (0, 0, 1)
 
         position_data = (
             P0, P1, P3,  # first triangle
@@ -246,7 +245,6 @@ The `Material` base class will compile and initialize the shader program, store 
 <input type="checkbox" class="checkbox inline"> Delete the word `pass` inside the `Material` class and add the following code:  
 
 ```python
-    """Stores a shader program reference, Uniform objects, and OpenGL render settings"""
     def __init__(self, vertex_shader_code, fragment_shader_code):
         self._program_ref = initialize_program(vertex_shader_code, fragment_shader_code)
 
@@ -544,11 +542,16 @@ from graphics.core.scene_graph import Mesh, Camera, Scene
 
 class Renderer:
     """Manages the rendering of a given scene with basic OpenGL settings"""
-    def __init__(self, clear_color=(0, 0, 0), scene, camera):
+    def __init__(self, scene, camera, clear_color=(0, 0, 0)):
         if not isinstance(scene, Scene):
             raise ValueError("The given scene must be of type Scene.")
         if not isinstance(camera, Camera):
             raise ValueError("The given camera must be of type Camera.")
+
+        if type(clear_color) not in {tuple, list}:
+            raise ValueError("Clear color must be a tuple or list.")
+        if len(clear_color) != 3:
+            raise ValueError("Clear color must contain RGB values.")
 
         self.scene = scene
         self.camera = camera
@@ -568,24 +571,29 @@ class Renderer:
         # draw all the viewable meshes
         for mesh in self.scene.descendant_list:
             if isinstance(mesh, Mesh) and mesh.visible:
-                mesh.render(self.camera.view_matrix, self.camera.projection_matrix)
+                mesh.render(
+                    self.camera.view_matrix,
+                    self.camera.projection_matrix
+                )
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
-The `Renderer` object encapsulates a given scene and camera which must be given when the object is initialized. 
-It also enables depth testing and antialiasing when it is created as well as sets the background color. 
-The actual rendering happens when we call `render_scene` on an instance of the `Renderer` class which uses its associated `Scene` and `Camera` objects. 
+The `Renderer` encapsulates scene and camera objects which are provided when initialized. 
+It also enables OpenGL settings that are universal for the scene, such as depth testing and antialiasing. 
+The clear color is effectively the background color for each frame, so we also set it here after checking to make sure a proper data structure of RGB values is provided. 
+The actual rendering happens when we call `render_scene` on the `Renderer` object after creating it. 
+That method uses the object's scene and camera to render every visible mesh. 
 Since the `Scene` is the root node of a scene graph, we can get every mesh in the scene by using its `descendant_list` property. 
-Then we can call `render` on every visible mesh object with the camera's view matrix and projection matrix.
+Then we can call `render` on every visible mesh with the view matrix and projection matrix defined by the camera.
 
 Remember, each individual mesh handles the steps for rendering itself. These steps are:
-1. Specify the shader program with a material object to be used for rendering.
-2. Bind the VAO to link attribute data.
+1. Specify the shader program to use for rendering from a material object.
+2. Bind the VAO that holds the links between shader variables and data.
 3. Set the model, view, and projection matrices.
 4. Upload data to the uniform variables (such as matrices).
 5. Update OpenGL render settings.
-6. Draw each verticex in the goemetry object using the draw style of the material object.
+6. Draw each vertex defined by the goemetry object in the style of the material object.
 
 All these steps we already programmed into the `render` method of the `Mesh` class in the previous lesson. (See the final code snippet in [The Scene Graph](/software-engineering-lab/notes/scene_graph/#mesh).)
 
@@ -635,26 +643,29 @@ Test_9_1(screen_size=(800,600)).run()
 ```
 
 <input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_9_1.py` in the terminal.  
-<input type="checkbox" class="checkbox inline"> Confirm that you can see a spinning cube in the center of the screen with each side a different color.  
+<input type="checkbox" class="checkbox inline"> Confirm that you can see a spinning cube in the center of the screen with different colors on every side. 
 
-Our test apps are quite a bit shorter now that we have encapsulated a lot of the rendering tasks in scene graph components! 
+Our test apps are quite a bit shorter now! 
+This is the advantage of encapsulating common rendering tasks in scene graph components. 
 
-The `startup` method creates a `Renderer`, `Scene`, `Camera` with 4:3 aspect ratio, box geometry, and surface material with different colored vertices. 
-It combines the geometry and material into a mesh object before adding the mesh to the scene graph. 
-We also set different rotation speeds for rotating around the $y$-axis and $x$-axis.  
+The `startup` method creates a `Scene` and `Camera` with 4:3 aspect ratio before passing them to a new `Renderer` object. 
+Then it creates a box geometry, and a surface material with different colored vertices. 
+It combines the geometry and material in a mesh object before adding the mesh to the scene graph. 
+Finally, it sets different speeds for the box to rotate around both the $x$-axis and the $y$-axis.  
 
 After everything is set up, the `update` method simply applies the rotations to the mesh before rendering the entire scene.
 
 # Extra Components
 
-Now that all the necessary components for rendering basic shapes are complete, we can think about special objects that make it easier to design a 3D scene. 
-All of our scenes so far have just been shapes floating in a black void. Let's change that by creating a structure showing the global coordinate axes and a grid to orient the user. 
-After rendering these objects in a scene, we will also create a special object that allows the user to move the camera and explore the scene from all angles.
+Now that all the necessary components for rendering basic shapes are complete, we can create helper objects that make it easier to design a 3D scene. 
+All of our scenes so far have just been shapes floating in a black void. 
+Let's change that by creating a structure to reveal the global coordinate axes and a grid to orient the user. 
+After rendering these objects in a scene, we will also create a rig for the camera that allows the user to control camera movements and explore the scene.
 
 ## Axes Helper
 
-The coordinate axes will include three box geometries&mdash;one for each axis. 
-Using the box geometry allows us to give a thickness to the axes without worrying about platform compatibility. (Line width cannot be changed with `glLineWidth` on MacOS.) 
+To visualize the three coordinate axes, we will create three box geometries&mdash;one for each axis. 
+The `BoxGeometry` class allows us to specify the thickness of each axis which is something we would not be able to do if we wanted to just draw lines with the `glLineWidth` function (due to its incompatibility on MacOS). 
 Here we can use our `Group` class for the base mesh and add children to it for each of the three separate axes.
 
 :heavy_check_mark: ***Try it!***  
@@ -668,9 +679,16 @@ from graphics.core.scene_graph import Mesh, Group
 from graphics.geometries import BoxGeometry, Geometry
 from graphics.materials import SurfaceMaterial, LineMaterial
 
-def get_axes_helper(length=1, thickness=0.1, colors=((1,0,0), (0,1,0), (0,0,1))):
-    """Provides a mesh of the three coordinate axes with different colors"""
-    mesh = Group() # parent node for the three axes
+def get_axes_helper(
+        length=1,
+        thickness=0.1,
+        colors=((1, 0, 0), (0, 1, 0), (0, 0, 1))
+):
+    """
+    Creates a mesh visualization of the three coordinate axes.
+    Default colors for the (x, y, z) axes are (red, green, blue).
+    """
+    base = Group() # parent node for the three axes
 
     # translation distance for each box in the positive direction
     offset = length/2 + thickness/2
@@ -696,9 +714,9 @@ def get_axes_helper(length=1, thickness=0.1, colors=((1,0,0), (0,1,0), (0,0,1)))
     )
     z_mesh.translate(0, 0, offset)
 
-    mesh.add(x_mesh)
-    mesh.add(y_mesh)
-    mesh.add(z_mesh)
+    base.add(x_mesh)
+    base.add(y_mesh)
+    base.add(z_mesh)
 
     return mesh
 ```
@@ -706,25 +724,37 @@ def get_axes_helper(length=1, thickness=0.1, colors=((1,0,0), (0,1,0), (0,0,1)))
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
 Each axis is a mesh with a `BoxGeometry` and a `SurfaceMaterial`. 
-We use `length` for the size of the dimension that corresponds to the given axis while the other two dimensions take the `thickness` value. 
-We use the `baseColor` attribute instead of `vertexColors` for the material since so that the entire box will be one color. 
-Then we translate each mesh so it extends away from the origin along the positive direction of its respective axis. 
-We add all three axes to the group node specified by `mesh` and return the group of meshes to the app that calls the `get_axes_helper` function.  
+We use `length` for the size of the dimension that corresponds to the respective axis while the other two dimensions take the `thickness` value. 
+For example, the box on the $x$-axis uses `length` for the $x$ dimension, but `thickness` for the $y$ and $z$ dimensions.
+We use the `baseColor` attribute instead of `vertexColors` for the material since the entire box will be one color. 
+Then we translate each mesh by half the thickness value so that the three boxes aren't overlapping and clipping through each other. 
+Finally, we add all three axes to the group node specified by `base` and return it to the caller of the `get_axes_helper` function.  
 
 ## Grid Helper
 
 The next helper component shows lines in a square grid so that the user can get a feel for their location when moving around a scene. 
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside the `helpers.py` file, add the following code at the bottom after the last code in the `get_axes_helper` function:  
+<input type="checkbox" class="checkbox inline"> Inside the `helpers.py` file, add the following code after the `get_axes_helper` function:  
 
 ```python
-def get_grid_helper(size=10, divisions=10, minor_color=(0,0,0), major_color=(0.5,0.5,0.5)):
-    """Creates a flat square wireframe grid on the XY plane"""
-    # prepare position and color data from the parameters
+def get_grid_helper(
+        size=10,
+        divisions=10,
+        minor_color=(0, 0, 0),
+        major_color=(0.5, 0.5, 0.5)
+):
+    """
+    Creates a flat square wireframe grid on the XY plane.
+    Each axis will have perpendicular lines spaced out at equal intervals.
+    The number of lines is determined by `size`/`divisions`.
+    Lines at the center of the grid will be drawn with `major_color`.
+    All the rest will be drawn with `minor_color`.
+    """
     position_data = []
     color_data = []
 
+    # ticks are the respective coordinates of each line on an axis
     delta_tick = size/divisions
     ticks = [-size/2 + n*delta_tick for n in range(divisions + 1)]
 
@@ -770,11 +800,11 @@ def get_grid_helper(size=10, divisions=10, minor_color=(0,0,0), major_color=(0.5
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
 
 We calculate coordinates for the grid on the $xy$-plane by defining vertices for vertical lines first and horizonal lines second. 
-Apps that use the grid mesh will be able to easily rotate it $90°$ in any direction to place it along the desired plane.
+Apps that use the grid mesh will be able to easily rotate the mesh $90°$ in any direction to place it along the desired plane.
 
-The `ticks` list contains values of coordinates along the axis perpendicular to each line. 
+The `ticks` list specifies positions for each line that extends perpendicular to an axis. 
 Then, the first `for` loop uses the values in `ticks` as $x$-coordinates for vertical lines. 
-The second `for` loop also uses the same `ticks` values but sets them to the $y$-coordinates of horizontal lines instead.
+The second `for` loop then uses the same `ticks` values but sets them to the $y$-coordinates of horizontal lines instead.
 
 The `major_color` parameter sets the color for the two center lines while the `minor_color` parameter sets the color for all the rest. 
 Like the `get_axes_helper` function, the `get_grid_helper` function directly returns the mesh which our apps can then place in their scene to render the grid.
@@ -794,6 +824,9 @@ from graphics.core.renderer import Renderer
 from graphics.core.scene_graph import Scene, Camera
 from graphics.extras import helpers
 
+SCREEN_WIDTH = 800  # pixels
+SCREEN_HEIGHT = 600  # pixels
+
 class Test_9_2(WindowApp):
     """Test rendering a grid and axes with helper classes."""
     def startup(self):
@@ -801,7 +834,7 @@ class Test_9_2(WindowApp):
 
         # initialize renderer, scene, and camera
         scene = Scene()
-        camera = Camera(aspect_ratio=800/600)
+        camera = Camera(aspect_ratio=SCREEN_WIDTH/SCREEN_HEIGHT)
         camera.position = (5, 2, 7)
         camera.rotate_y( pi/6)
         camera.rotate_x(-pi/10)
@@ -809,7 +842,11 @@ class Test_9_2(WindowApp):
 
         # use the helper classes to create meshes for the grid and axes
         axes = helpers.get_axes_helper(length=3)
-        grid = helpers.get_grid_helper(size=20, minor_color=(1,1,1), major_color=(1,1,0))
+        grid = helpers.get_grid_helper(
+            size=20,
+            minor_color=(1, 1, 1),
+            major_color=(1, 1, 0)
+        )
         grid.rotate_x(-pi/2) # rotate from xy-plane to xz-plane
 
         scene.add(axes)
@@ -820,7 +857,7 @@ class Test_9_2(WindowApp):
         self.renderer.render_scene()
 
 # initialize and run this test
-Test_9_2(screen_size=(800,600)).run()
+Test_9_2(screen_size=(SCREEN_WIDTH, SCREEN_HEIGHT)).run()
 ```
 
 <input type="checkbox" class="checkbox inline"> Save the file and run it with the command `python test_9_2.py` in the terminal.  
@@ -832,9 +869,9 @@ If all goes well, the application should show the following scene:
 
 ## Camera Rig
 
-The final component is a special object that carries the camera as it moves in three dimensions. 
-In addition, the camera will be able to pan up and down without affecting the direction of movement. 
-We can accomplish this by making the `CameraRig` class extend the `Group` class and then add to it the camera object as a child node. 
+The final component is a special object called a rig that carries the camera as it moves in three dimensions. 
+In addition, the camera will be able to pan up and down without changing the direction of movement. 
+We can accomplish this by making a `CameraRig` class which extends the `Group` class and then adding a camera object to it as a child node. 
 Inputs related to movement will apply to the `CameraRig` object itself while inputs for panning the camera will apply as local transformations to the camera. 
 Keeping these as local transformations will make sure the camera always rotates with respect to its parent, the `CameraRig`.
 
@@ -846,10 +883,12 @@ Keeping these as local transformations will make sure the camera always rotates 
 # graphics/extras/camera_rig.py
 from math import pi
 
+from graphics.core.app import Input
 from graphics.core.scene_graph import Group
 
 class CameraRig(Group):
     """A camera that can look up and down while attached to a movable base"""
+    # keyboard controls for movement
     KEY_MOVE_FORWARD = 'w'
     KEY_MOVE_BACKWARD = 's'
     KEY_MOVE_LEFT = 'a'
@@ -859,8 +898,18 @@ class CameraRig(Group):
     KEY_TURN_LEFT = 'j'
     KEY_TURN_RIGHT = 'l'
 
-    def __init__(self, camera, inverted=True, units_per_second=1.5, 
-                 degrees_per_second=60):
+    def __init__(
+            self,
+            camera,
+            inverted=True,
+            units_per_second=1.5,
+            degrees_per_second=60
+    ):
+        """
+        Set the camera and motion configuration for this rig.
+        Movement speed is defined by `units_per_second`.
+        Rotation speed is defined by `degrees_per_second`.
+        """
         super().__init__()
 
         # attach the camera as a child node of this group node
@@ -870,6 +919,7 @@ class CameraRig(Group):
         self._move_speed = units_per_second
         self._rotate_speed = degrees_per_second
 
+        # keyboard controls for looking
         if inverted:
             self.KEY_LOOK_UP = 'k'
             self.KEY_LOOK_DOWN = 'i'
@@ -878,11 +928,14 @@ class CameraRig(Group):
             self.KEY_LOOK_DOWN = 'k'
 
     def update(self, input, delta_time):
+        if not isinstance(input, Input):
+            raise RuntimeError("Expected input to be of type Input.")
+
         # calculate distances for moving and rotating since the last frame
         move_amount = self._move_speed * delta_time
         rotate_amount = self._rotate_speed / 180 * pi * delta_time
 
-        # move the body in all directions
+        # move the rig body in all directions
         if input.is_key_pressed(self.KEY_MOVE_FORWARD):
             self.translate(0, 0, -move_amount)
         if input.is_key_pressed(self.KEY_MOVE_BACKWARD):
@@ -896,7 +949,7 @@ class CameraRig(Group):
         if input.is_key_pressed(self.KEY_MOVE_DOWN):
             self.translate(0, -move_amount, 0)
 
-        # turn the body left and right
+        # turn the rib body left and right
         if input.is_key_pressed(self.KEY_TURN_RIGHT):
             self.rotate_y(-rotate_amount)
         if input.is_key_pressed(self.KEY_TURN_LEFT):
@@ -914,12 +967,12 @@ class CameraRig(Group):
 The `CameraRig` class uses an instance of `Input` from `core.app` to handle keyboard inputs. 
 The <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> and <kbd>Q</kbd><kbd>E</kbd> keys control moving the rig while the <kbd>J</kbd><kbd>L</kbd> keys will turn it left and right. 
 The <kbd>I</kbd><kbd>K</kbd> keys then pan the camera up and down, depending on whether the `inverted` option is set or not. 
-Notice that the `KEY_LOOK_UP` and `KEY_LOOK_DOWN` inputs apply a rotation to `self._camera` while all the others apply to `self`.
+Notice that the `KEY_LOOK_UP` and `KEY_LOOK_DOWN` inputs apply a rotation to `self._camera` while all the others apply to `self`, the rig itself.
 
 Finally, let's make our last test application to try out the camera rig. 
 
 <input type="checkbox" class="checkbox inline"> Inside your main folder, create a copy of the file called `test_9_2.py` and change its name to `test_9_3.py`.  
-<input type="checkbox" class="checkbox inline"> Open `test_9_3.py` for editing and add the following import statement just before the class definition:
+<input type="checkbox" class="checkbox inline"> Open `test_9_3.py` for editing and add the following import statement to the list of import statements:
 
 ```python
 from graphics.extras.camera_rig import CameraRig
@@ -936,9 +989,9 @@ from graphics.extras.camera_rig import CameraRig
 <input type="checkbox" class="checkbox inline"> In place of the deleted code, add the following:
 
 ```python
-        self.rig = CameraRig(self.camera, inverted=False)
+        self.rig = CameraRig(camera, inverted=False)
         self.rig.position = (5, 2, 7)
-        self.scene.add(self.rig)
+        scene.add(self.rig)
 ```
 
 <input type="checkbox" class="checkbox inline"> Scroll down to the `update` method and add the following code just before `# render the scene`:
