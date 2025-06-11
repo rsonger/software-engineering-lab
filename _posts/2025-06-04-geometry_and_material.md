@@ -513,7 +513,7 @@ class SurfaceMaterial(BasicMaterial):
         else:
             GL.glEnable(GL.GL_CULL_FACE)
 
-        if self._settings.get("wireframe", False):
+        if self._settings["wireframe"]:
             GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
         else:
             GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
@@ -718,7 +718,7 @@ def get_axes_helper(
     base.add(y_mesh)
     base.add(z_mesh)
 
-    return mesh
+    return base
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
