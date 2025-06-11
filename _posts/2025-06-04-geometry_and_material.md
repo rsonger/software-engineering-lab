@@ -1006,5 +1006,7 @@ from graphics.extras.camera_rig import CameraRig
 
 :congratulations: **Congratulations!** :tada:  
 You have now completed enough components to start creating some interesting 3D scenes. 
-What other components can you think of that might provide a benefit to programming interactive 3D applications? 
-Try extending `Geometry` and `Material` classes and using other core components to build something fun or practical.
+What other components for programming interactive 3D apps can you think of? 
+In our final lesson, we will add several extensions of the `Geometry` class to our CG framework, such as polygons and cylinders, which are useful for modeling more complex objects. 
+
+Look forward to it!

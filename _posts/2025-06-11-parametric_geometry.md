@@ -19,17 +19,18 @@ As we build 3D scenes, we will need to use a variety of different geometries to 
 Last time we created classes for basic rectangles and boxes, but those alone will not be enough. 
 Other types of objects that are necessary for complex 3D scenes include polygons, spheres, ellipsoids, cylinders, cones, prisms, and pyramids. 
 This lesson introduces a `PolygonGeometry` class that can render 2D shapes with any number of sides that are equal lengths. 
-Then, we create a `ParametricGeometry` class which allows us to use a parametric functions to render segmented surfaces in 3D. 
+Then, we create a `ParametricGeometry` class which allows us to use parametric functions to render segmented surfaces in 3D. 
 The capabilities of the `ParametricGeometry` class provide the necessary foundation for creating ellipsoids, spheres, cylinders, prisms, pyramids, and cones. 
-So we can easily create classes for each of those geometries by extending the `ParametricGeometry` class and defining the parametric function that calculates the vertices of each respective surface.
+We can easily create classes for each of those geometries by extending the `ParametricGeometry` class and specifying the parametric functions that calculate the vertices of their geometric surfaces. 
 
 # Polygons
 
-Our `PolygonGeometry` class will provide the ability to render *regular polygons* which are 2D shapes where all sides and angles are equal. 
+Our `PolygonGeometry` class will provide the ability to render *regular polygons* which are 2D shapes with equal sides and angles. 
 Regular polygons include equilateral triangles (3 sides), squares (4 sides), pentagons (5 sides), hexagons (6 sides), heptagons (7 sides), octagons (8 sides), and so on.
 
-We can easily calculate the points of a regular polygon with radius $r$ once we realize that each point is equally spaced along the circumference of a circle with the same center and radius. 
-Recall that we previously defined the circular path of a moving triangle by using $x=r\cdot\cos(t)$ and $y=r\cdot\sin(t)$ where $t$ is the number of radians. 
+If we were to draw a circle around a regular polygon so that it shares the same radius and diameter as the polygon, we would see that each corner of the polygon is equally spaced along the circumference of the circle. 
+This implies that we can use the functions for defining a circle to get the points of a regular polygon. 
+Recall that previously we defined the circular path of a moving triangle with $x=r\cdot\cos(t)$ and $y=r\cdot\sin(t)$ where $t$ is a value in radians. 
 These are the parametric functions for specifying the coordinates that lie on the circumference of a circle. 
 When the number of points is small and we draw straight lines between each consecutive point, we get common polygons such as hexagons (6 points) and octagons (8 points). 
 As the number of points increases, we get shapes that look closer and closer to a circle (imagine 32 points, for example).
@@ -49,8 +50,8 @@ P_7 &= (r\cdot\cos(2\pi),r\cdot\sin(2\pi))
 
 ![A regular polygon is made up of triangles sharing the same point in the center.](/software-engineering-lab/assets/images/polygon_vertices.png)
 
-To make triangles for OpenGL, we need to list these points as vertices in sets of three and arrange them in counterclockwise order to indicate the front side of the polygon. 
-The initialization method for the `PolygonGeometry` class will do that after calculating all the vertices of the polygon from the given number of sides and radius.
+To make triangles for OpenGL, we need to list these points as vertices in sets of three and arrange them in counterclockwise order relative to the front side of the polygon. 
+The initialization method for the `PolygonGeometry` class will do this after calculating all the vertices of the polygon from the given radius and number of sides. 
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Inside the `graphics/geometries` folder, open the file called `basic_geometries.py` and add the following import statement to the top of it.
@@ -63,7 +64,7 @@ from math import sin, cos, pi
 
 ```python
 class PolygonGeometry(Geometry):
-    """Renders a regular polygon with the given number of sides and radius"""
+    """A regular polygon with the given number of sides and radius"""
     def __init__(self, sides=3, radius=1):
         super().__init__()
 
