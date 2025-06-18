@@ -35,7 +35,7 @@ These are the parametric functions for specifying the coordinates that lie on th
 When the number of points is small and we draw straight lines between each consecutive point, we get common polygons such as hexagons (6 points) and octagons (8 points). 
 As the number of points increases, we get shapes that look closer and closer to a circle (imagine 32 points, for example).
 
-Since shapes are drawn in OpenGL with triangles that define their vertices in counterclockwise order, we can draw a regular polygon as a series of triangles that all share a center point. 
+Since shapes are drawn in OpenGL with triangles that define their vertices in counterclockwise order, we should draw each regular polygon as a series of triangles that all share a center point. 
 The image below shows how we can do this by dividing the polygon into equal slices like a pizza. 
 We can see that the number of slices is the same as the number of sides for the polygon as well as the number of vertices. 
 For an octogon with eight sides like the one pictured below, the angle of every slice is $\theta=\frac{2\pi}{8}=\frac{\pi}{4}$ and the equations for the circumference of the circle give us the vertices,
@@ -68,16 +68,20 @@ class PolygonGeometry(Geometry):
     def __init__(self, sides=3, radius=1):
         super().__init__()
 
+        # the center angle of each slice
         theta = 2 * pi / sides
         position_data = []
         color_data = []
+
+        find_x = lambda s: radius*cos(s*theta)
+        find_y = lambda s: radius*sin(s*theta)
 
         for n in range(sides):
             # calculate the vertices for the triangle of side n
             position_data += [
                 (0, 0, 0),
-                (radius*cos(n*theta), radius*sin(n*theta), 0),
-                (radius*cos((n+1)*theta), radius*sin((n+1)*theta), 0)
+                (find_x(n), find_y(n), 0),
+                (find_x(n+1), find_y(n+1), 0)
             ]
             # the center is white, the sides interpolate between red and blue
             color_data += [(1, 1, 1), (1, 0, 0), (0, 0, 1)]
@@ -93,21 +97,22 @@ The `PolygonGeometry` class inherits from the `Geometry` class, so it already ha
 After calculating the vertices, we set attribute data for the `vertexPosition` and `vertexColor` shader variables to use when rendering this polygon.
 
 Since the `__init__` method has the parameters `sides` and `radius`, it is easy to create any kind of regular polygon we like. 
-For example, `sides=6` will create a hexagon, but `sides=5` will create a pentagon instead. 
+For example, `sides=5` will create a pentagon, `sides=6` will create a hexagon, and so on. 
 In an app, the code for this might look like the following:
 
 ```python
-hexagon = PolygonGeometry(sides=6)
 pentagon = PolygonGeometry(sides=5)
+hexagon = PolygonGeometry(sides=6)
 ```
 
 The `PolygonGeometry` class will become very useful later when we need to fill in the flat ends of cylinder and cone geometries.
 
 # Parametric Geometries
 
-Parametric functions similar to the ones for polygon vertices above can be used to calculate a variety of different surfaces in 3D. 
-The simplest of such surfaces might be a plane where the $z$ coordinates of each vertex are calculated directly from the $x$ and $y$ coordinates, as expressed by $z=f(x,y)$. 
-In that case however, there is no function $f$ that can produce $z$ coordinates for shapes like spheres and cylinders because those shapes have multiple vertices that share the same $x$ and $y$ coordinates. 
+For polygons, we used functions to find the $x$ and $y$ coordinates of each vertex for each given side. 
+Parametric functions similar to these can be used to calculate a variety of different surfaces in 3D. 
+The simplest of such 3D surfaces might be a plane where the $z$ coordinates of each vertex are calculated directly from the $x$ and $y$ coordinates, as expressed by $z=f(x,y)$. 
+In this case however, there is no function $f$ that can produce $z$ coordinates for shapes like spheres and cylinders because those shapes have multiple vertices that share the same $x$ and $y$ coordinates. 
 Instead of calculating $z$ from $x$ and $y$, it is better to use two variables $u$ and $v$ with fixed ranges that represent the lateral and longitudinal dimensions of the surface. 
 Then, the three coordinates $x$, $y$, and $z$ can be defined by $u$ and $v$ like so:
 
@@ -121,14 +126,14 @@ $$S(u,v) = (x,y,z) = \left( f(u,v), g(u,v), h(u,v) \right)$$
 
 The surface above can be defined by $S(u,v) = (u,v,0)$ where each value of $u$ and $v$ maps directly to the $x$ and $y$ coordinates. 
 The resulting vertices give us a square plane at $z=0$. 
-When we use more complicated functions for $S$, we map the same values of $u$ and $v$ to the vertices of more complicated shapes such as spheres and cylinders. 
+We can further define more complicated functions for $S$ to map the same values of $u$ and $v$ to the vertices of more complicated shapes such as spheres and cylinders. 
 
 ![A 2D plane mapped by different functions can produce surfaces for spheres and cylinders.](/software-engineering-lab/assets/images/spheres_and_cylinders.png)
 
-The images the plane, sphere, and cylinder above show their surfaces drawn with triangles that are calculated from sampling the ranges of $u$ and $v$ at fixed intervals. 
+The plane, sphere, and cylinder in the images above show their surfaces drawn with triangles that are calculated from sampling the ranges of $u$ and $v$ at fixed intervals. 
 Here, the number of samples taken in each range is the *resolution* and the step between samples is the *delta*. 
 Each parametric geometry will receive parameters for the start and stop values of the ranges $u$ and $v$ as well as the respective resolutions. 
-Another parameter will receive the surface function which defines the shape of the surface. 
+Another parameter will specify the surface function which defines the shape of the surface. 
 When initialized, the geometry will calculate all the points along its surface by executing the function with every pair of sample values in the ranges $u$ and $v$. 
 Let's see how this works in code.
 
@@ -149,7 +154,7 @@ import numpy as np
 from graphics.geometries.geometry import Geometry
 
 class ParametricGeometry(Geometry):
-    """A geometric surface rendered from the given function with parameters u and v"""
+    """A surface rendered from the given function with parameters u and v"""
     def __init__(self, u_start, u_stop, u_resolution,
                        v_start, v_stop, v_resolution, surface_function):
         super().__init__()
@@ -163,9 +168,10 @@ class ParametricGeometry(Geometry):
             point_matrix.append(matrix_row)
 ```
 
-The `__init__` class accepts the minimum and maximum values for the ranges of $u$ and $v$, defined by `u_start`, `u_stop`, `v_start`, and `v_stop`. 
-In Python, we can store functions in variables and pass them around like any other value. 
-This means we can receive a Python function that calculates vertex coordinates from $u$ and $v$ values in the `surface_function` parameter. 
+The `__init__` function accepts the minimum and maximum values for the ranges of $u$ and $v$, defined by `u_start`, `u_stop`, `v_start`, and `v_stop`. 
+In Python, we can store functions in variables for later reference like any other value. 
+For example, we did this with the simple lambda functions `find_x` and `find_y` in our `PolygonGeometry` class above. 
+For parametric geometries, we can receive a Python function that calculates vertex coordinates from $u$ and $v$ values in the `surface_function` parameter. 
 Then we can call it like any other function with the code `surface_function(u, v)`.  
 
 This module imports a function called [`linspace`](https://numpy.org/doc/stable/reference/generated/numpy.linspace.html) from NumPy which gives us a range of sample values for $u$ and $v$ with their given resolutions. 
@@ -210,7 +216,7 @@ Every new geometry we make from now on will simply require a unique surface func
 
 A plane is the simplest parametric object. 
 Its function directly maps $u$ and $v$ values to $x$ and $y$ coordinates as in $S(u,v) = (u,v,0)$. 
-When rendered, it looks just like a `RectangleGeometry` instance, except it is divided into a number of smaller rectangles defined by the resolutions of $u$ and $v$. 
+When rendered, it looks just like a `RectangleGeometry` instance, except it is tiled with a number of smaller rectangles defined by the resolutions of $u$ and $v$. 
 
 Let's create a `PlaneGeometry` class that renders a plane with its center at the origin. 
 We will refer to the range of $u$ as the width and the range of $v$ as the height so it is easier to imagine.
@@ -225,12 +231,15 @@ class PlaneGeometry(ParametricGeometry):
         # the surface function S(u, v) = (u, v, 0)
         surface_function = lambda u, v: (u, v, 0)
 
+        # width and height relative to the center at the origin
+        w, h = width/2, height/2
+
         super().__init__(
-            u_start=-width/2,
-            u_stop=width/2,
+            u_start=-w,
+            u_stop=w,
             u_resolution=width_segments,
-            v_start=-height/2,
-            v_stop=height/2,
+            v_start=-h,
+            v_stop=h,
             v_resolution=height_segments,
             surface_function=surface_function
         )
@@ -244,7 +253,8 @@ Lambda functions are small anonymous functions that only evaluate a single expre
 Here, our function `lambda u, v: (u, v, 0)` takes values from the two parameters `u` and `v` then returns a tuple containing those values and a `0`. 
 In this way we can easily represent the parametric function $S(u,v)=(u,v,0)$.
 
-With our surface function defined, we just call the `__init__` method on the superclass `ParametricGeometry`. Since the plane will be centered at the origin, the range of $u$ and $v$ values are calculated from the width and height similar to the way we calculated vertices for the `RectangleGeometry`.
+With our surface function defined, we just call the `__init__` method on the superclass `ParametricGeometry` with the appropriate parameters. 
+Since the plane will be centered at the origin, the range of $u$ and $v$ values are calculated from the width and height similar to the way we calculated vertices for the `RectangleGeometry`.
 
 # Ellipsoids
 
