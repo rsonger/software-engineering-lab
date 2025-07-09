@@ -407,25 +407,18 @@ class PointMaterial(BasicMaterial):
     The following rendering properties are supported.
     - drawStyle: the OpenGL draw setting (default is `GL_POINTS`)
     - pointSize: the width and height of each point in pixels (default is `8`)
-    - roundedPoints: renders points with smooth corners (default is `True`)
     """
     def __init__(self, properties=None):
         super().__init__()
 
         self._settings["drawStyle"] = GL.GL_POINTS
         self._settings["pointSize"] = 8
-        self._settings["roundedPoints"] = True
 
         if properties:
             self.set_properties(properties)
 
     def update_render_settings(self):
         GL.glPointSize(self._settings["pointSize"])
-
-        if self._settings["roundedPoints"]:
-            GL.glEnable(GL.GL_POINT_SMOOTH)
-        else:
-            GL.glDisable(GL.GL_POINT_SMOOTH)
 ```
 
 <input type="checkbox" class="checkbox inline"> Make sure there are no errors and save the file.  
