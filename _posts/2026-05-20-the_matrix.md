@@ -5,7 +5,7 @@ paginate: true
 
 # Jekyll
 title: "7_Enter the Matrix"
-date: 2025-05-21
+date: 2026-05-20
 categories:
   - Notes
 classes: wide

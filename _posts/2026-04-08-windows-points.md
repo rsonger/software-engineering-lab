@@ -5,7 +5,7 @@ paginate: true
 
 # Jekyll
 title: "2_Windows and Points"
-date: 2025-04-09
+date: 2026-04-08
 categories:
   - Notes
 classes: wide

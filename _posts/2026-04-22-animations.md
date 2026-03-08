@@ -5,7 +5,7 @@ paginate: true
 
 # Jekyll
 title: "4_Animation and Interactivity"
-date: 2025-04-23
+date: 2026-04-22
 categories:
   - Notes
 classes: wide
