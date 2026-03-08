@@ -296,14 +296,14 @@ This diagram shows how data flows through the GPU program. The application progr
 
 ## Compiling GPU Programs
 
-Our first rendered image will show a yellow point on a black background. But before that, let's build some utilities to handle the common tasks of preparing shaders for a GPU program. We will do this by creating a module called `openGLUtils` with functions that compile shader code, link shaders, and compile the GPU program. In this module, we use many OpenGL functions from the `GL` namespace which are prefixed with `gl` by convention.
+Our first rendered image will show a yellow point on a black background. But before that, let's build some utilities to handle the common tasks of preparing shaders for a GPU program. We will do this by creating a module called `opengl_utils` with functions that compile shader code, link shaders, and compile the GPU program. In this module, we use many OpenGL functions from the `GL` namespace which are prefixed with `gl` by convention.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Inside your `core` folder, create a file called `openGLUtils.py`.  
-<input type="checkbox" class="checkbox inline"> Open `openGLUtils.py` and add the following code:
+<input type="checkbox" class="checkbox inline"> Inside your `core` folder, create a file called `opengl_utils.py`.  
+<input type="checkbox" class="checkbox inline"> Open `opengl_utils.py` and add the following code:
 
 ```python
-# graphics/core/openGLUtils.py
+# graphics/core/opengl_utils.py
 import OpenGL.GL as GL
 
 def initialize_shader(shader_code, shader_type):
@@ -338,7 +338,7 @@ Here the `initialize_shader` function uses [`glCreateShader`](https://registry.k
 Next we need a function for linking the shaders and compiling the GPU program.  
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Add the next function to the `openGLUtils.py` file:  
+<input type="checkbox" class="checkbox inline"> Add the next function to the `opengl_utils.py` file:  
 
 ```python
 def initialize_program(vertex_shader_code, fragment_shader_code):
@@ -383,22 +383,21 @@ This method uses our `initialize_shader` function to load and compile the vertex
 <!-- The last utility method prints information about the running system to tell which version of OpenGL/GLSL it supports.
 
 :heavy_check_mark: ***Try it!***  
-<input type="checkbox" class="checkbox inline"> Add the next method to the `OpenGLUtils` class:  
+<input type="checkbox" class="checkbox inline"> Add the next to the `opengl_utils.py` file:  
 
 ```python
-    @staticmethod
-    def printSystemInfo():
-        print(f"  Vendor: {glGetString(GL_VENDOR).decode('utf-8')}")
-        print(f"  Renderer: {glGetString(GL_RENDERER).decode('utf-8')}")
-        print(f"  OpenGL version supported: {glGetString(GL_VERSION).decode('utf-8')}")
-        print(f"  GLSL version supported: {glGetString(GL_SHADING_LANGUAGE_VERSION).decode('utf-8')}")
+def printSystemInfo():
+    print(f"  Vendor: {glGetString(GL_VENDOR).decode('utf-8')}")
+    print(f"  Renderer: {glGetString(GL_RENDERER).decode('utf-8')}")
+    print(f"  OpenGL version supported: {glGetString(GL_VERSION).decode('utf-8')}")
+    print(f"  GLSL version supported: {glGetString(GL_SHADING_LANGUAGE_VERSION).decode('utf-8')}")
 ```
 
 This last method may be interesting to run in the Python interpreter if you want to see the version information for yourself. -->
 
 ## Rendering in the Application
 
-Finally, we can create an application that renders a point using the functions in our `openGLUtils` module and a few others from the OpenGL library.
+Finally, we can create an application that renders a point using the functions in our `opengl_utils` module and a few others from the OpenGL library.
 
 A typical application will follow these steps in its **startup** process:
 
@@ -418,7 +417,7 @@ In our applications, we do these steps in a method called `startup` which is def
 import OpenGL.GL as GL
 
 from graphics.core.app import WindowApp
-from graphics.core.openGLUtils import initialize_program
+from graphics.core.opengl_utils import initialize_program
 
 class Test_2_2(WindowApp):
     """Test compiling and linking a GPU program by rendering a single point"""

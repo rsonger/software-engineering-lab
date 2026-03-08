@@ -16,8 +16,8 @@ categories:
 
 In the lessons that follow, We will build a framework for interactive computer graphics applications written in Python with the OpenGL library. For this project, we need to have the following software installed:
 
-- Python 3.7 or higher
-- PyGame
+- Python 3.10 or higher
+- PyGame - CE
 - Numpy
 - PyOpenGL
 - PyOpenGL-accelerate
@@ -34,15 +34,15 @@ On **MacOS** these commands should all work normally in your standard terminal o
 
 On **Windows**, I recommend installing the **Git Bash** which comes with **[Git for Windows](https://gitforwindows.org/)** and using it in either its own window or **[VSCode](https://code.visualstudio.com/)**.
 
-# Python 3.7
+# Python
 
-First, make sure you have Python 3.7 or higher. Open your terminal and type `python --version`. You should see something like this:
+First, make sure you have Python 3.10 or higher. The latest version of Python as of March 2026 is 3.14.3, but you do not need the latest version for this project. Open your terminal and type `python --version`. You should see something like this:
 
 ```bash
-Python 3.7.3
+Python 3.14.3
 ```
 
-If the version number is below 3.7, try the following the instructions below for your operating system.
+If Python is not installed or the version number is below 3.7, try the following the instructions below for your operating system.
 
 ## MacOS
 
@@ -101,8 +101,7 @@ And the output should look something like:
 ```bash
 Package    Version
 ---------- -------
-pip        20.2.3
-setuptools 49.2.1
+pip        25.3
 ```
 :arrow_right: Your terminal will likely show different version numbers for the packages above. That's okay. We will upgrade pip in the next section.
 
@@ -174,7 +173,7 @@ You will see a message that says `Successfully installed pip-XX.XX` when the upg
 
 Now we can install the required packages:
 ```bash
-pip install pygame numpy pyopengl pyopengl-accelerate
+pip install pygame-ce numpy pyopengl pyopengl-accelerate
 ```
 
 When installing on **Windows**, you might see an error that says `Microsoft Visual C++ 14.0 is required`. If that happens, try the instructions below for [Troubleshooting on Windows](#troubleshooting-on-windows) before continuing.
@@ -198,8 +197,7 @@ Only `import pygame` will show some output. If you see nothing after typing `imp
 
 ```bash
 >>> import pygame
-pygame 2.1.2 (SDL 2.0.18, Python 3.7.3)
-Hello from the pygame community. https://www.pygame.org/contribute.html
+pygame-ce 2.5.7 (SDL 2.32.10, Python 3.14.3)
 >>> import numpy
 >>> import OpenGL
 >>> import OpenGL.GL

@@ -247,7 +247,7 @@ from math import pi
 import OpenGL.GL as GL
 
 from graphics.core.app import WindowApp
-from graphics.core.openGLUtils import initialize_program
+from graphics.core.opengl_utils import initialize_program
 from graphics.core.openGL import Attribute, Uniform
 from graphics.core.matrix import Matrix
 

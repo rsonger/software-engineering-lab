@@ -363,7 +363,7 @@ from graphics.materials.material import *
 # graphics/materials/material.py
 import OpenGL.GL as GL
 
-from graphics.core.openGLUtils import initialize_program
+from graphics.core.opengl_utils import initialize_program
 from graphics.core.openGL import Uniform
 
 class Material:

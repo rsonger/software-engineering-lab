@@ -138,7 +138,7 @@ import OpenGL.GL as GL
 
 from graphics.core.app import WindowApp
 from graphics.core.openGL import Attribute, Uniform
-from graphics.core.openGLUtils import initialize_program
+from graphics.core.opengl_utils import initialize_program
 
 class Test_4_1(WindowApp):
     """Test Uniform by drawing two separate instances of the same triangle"""
@@ -240,7 +240,7 @@ import OpenGL.GL as GL
 
 from graphics.core.app import WindowApp
 from graphics.core.openGL import Attribute, Uniform
-from graphics.core.openGLUtils import initialize_program
+from graphics.core.opengl_utils import initialize_program
 
 class Test_4_2(WindowApp):
     """Test animations with uniform variables by moving a triangle across the screen"""

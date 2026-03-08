@@ -145,7 +145,7 @@ Our first test application will use the `Attribute` class from above to draw lin
 import OpenGL.GL as GL
 
 from graphics.core.app import WindowApp
-from graphics.core.openGLUtils import initialize_program
+from graphics.core.opengl_utils import initialize_program
 from graphics.core.openGL import Attribute
 
 class Test_3_1(WindowApp):
@@ -241,7 +241,7 @@ Even though the position data for the triangle and square will be stored in sepa
 import OpenGL.GL as GL
 
 from graphics.core.app import WindowApp
-from graphics.core.openGLUtils import initialize_program
+from graphics.core.opengl_utils import initialize_program
 from graphics.core.openGL import Attribute
 
 class Test_3_2(WindowApp):
@@ -366,7 +366,7 @@ Now let's create one more test app to demonstrate color data passing through att
 import OpenGL.GL as GL
 
 from graphics.core.app import WindowApp
-from graphics.core.openGLUtils import initialize_program
+from graphics.core.opengl_utils import initialize_program
 from graphics.core.openGL import Attribute
 
 class Test_3_3(WindowApp):
