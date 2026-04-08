@@ -256,7 +256,7 @@ In this test, the `startup` and `update` methods don't add any functionality. Bu
 
 # Drawing a Point
 
-With OpenGL, we render images on screen by running programs with a special processor chip for graphics called the graphics processing unit (**GPU**). These programs include a **vertex shader** program and a **fragment shader** program which are written in the OpenGL Shading Language (**GLSL**). Here we will learn how to write simple shaders, link them to run together, and compile them into a program for the GPU. Once we do that, we will then extend our graphics framework with components that can handle these tasks for our CG apps going forward.  
+With OpenGL, we render images on screen by running programs on a special processor designed for graphics called the **graphics processing unit** (**GPU**). These programs include a **vertex shader** program and a **fragment shader** program which are written in the OpenGL Shading Language (**GLSL**). Here we will learn how to write simple shaders, link them to run together, and compile them into a program for the GPU. Once we do that, we will then extend our graphics framework with components that can handle these tasks for our CG apps going forward.  
 
 ## The OpenGL Shading Language (GLSL)
 
