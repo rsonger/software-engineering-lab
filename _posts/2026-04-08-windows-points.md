@@ -260,13 +260,13 @@ With OpenGL, we render images on screen by running programs on a special process
 
 ## The OpenGL Shading Language (GLSL)
 
-**GLSL** is a programming language with similarities to both C and Python. Like C, we must declare data types for every variable, such as `bool`, `int`, and `float`. In addition to these basic data types, GLSL also has vector data types for storing two, three, or four float values in a single variable. These vector types are `vec2`, `vec3`, and `vec4`, respectively. Vectors are useful for storing data related to colors ($r$, $g$, $b$) and coordinates ($x$, $y$, $z$). GLSL also has matrix data types which provide the data structure required for many important CG computations, such as transformations.
+**GLSL** is a programming language with similarities to both C and Python. Like C, we must declare data types for every variable, such as `bool`, `int`, and `float`. In addition to these basic data types, GLSL also has vector data types for storing multiple float values in a single variable. These vector are `vec2`, `vec3`, and `vec4`, for vectors containing 2, 3, and 4 values, respectively. Vectors are useful for storing data related to colors ($r$, $g$, $b$) and coordinates ($x$, $y$, $z$). GLSL also has matrix data types which provide the data structure required for many important CG computations, such as transformations.
 
 We can access values in a vector using either an index or dot notation. For example, if we have a `vec4` variable named `v`, each value can be indicated by its index in the array (`v[0]`, `v[1]`, `v[2]`, `v[3]`) or with dot notation: (`v.x`, `v.y`, `v.z`, `v.w`) or (`v.r`, `v.g`, `v.b`, `v.a`) or (`v.s`, `v.t`, `v.p`, `v.q`). As a programmer, you are free to decide how you want to access each value. Just remember that dot notation methods are semantically associated with position coordinates $(x, y, z, w)$, colors $(r, g, b, a)$, and texture coordinates $(s, t, p, q)$.
 
 Similar to Python, GLSL has all the basic control structures including `if` statements, loops, and functions with parameters. However, it uses arrays instead of lists and also provides structs for users to define their own data types.
 
-Each program written in GLSL must have a `main` function to run, similar to C language. We always declare functions with a return type, which is `void` for the `main` function. An example of a simple GLSL program is the **vertex shader** for our first application. This program creates a single point on screen and saves its position to a global variable called [`gl_Position`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/gl_Position.xhtml){:target="_blank"}. This variable is defined by the OpenGL library and must be assigned a value in the vertex shader.
+Each program written in GLSL must have a `main` function to run, similar to C language. We always declare functions with a return type, which is `void` for the `main` function. An example of a simple GLSL program is the **vertex shader** for our first application. This program specifies a single point on screen and saves its position to a global variable called [`gl_Position`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/gl_Position.xhtml){:target="_blank"}. This variable is defined by the OpenGL library and must be assigned a value in the vertex shader.
 
 ```glsl
 # GLSL version 330
@@ -275,9 +275,9 @@ void main() {
 }
 ```
 
-Here the position of our pixel is stored as a 4-dimensional vector with coordinates $x$, $y$, $z$, and $w$. The $x$, $y$, and $z$ coordinates describe the pixel's position on each axis. The $w$ coordinate is used for geometric transformations, but we don't need to worry about that now.
+Here the position of our point is stored as a 4-dimensional vector with coordinates $x$, $y$, $z$, and $w$. The $x$, $y$, and $z$ coordinates describe the locations on each axis. The $w$ coordinate is used for geometric transformations, but we don't need to worry about that now.
 
-Next, our **fragment shader** simply sets the color of our pixel.
+Next, our **fragment shader** sets the color to use when drawing the point.
 
 ```glsl
 # GLSL version 330
@@ -407,7 +407,7 @@ A typical application will follow these steps in its **startup** process:
 3. Compile and load the shader source code.
 4. Link vertex data in VBOs to variables in the the vertex shader.
 
-In our applications, we do these steps in a method called `startup` which is defined in the `WindowApp` class but left empty there. We must implement the method in each of our apps that extend the `WindowApp` class. We will use special objects called *vertex array objects* (VAOs) to hold associations between VBOs and shader variables. OpenGL apps often requires at least one VAO. Our applications are simple and don't need to set up any buffers (VBOs), so the vertex and color data will come directly from our code instead.
+In our applications, we do these steps in a method called `startup` which is defined in the `WindowApp` class as an empty method. We must implement the method in each of our apps that extend the `WindowApp` class. We use special objects called *vertex array objects* (VAOs) to hold associations between data in buffers (VBOs) and their shader variables. OpenGL apps often require at least one VAO, but VBOs are optional. This first app simply hard-codes the vertex and color data directly in the GLSL code itself so we don't need to set up any buffers (VBOs).
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your main project folder, create a new file called `test_2_2.py`.  
