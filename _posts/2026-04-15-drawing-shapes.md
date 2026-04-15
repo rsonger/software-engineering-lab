@@ -25,11 +25,11 @@ Here is an outline of the class and the OpenGL functions it will use:
 - First, we use [`glGenBuffers`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGenBuffers.xhtml){:target="_blank"} to get a reference to an available buffer for the attribute.
 - Then we bind the buffer by passing its reference to [`glBindBuffer`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml){:target="_blank"}. We also indicate that the the buffer is a vertex buffer by including the `GL_ARRAY_BUFFER` argument.
 - Next, we upload the attribute's data to the buffer with [`glBufferData`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferData.xhtml){:target="_blank"}. This function takes a binding target as a parameter, so passing `GL_ARRAY_BUFFER` will tell it to use the currently bound vertex buffer.
-- Once the vertex buffer contains data and the GPU program is compiled, we can get a reference to the attribute's variable in the GPU program and associate it with data. We do this with the [`glGetAttribLocation`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetAttribLocation.xhtml){:target="_blank"} function, giving it a reference to the program and the name of the variable. (The variable inside the vertex shader program specifies the `in` qualifier.)
+- Once the vertex buffer contains data and the GPU program is compiled, we can get a reference to the attribute's variable in the GPU program and associate it with data. We do this with the [`glGetAttribLocation`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetAttribLocation.xhtml){:target="_blank"} function, giving it a reference to the program and the name of the variable. (The variable inside the vertex shader program is specified with the `in` qualifier.)
 - Then we associate the variable to the bound buffer with [`glVertexAttribPointer`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml){:target="_blank"}. This function needs the variable reference, the data type, and the number of components in the data. Basic data types like `int` and `float` have just 1 component, but vectors will have 2, 3, or 4 components.
 - Finally, we enable using the association to read the data by calling the [`glEnableVertexAttribArray`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml){:target="_blank"} function and giving it the reference to the variable.
 
-This all may sound complicated, but we only need to write code for it once the `Attribute` class. After that, we can easily gain all the benefits of this code by simply using instances of `Attribute` in our apps. 
+This all may sound complicated, but we only need to write code for it once in the `Attribute` class. After that, we can easily gain all the benefits of this code in our apps by simply using instances of `Attribute`. 
 
 ## The Attribute Class
 
@@ -56,7 +56,7 @@ class Attribute:
 
     def __init__(self, data_type, data):
         # data types are defined by the dict above
-        if data_type not in self._ATTRIB_SIZE_TYPE.keys():
+        if data_type not in self._ATTRIB_SIZE_TYPE:
             raise ValueError(data_type, "Unsupported data type")
 
         self.data_type = data_type
@@ -90,7 +90,7 @@ We also define a class variable called `_ATTRIB_SIZE_TYPE` to map data type para
 
 By putting this code in a separate `upload_data` method, we can easily update the data for the same attribute multiple times. This will be useful later when we create animations and interactive features. Before uploading the data, we need to make sure it is in the right format for GLSL: a one-dimensional array of 32-bit floating point numbers. The `numpy` library is very useful here with its implementation of arrays and `ravel` function which converts arrays to one dimension.
 
-Next is another method for associating variables with their data, aptly named `associate_variable`. Once a variable association has been created, any changes to its data through the `upload_data` method will automatically be reflected at render time. This means we will only need to call `associate_variable` once for each attribute in an app, but the `upload_data` method will be called in every iteration of the application's **update** loop.
+Next is another method for associating variables with their data, aptly named `associate_variable`. Once data is associated to a variable, any changes to the data through the `upload_data` method will automatically be reflected at render time. This means we will only need to call `associate_variable` once for each attribute in an app, but we call `upload_data` in every iteration of the application's **update** loop.
 
 <input type="checkbox" class="checkbox inline"> After the `upload_data` method, add the `associate_variable` method below.
 
@@ -127,14 +127,14 @@ Next is another method for associating variables with their data, aptly named `a
         GL.glEnableVertexAttribArray(variable_ref)
 ```
 
-Before calling `glVertexAttribPointer` we need to bind both a vertex buffer object and a vertex array object. We bind the the vertex buffer with `glBindBuffer` using the stored VBO reference. As for the vertex array object, an app may bind a VAO itself, or it may provide a reference with the `vao_ref` parameter. In either case, binding both VBO and VAO is necessary for the current VAO to link data from the vertex buffer to the program variable. OpenGL manages the VAOs and associations once they are created, so we do not need to do anything more with the variable reference.
+Before calling `glVertexAttribPointer` we need to bind both a vertex buffer object and a vertex array object. We bind the the vertex buffer with `glBindBuffer` using the stored VBO reference. As for the vertex array object, we support apps binding VAOs for themselves, or providing a reference for one to bind with the `vao_ref` parameter. In either case, binding both VBO and VAO is necessary for the current VAO to link data from the vertex buffer to the program variable. OpenGL manages the VAOs and associations once they are created, so we do not need to do anything more with the variable reference.
 
 ## Hexagons, Triangles, and Squares
 
 Now we are ready to draw shapes on the screen with multiple vertices and lines. By default, OpenGL draws lines only 1 pixel wide which can be hard to see on high resolution displays. On **Windows**, we can use a function called `glLineWidth` to set the thickness of the lines drawn by OpenGL in pixels. (We cannot use `glLineWidth` on **MacOS** because **MacOS** strictly enforces the core OpenGL profile, which only allows `1.0` as a valid parameter.)
 
 ### A Single Buffer Test
-Our first test application will use the `Attribute` class from above to draw lines between six points on the screen and create a hexagon. This time, the vertex shader program has a single variable `position` declared with the `in` qualifier so it will receive data from a vertex buffer. Instead of hardcoding the position data in the vertex buffer, we provide it through our own `position_data` variable and link that data with an instance of `Attribute`.
+Our first test application will use the `Attribute` class from above to draw lines between six points on the screen and create a hexagon. This time, the vertex shader program has a single variable `position` declared with the `in` qualifier so it will receive data from a vertex buffer. Instead of hardcoding the position data in the vertex shader, we store it in a `position_data` Python variable and then link it to the `position` variable in the shader using an instance of `Attribute`.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Make a new file in your main working folder called `test_3_1.py`.  
