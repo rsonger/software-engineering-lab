@@ -134,7 +134,7 @@ Before calling `glVertexAttribPointer` we need to bind both a vertex buffer obje
 Now we are ready to draw shapes on the screen with multiple vertices and lines. By default, OpenGL draws lines only 1 pixel wide which can be hard to see on high resolution displays. On **Windows**, we can use a function called `glLineWidth` to set the thickness of the lines drawn by OpenGL in pixels. (We cannot use `glLineWidth` on **MacOS** because **MacOS** strictly enforces the core OpenGL profile, which only allows `1.0` as a valid parameter.)
 
 ### A Single Buffer Test
-Our first test application will use the `Attribute` class from above to draw lines between six points on the screen and create a hexagon. This time, the vertex shader program has a single variable `position` declared with the `in` qualifier so it will receive data from a vertex buffer. Instead of hardcoding the position data in the vertex shader, we store it in a `position_data` Python variable and then link it to the `position` variable in the shader using an instance of `Attribute`.
+Our first test application will use the `Attribute` class from above to draw lines between six points on the screen and create a hexagon. This time, the vertex shader program has a single variable `position` declared with the `in` qualifier so it will receive data from a vertex buffer. Instead of hardcoding the position data in the vertex shader, we store it in a Python variable called `position_data` and then link it to the `position` variable in the shader using an instance of `Attribute`.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> Make a new file in your main working folder called `test_3_1.py`.  
@@ -161,7 +161,7 @@ class Test_3_1(WindowApp):
         }
         """
 
-        # th fragment shader will output fragColor to a buffer
+        # the fragment shader will output fragColor to a buffer
         fs_code = """
         out vec4 fragColor;
         void main() {
@@ -211,15 +211,15 @@ Notice that we create an `Attribute` instance with our `position_data` variable 
 
 This time, the [`glDrawArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml){:target="_blank"} function uses the `GL_LINE_LOOP` mode to draw lines from one vertex to the next and then connect the last vertex to the first one. Here we use `vertex_count` from the `startup` method to tell it exactly how many vertices it should draw.
 
-Now `glDrawArrays` can use a number of different [OpenGL primitives](https://www.khronos.org/opengl/wiki/Primitive){:target="_blank"} to render the lines in different ways. In `test_2_2.py`, we used `GL_POINTS` to render a single point, but `GL_LINES` will draw a line between each pair of consecutive points, and `GL_LINE_STRIP` will connect each point to the next, stopping at the last point.
+Now, `glDrawArrays` can use a number of different [OpenGL primitives](https://www.khronos.org/opengl/wiki/Primitive){:target="_blank"} to render the lines in different ways. In `test_2_2.py`, we used `GL_POINTS` to render a single point. The other primitives are `GL_LINES` which draws a line between each pair of consecutive points, and `GL_LINE_STRIP` which draws a line from each point to the next point, but stops at the last point.
 
 ![OpenGL primitives for point and line drawing modes](/software-engineering-lab/assets/images/point-and-line-primitives.png)
 
-When we want to fill in the area between lines, we can use one of the triangle drawing modes. `GL_TRIANGLES` will fill in the area between every three points without any overlap. `GL_TRIANGLE_STRIP` will include the last two points of the previous triangle with the next point to create an adjacent triangle. Finally, `GL_TRIANGLE_FAN` connects every two points with the first point to create a fan-like array of adjacent triangles all sharing the same point.
+When we want to fill in the area between lines, we use one of the triangle drawing modes. `GL_TRIANGLES` will fill in the area between every three points without any overlap. `GL_TRIANGLE_STRIP` will include the last two points of the previous triangle with the next point to create an adjacent triangle. Finally, `GL_TRIANGLE_FAN` connects every two points with the first point to create a fan-like array of adjacent triangles all sharing the same point.
 
 ![OpenGL primitives for triangle drawing modes](/software-engineering-lab/assets/images/triangle-primitives.png)
 
-It is also possible to combine draw modes with the same set of vertices by simply calling `glDrawArrays` multiple times. For example, if the `update` method has the next two lines of code, it will draw the lines first and then it will draw each point on top of the lines. (Although if you do this, the points will be difficult to see unless you increase the size of the points by calling [`glPointSize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} inside your `startup` method.)
+It is also possible to combine draw modes with the same set of vertices by simply calling `glDrawArrays` multiple times. For example, if the `update` method has the next two lines of code, it will draw the lines first and then it will draw each point on top of the lines. (Although if you do this, the points will be difficult to see because they are the same size as the line thickness. You can make the points stand out by increasing their size with [`glPointSize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glPointSize.xhtml){:target="_blank"} inside your `startup` method.)
 
 ```python
         GL.glDrawArrays(GL_LINE_LOOP, 0, self.vertexCount)
@@ -230,7 +230,7 @@ It is also possible to combine draw modes with the same set of vertices by simpl
 
 In `test_3_1.py` we only used a single buffer with a single set of vertices for drawing a single shape. Drawing more than one shape will require more than one vertex buffer. The next test app demonstrates this by drawing a triangle and a square at the same time. 
 
-Even though the position data for the triangle and square will be stored in separate buffers, we will use the same vertex shader and fragment shader code to draw both shapes. We can do this because the rendering process for a triangle is essentially the same as the rendering process for a square. The only difference is the position data. In order to use the same shaders with the same `position` variable, we will make and store references to two different vertex arrays. Since VAOs store associations between buffers and variables, one VAO will associate the `position` variable to the triangle's position data while the other VAO will associate `position` with the square's position data. Then, in the `update` method, we use the stored VAO references to bind the associated VAO before calling `glDrawArrays`.
+Even though the position data for the triangle and square will be stored in separate buffers, we will use the same vertex shader and fragment shader code to draw both shapes. We can do this because the rendering process for a triangle is essentially the same as the rendering process for a square. The only difference is the position data. In order to use different data for the same `position` variable in the the shader program, we will make and store references to two different vertex arrays. Since VAOs store associations between buffers and variables, one VAO will associate the the triangle's position data with the `position` variable while the other VAO will associate the square's position data with the `position` variable. Then, in the `update` method, we draw each shape by binding its VAO before calling `glDrawArrays`.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your main folder, create a new file called `test_3_2.py`.  
@@ -265,7 +265,7 @@ class Test_3_2(WindowApp):
 
         self.program_ref = initialize_program(vs_code, fs_code)
 
-        # get a reference to a vertex array object for the triangle
+        # set up a vertex array object for the triangle
         self.vao_triangle = GL.glGenVertexArrays(1)
         triangle_position_data = (
             (-0.5, 0.8, 0.0),
@@ -278,7 +278,7 @@ class Test_3_2(WindowApp):
             self.program_ref, "position", self.vao_triangle
         )
 
-        # get another reference to a vertex array object for the square
+        # set up a separate vertex array object for the square
         self.vao_square = GL.glGenVertexArrays(1)
         square_position_data = (
             (0.8, 0.8, 0.0),
@@ -293,7 +293,7 @@ class Test_3_2(WindowApp):
         )
 
     def update(self):
-        # the same shader program can render both shapes
+        # the same shader program renders both shapes
         GL.glUseProgram(self.program_ref)
 
         # draw the triangle
@@ -317,11 +317,11 @@ This time we specify which shape to draw by binding the respective VAO before dr
 
 ## Passing Data Between Shaders
 
-We can also use vertex buffers to hold color data in addition to position data. This requires a few extra steps since buffer data is first passed into the vertex shader, but color data is only used in the fragment shader. So we need to pass the color data from the vertex shader to the fragment shader.
+We can also use vertex buffers to hold color data in addition to position data. This requires a few extra steps since buffer data is first passed into the vertex shader, but color data is only used in the fragment shader. So the vertex shader simply passes the color data on to the fragment shader without processing it.
 
 Remember, in the [OpenGL Shading Language (GLSL)](/software-engineering-lab/notes/windows-points/#the-opengl-shading-language-glsl), variables have *type qualifiers*. In the vertex shader, `in` means the variable data comes from a vertex buffer and `out` means the data will go to the fragment shader. In the fragment shader, `in` means the data comes from the vertex shader and `out` means the data will be stored in another memory buffer.
 
-In order to send color data from our application to be rendered by the fragment shader, we need to send it through a variable in the vertex shader. So the vertex shader will declare an `in vertexColor` variable and an `out color` variable. Then, the fragment shader must also declare an `in` variable with the exact same name and type as the `out` variable from the vertex shader.
+In order to send color data from our Python app the fragment shader, we need to give it an input variable and an output variable in the vertex shader, declared as `in vertexColor` and `out color`. Then, the fragment shader also declares an input variable with the exact same name and type as the output variable from the vertex shader.
 
 ![Data flow between shaders and buffers](/software-engineering-lab/assets/images/buffer-shader-dataflow.png)
 
@@ -439,7 +439,7 @@ Test_3_3().run()
 <input type="checkbox" class="checkbox inline"> Run the application with the `python test_3_3.py` command in your terminal.  
 <input type="checkbox" class="checkbox inline"> Confirm that you can see six different colored dots on your screen.  
 
-In `test_3_2.py`, we used two different vertex arrays to bind different buffers to the same program variable. This time we have two different program variables associated with two different buffers, so we can use a single VAO to store the associations.
+In `test_3_2.py`, we used two different vertex arrays to bind different buffers to the same program variable. This time we associate each buffer with a different program variable, so we can use a single VAO to store the associations.
 
 Now what happens if we change the draw mode from `GL_POINTS` to something like `GL_LINE_LOOP` or `GL_TRIANGLE_FAN`? In that case, we can see OpenGL's **rasterization** process in action as it *interpolates* the color values in between each vertex. Here, interpolation is a mathematical calculation of the RGB components for each pixel based on how far it is from the original vertices. It weighs the values of each vertex color value and combines them to get the final color values for each pixel.
 
@@ -452,6 +452,6 @@ C_P &=0.25 \cdot C_1+0.75 \cdot C_2 \\
     &=[0.25, 0.0, 0.75]
 \end{aligned}$$
 
-The result of filling a shape with triangle draw modes will interpolate the colors between vertices, effectively creating a gradient effect. Now if we want all the points and the shape to be filled with the same color, we just need to change all the vertices of our `color_data` variable to be the same value. 
+The result of filling a shape with triangle draw modes will interpolate the colors between every three vertices, effectively creating a gradient effect. Now if we want all the points and the shape to be filled with the same color, we just need to change all the vertices of our `color_data` variable to the same value. 
 
 Next time, we will create a new class that we can use to easily create solid color shapes. The same class will also allow us to create animations and interactivity easily as well. Look forward to it!
