@@ -12,17 +12,30 @@ classes: wide
 toc_sticky: false
 ---
 
-*In this lesson, we introduce uniform data for use in animations and keyboard events for greater interaction with the application.*
+*In this lesson, we introduce the concepts of uniform data for animations and keyboard events for more interaction within an app.*
 
-In the section [Working with Uniform Data](#working-with-uniform-data), we introduce uniform variables that store shared values for both the vertex shader and the fragment shader, then use them to animate a triangle moving across the screen. In the section [Adding Interactivity](#adding-interactivity), we extend the `Input` class to handle various keyboard events and give the user control over the triangle's movements.  
+Uniform variables reference shared data for both the vertex shader and the fragment shader to use.
+In the section [Working with Uniform Data](#working-with-uniform-data) we introduce how they are useful for animations as we make a triangle move across the screen.
+Then in the section [Adding Interactivity](#adding-interactivity), we extend the `Input` class to handle keyboard events and let the user control the triangle's movements.  
 
-With vertex array objects, we can associate position and color data to GPU program variables. However, we cannot share the same instances of data between vertices due to the way VAOs are structured. Instead, we need to give each vertex its own data value. This means we repeat data values for vertices that use the same value, such as when we want them to be the same color. This is not ideal. Repeating data multiple times in our source code lowers the **maintainability** and **extensibility** of our software. To change the color of a solid-color hexagon, we would need to change the data for six different vertices.
+With vertex array objects (VAOs), we can associate position and color data to GPU program variables.
+However, we cannot share the same instances of data between vertices due to the way VAOs are structured.
+When using VAOs, we need to give each vertex its own data value.
+This means we must repeat data values for vertices that use the same value, such as when we want all vertices to be the same color. This is not ideal.
+Repeating data multiple times in our source code lowers the **maintainability** of our software.
+For example, to change the color of a yellow hexagon, we would need to change the data of all six of its vertices.
 
-But there is an easier way! In situations like this we can use a special kind of global variable called a *uniform variable* which stores values in a way that makes them accessible across programs (i.e., *uniform* access). That means both shaders can use the same uniform variable for every vertex in the array.
+But there is an easier way!
+In situations like this we can use a special kind of global variable called a *uniform variable* which stores values in a way that makes them accessible across programs (i.e., *uniform* access).
+That means both shaders can use the same uniform variable for every vertex in the array.
 
 # Working with Uniform Data
 
-Uniform variables are useful when we want to send data directly from our application to variables in the GPU program. They do not store data in vertex buffers, and we do not need VAOs to manage their associations. Instead, we just use [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} to get a reference to the uniform variable inside the GPU program and then assign a value to it with one of the many [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions. The `glUniform` function we use will depend on the data type and number of values it holds as indicated in the function name. For example, sending a single integer (or Boolean value) would use `glUniform1i` (where `i` means `int`) but sending a `vec3` would require `glUniform3f` (where `f` means `float`). Then the shader programs will reference that data every time it draws a frame.
+Uniform variables are useful when we want to send data directly from our application to variables in the GPU program.
+They do not store data in vertex buffers, and we do not need VAOs to manage their associations.
+Instead, we just use [`glGetUniformLocation`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml){:target="_blank"} to get a reference to the uniform variable inside the GPU program and then assign a value to it with one of the many [`glUniform`](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUniform.xhtml){:target="_blank"} functions.
+Which `glUniform` function we use will depend on the data type and number of values it holds as indicated in the function name.
+For example, we use `glUniform1i` for a single integer (or Boolean) value, but `glUniform3f` for a `vec3`. The last letter of the function name indicates the data type, with `i` meaning `int` and `f` meaning `float`. After completing these two steps, the uniform variable in the shader program will reference the given data every time the shader draws a frame.
 
 ## The Uniform Class
 
