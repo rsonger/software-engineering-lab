@@ -15,7 +15,9 @@ classes: wide
 
 # Introduction
 
-In computer graphics, we often need to do movements such as translation, scaling, and rotation. These calculations are called *transformations* because they change the coordinates of vertices. Especially in animated or interactive computer graphics applications, transformations are very common and they rely on the mathematical concepts of **vectors** and **matrices**.
+In computer graphics, we often need to do movements such as translation, scaling, and rotation. 
+These calculations are called *transformations* because they change the coordinates of vertices. 
+Especially in animated or interactive computer graphics applications, transformations are very common and they rely on the mathematical concepts of **vectors** and **matrices**.
 
 In this lesson, we will briefly review **scalars**, **points**, and **vectors** before we dive into **matrices**.
 
@@ -45,7 +47,8 @@ In the vector definition above, $dx$ is the change in the $x$-coordinate and $dy
 
 ## Vector addition
 
-Vector addition happens when we place the tail of one vector at the head of another vector. Mathematically, the addition of two vectors $v$ and $w$ can be described with the resulting vector $u$:
+Vector addition happens when we place the tail of one vector at the head of another vector. 
+Mathematically, the addition of two vectors $v$ and $w$ can be described with the resulting vector $u$:
 
 $$\begin{aligned}
 v + w & = u \\
