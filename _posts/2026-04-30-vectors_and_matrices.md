@@ -114,28 +114,29 @@ v & = \langle x,y \rangle \\
 
 ---
 # Linear Transformations and Matrices
-A *vector space* describes the relative structure of the axis on which vector coordinates are based. In computer graphics vector spaces differ depending on whether coordinates are expressed relative to each other in the 3D scene (i.e., world space) or relative to the viewer's perspective (i.e., camera space).
+A *vector space* describes the relative structure of the axis on which vector coordinates are based. In computer graphics vector spaces differ depending on whether coordinates are expressed relative to the 3D scene (i.e., "world space") or the viewer's perspective (i.e., "camera space").
 A *linear transformation* is a mathematical operation that converts coordinates from one vector space to another while maintaining relative structure.
 For example, in the figure below, the image on the left shows an object **S** with coordinates in terms of vectors **i** and **j** in its own vector space. 
 When rendering the same object from a different camera angle in a 3D scene, for example, it may appear as the image on the right, which shows **T** with coordinate vectors **m** and **n** in the screen's vector space.
 
 ![An example of a linear transformation](/software-engineering-lab/assets/images/linear_transformation.png)
 
-We use special functions for calculating transformations based on whether they operate on a point, a vector, or multiple vectors (a matrix).
+We express functions for calculating transformations based on whether they operate on a point, a vector, or multiple vectors (a matrix).
 
 ---
 ## Point, Vector, and Matrix Transformations
 When moving 3D objects around a scene or adjusting the camera, we need to transform their vectors so they can render at the correct position, scale, pitch, rotation, etc.
-Transformations are represented mathematically as *vector functions*, or functions that take vectors as inputs and give vectors as outputs. 
+Transformations are represented mathematically as *vector functions*, or functions that take vectors as inputs and give the changed vectors as outputs. 
 They can be written in three different ways depending on what the input vector represents:
 
 <span id="point-transformation">**Point transformation**</span>  
 Here, the input and output is the terminal point of a vector in standard position.  
 $$F \left( \left( p_1,p_2 \right) \right) = \left( q_1,q_2 \right)$$
 <span id="vector-transformation">**Vector transformation**</span>  
+The coordinates of an input vector become the coordinates of the output vector.
 $$F \left( \langle v_1,v_2 \rangle\right) = \langle w_1,w_2 \rangle$$
 <span id="matrix-transformation">**Matrix transformation**</span>  
-Matrices are regularly used to compute the vertices of multi-dimensional objects.
+We can also represent a single vector as a 1x2 matrix.  
 $$F \left( 
     \begin{bmatrix} 
     v_1 \\ 
@@ -145,7 +146,8 @@ $$F \left(
     \begin{bmatrix} 
     w_1 \\ 
     w_2 
-    \end{bmatrix}$$
+    \end{bmatrix}$$  
+Vector functions can operate on several vertices at once when those vertices are grouped together in a matrix.
 
 ---
 ## Standard Vector Functions
@@ -238,7 +240,7 @@ $$\begin{aligned}
     \end{bmatrix}
   \end{aligned}$$
 
-In other words, the transformation function $F$ can be expressed as $F(v)=A \cdot v$ where $A$ is the transformation matrix applied to vector $v$.
+In other words, the transformation function $F$ can be expressed as $F(v)=A \cdot v$ where $A$ is the *transformation matrix* applied to vector $v$.
 
 For example, let's consider again the transformation from above where $F(i)= \langle 2,1 \rangle$ and $F(j)= \langle -1,3 \rangle$, then calculate $F(\langle 4,5 \rangle)$:
 $$\begin{aligned}
