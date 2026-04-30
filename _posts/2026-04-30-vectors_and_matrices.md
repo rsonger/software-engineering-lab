@@ -15,7 +15,7 @@ classes: wide
 
 # Introduction
 
-In computer graphics, we often need to do movements such as translation, scaling, and rotation. 
+In computer graphics, we often need to compute operations on models such as translation, scaling, and rotation. 
 These calculations are called *transformations* because they change the coordinates of vertices. 
 Especially in animated or interactive computer graphics applications, transformations are very common and they rely on the mathematical concepts of **vectors** and **matrices**.
 
@@ -25,7 +25,7 @@ In this lesson, we will briefly review **scalars**, **points**, and **vectors** 
 # Scalars, Points, and Vectors
 
 <span id="scalars">**Scalars**</span>  
-A *scalar* is a number representing a single quantity, such as length. Here, $c$ is a fixed value:
+A *scalar* is a number representing a single quantity, such as length. Here, $c$ is a fixed value for the scalar:
 $$x = c$$
 
 <span id="points">**Points**</span>  
@@ -33,10 +33,10 @@ A *point* is a single location in a coordinate system.
 $$P=(x,y)$$
 
 <span id="vectors">**Vectors**</span>  
-A *vector* represents *displacement* (the amount of change in a coordinate) and is drawn on graphs with an arrow.
+A *vector* represents *displacement* (the amount of change in a coordinate) and is drawn on a graph with an arrow.
 The arrow begins at at the *initial point*, called the *tail*, and ends at the *terminal point*, called the *head*.
 The distance between the tail and the head is the *length* or *magnitude* of the vector.
-When the vector's initial point is at the origin of the coordinate system, it is in *standard position*. When a vector $v$ is in standard position, its components describe the coordinates of its terminal point.  
+When the vector's initial point is at the origin of the coordinate system, it is in *standard position* and its components are also the coordinates of its terminal point.  
 
 $$v = \langle dx,dy \rangle$$
 
@@ -48,7 +48,7 @@ In the vector definition above, $dx$ is the change in the $x$-coordinate and $dy
 ## Vector addition
 
 Vector addition happens when we place the tail of one vector at the head of another vector. 
-Mathematically, the addition of two vectors $v$ and $w$ can be described with the resulting vector $u$:
+Mathematically, the sum of two vectors $v$ and $w$ is the resulting vector $u$:
 
 $$\begin{aligned}
 v + w & = u \\
@@ -101,7 +101,7 @@ $$c \cdot v=c\cdot\langle v_1,v_2 \rangle = \langle c \cdot v_1,c \cdot v_2 \ran
 ---
 ## Standard Basis
 The properties of vector addition and scalar multiplication allow us to express vectors in terms of a *standard basis* of two vectors $i= \langle 1,0 \rangle$ and $j= \langle 0,1 \rangle$.
-The *standard basis* expresses a vector $v$ as the addition of the $i$ and $j$ vectors scaled to the respective $x$-coordinate and $y$-coordinate:
+The *standard basis* expresses a vector $v$ as the addition of the $i$ and $j$ vectors scaled to the respective $x$ and $y$ coordinates:
 $$\begin{aligned}
 v & = \langle x,y \rangle \\
   & = \langle x+0,0+y \rangle \\
@@ -110,13 +110,14 @@ v & = \langle x,y \rangle \\
   & = x \cdot i+y \cdot j
 \end{aligned}$$
 
-This will become very useful later when we want to represent transformations with linear functions.
+:warning: **Remember this!** Standard basis vectors are a very powerful tool for graphics calculations.
 
 ---
 # Linear Transformations and Matrices
+A *vector space* describes the relative structure of the axis on which vector coordinates are based. In computer graphics vector spaces differ depending on whether coordinates are expressed relative to each other in the 3D scene (i.e., world space) or relative to the viewer's perspective (i.e., camera space).
 A *linear transformation* is a mathematical operation that converts coordinates from one vector space to another while maintaining relative structure.
 For example, in the figure below, the image on the left shows an object **S** with coordinates in terms of vectors **i** and **j** in its own vector space. 
-When rendering the same object from a certain camera angle in a 3D scene, it may appear as the image on the right, which shows **T** with coordinate vectors **m** and **n** in the screen's vector space.
+When rendering the same object from a different camera angle in a 3D scene, for example, it may appear as the image on the right, which shows **T** with coordinate vectors **m** and **n** in the screen's vector space.
 
 ![An example of a linear transformation](/software-engineering-lab/assets/images/linear_transformation.png)
 
