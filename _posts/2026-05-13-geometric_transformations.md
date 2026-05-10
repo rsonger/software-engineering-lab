@@ -14,13 +14,13 @@ categories:
 
 # Overview
 
-The common transformations in computer graphics are:
+In computer graphics, the most common transformations are:
 - **[Scaling](#scaling)**: changing the size of an object.
 - **[Rotation](#rotation)**: rotating the object around a fixed point.
 - **[Translation](#translation)**: changing the coordinate position of the object.
-- **[Projection](#projection)**: changing the 3D object into a 2D image for display.
+- **[Projection](#projection)**: converting the 3D object into a 2D image for display.
 
-We will first describe formulas for calculating the matrices of each type of transformation. 
+Here we will first describe formulas for calculating the matrices of each of these transformation. 
 Then we will look at the differences between *global transformations* (changes made relative to the world coordinates) and *[local transformations](#local-transformations)* (changes made relative to object coordinates).
 
 # Scaling
@@ -117,7 +117,7 @@ A &= \begin{bmatrix}
 
 In 2D rotations, the angle $\theta$ revolves around a single point, but in 3D that point becomes a line extending perpendicular to the angle of rotation. 
 For example, the $xy$-plane is perpendicular to the $z$-axis, so we can say that rotation in 2D space (the $xy$ plane) is the same as rotation around the $z$-axis in 3D space. 
-The difference is that vectors in 3D space have three components and a third standard basis vector $k$ for the $z$ component is required: $i= \langle 1,0,0 \rangle$, $j= \langle 0,1,0 \rangle$, and $k= \langle 0,0,1 \rangle$.
+The difference is that vectors in 3D space have three components and so a third standard basis vector $k$ for the $z$ component is required: $i= \langle 1,0,0 \rangle$, $j= \langle 0,1,0 \rangle$, and $k= \langle 0,0,1 \rangle$.
 
 ## $z$-Axis Rotation
 
@@ -138,7 +138,7 @@ $$A_z=\begin{bmatrix}
 ## $x$-Axis Rotation
 
 When the axis of rotation is the $x$-axis, the standard basis vector $i$ becomes parallel to the axis of rotation, and perpendicular to the rotation plane. 
-This means the $x$-components do not change in the same way that $z$-components do not change when we rotate around the $z$-axis. 
+This means the $x$-components do not change (the same way that $z$-components do not change when we rotate around the $z$-axis). 
 Graphically, we can represent this with a diagram in which the $i$ vector is perpendicular to the rotation plane and the $j$ vector extends to the right. 
 Then the $k$ vector will point up according to the structure of the 3D coordinate axes. 
 In this diagram, the vector components $a$ and $b$ represent sides of the right triangles on the $yz$ plane at $x=0$. 
@@ -183,9 +183,9 @@ $$A_y=\begin{bmatrix}
 \end{bmatrix}$$
 
 Finally, we can verify these matrices by considering what happens when $\theta =0$. 
-At $\theta =0$, there should be no change to the coordinates since no rotation happens. 
+There should simply be no change to the coordinates since no rotation happens. 
 In this case, plugging in $0$ for $\theta$ in each of these matrices will result in the *identity matrix* since $\cos(0)=1$ and $\sin(0)=0$. 
-This is true for all three axes of rotation.
+And this is true for all three axes of rotation.
 
 # Translation
 
