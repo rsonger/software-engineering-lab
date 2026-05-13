@@ -114,14 +114,14 @@ v & = \langle x,y \rangle \\
 
 ---
 # Linear Transformations and Matrices
-A *vector space* describes the relative structure of the axis on which vector coordinates are based. In computer graphics vector spaces differ depending on whether coordinates are expressed relative to the 3D scene (i.e., "world space") or the viewer's perspective (i.e., "camera space").
+A *vector space* describes the relative structure of the axes on which vector coordinates are based. In computer graphics vector spaces differ depending on whether coordinates are expressed relative to the 3D scene (i.e., "world space") or the viewer's perspective (i.e., "camera space").
 A *linear transformation* is a mathematical operation that converts coordinates from one vector space to another while maintaining relative structure.
 For example, in the figure below, the image on the left shows an object **S** with coordinates in terms of vectors **i** and **j** in its own vector space. 
-When rendering the same object from a different camera angle in a 3D scene, for example, it may appear as the image on the right, which shows **T** with coordinate vectors **m** and **n** in the screen's vector space.
+When rendering the same object from a different camera angle in a 3D scene, for example, it may appear as the image on the right, which shows the resulting object **T** with coordinate vectors **m** and **n** in the screen's vector space.
 
 ![An example of a linear transformation](/software-engineering-lab/assets/images/linear_transformation.png)
 
-We express functions for calculating transformations based on whether they operate on a point, a vector, or multiple vectors (a matrix).
+We can express functions for calculating transformations based on whether they operate on a point, a vector, or multiple vectors in a matrix.
 
 ---
 ## Point, Vector, and Matrix Transformations
@@ -136,7 +136,7 @@ $$F \left( \left( p_1,p_2 \right) \right) = \left( q_1,q_2 \right)$$
 The coordinates of an input vector become the coordinates of the output vector.
 $$F \left( \langle v_1,v_2 \rangle\right) = \langle w_1,w_2 \rangle$$
 <span id="matrix-transformation">**Matrix transformation**</span>  
-We can also represent a single vector as a 1x2 matrix.  
+We can also represent a single vector as a matrix.  
 $$F \left( 
     \begin{bmatrix} 
     v_1 \\ 
@@ -176,7 +176,7 @@ $$ F(v+w) = F(v) + F(w) $$
 And we can even combine scalar multiplication with vector addition:
 $$F(c \cdot v + d \cdot w) = c \cdot F(v) + d \cdot F(w)$$
 
-This shows that we can simplify any complicated linear function by first the applying the function to the vectors individually and then combining the results.
+This shows that we can simplify any complicated linear function by first applying the function to the vectors individually and then combining the results.
 A common shortcut for calculating linear transformations is to rewrite them in terms of the *standard basis* vectors $i=\langle 1,0 \rangle$ and $j=\langle 0,1 \rangle$. 
 This way, we don't actually need to know how the function calculates any given transformation. 
 We only need to know the results of transforming the standard basis vectors. 
