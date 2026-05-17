@@ -199,8 +199,9 @@ $$F\left(\begin{bmatrix}
     y+n
 \end{bmatrix}$$
 
-Now, when we consider the nature of matrix multiplication, we see that a 2x2 matrix is not sufficient for adding constant values to each component. 
-For example, consider a translation of $\langle 0,2 \rangle$ and try solving for $a$, $b$, $c$ and $d$:
+When we use a matrix to represent this translation, we see that a 2x2 matrix is not sufficient for adding constant values to each component. 
+The limitation comes from the nature of matrix multiplication. 
+For example, let's consider a translation of $\langle 0,2 \rangle$ and try solving for $a$, $b$, $c$ and $d$:
 $$\begin{bmatrix}
     a & b \\
     c & d
@@ -214,12 +215,12 @@ $$\begin{bmatrix}
     x \\
     y+2
 \end{bmatrix}$$
-From above, $a \cdot x+b \cdot y=x$ gives us the values $a=1$ and $b=0$. 
+From this, $a \cdot x+b \cdot y=x$ gives us the values $a=1$ and $b=0$. 
 However, from $c \cdot x+d \cdot y=y+2$ we get $d=1$ and $c=2/x$ which is not constant. 
 Even if we try to define our transformation matrix with $c=2/x$, then we would not be able to transform any coordinates where $x=0$ because $2/0$ is undefined. 
 You might also recognize that $c=0$ would give us the identity matrix, which implies that $c$ must be some non-zero value. 
 
-Now if we try using a fixed value $c=2$ and apply the transformation to a square with points $(0,0)$, $(1,0)$, $(0,1)$ and $(1,1)$, we find another problem.
+Furthermore, if we try using a fixed value $c=2$ and apply the transformation to a square with points $(0,0)$, $(1,0)$, $(0,1)$ and $(1,1)$, we find another problem.
 $$F\left( (0,0) \right) = \begin{bmatrix}
     1 & 0 \\
     2 & 1
@@ -255,8 +256,8 @@ This is called a *shear translation* and it warps the shape of the object. If we
 In other words, using a transformation matrix only applies the translation to a *subset* of the coordinate space.
 
 A 2D vector can only be translated when it is a subset of a 3D system. 
-So, we assume the point $(x,y)$ is on a plane in 3D space located at $z=1$ and then $(x,y)$ becomes $(x,y,1)$. 
-Using these 3D coordinates, the transformation matrix is found simply:
+For 2D coordinates, we must assume $(x,y)$ is on a plane in 3D space located at $z=1$ and substitute $(x,y)$ with $(x,y,1)$. 
+Using these 3D coordinates, the transformation matrix is much easier to find:
 $$\begin{aligned}
 F\left(\begin{bmatrix}
     x \\
@@ -282,7 +283,7 @@ A &= \begin{bmatrix}
 \end{bmatrix}
 \end{aligned}$$
 
-When we want to apply the 3D translation $\langle m,n,p \rangle$ in all three dimensions, we need to add a fourth dimension so that each point becomes $(x,y,z,1)$. 
+When we want to apply a translation in 3D that adds $\langle m,n,p \rangle$ to the coordinates $(x,y,z)$, we need to add a fourth dimension and substitute our 3D coordinates with $(x,y,z,1)$. 
 Then the matrix calculation becomes:
 $$\begin{aligned}
 F\left(\begin{bmatrix}
@@ -315,13 +316,14 @@ A &= \begin{bmatrix}
 \end{aligned}$$
 
 3D computer graphics always use 4D vectors and matrices to do 3D calculations. 
-This system is called *homogeneous coordinates*. When we set the extra dimension equal to $1$, we get a useful correspondence between the 3D and 4D representatons of the point. 
-That is, with 4D point $(x,y,z,w)$ we can divide $x$, $y$, and $z$ by $w$ to get the same point in 3D:
+This system is called *homogeneous coordinates*. 
+The extra dimension is set to $1$ because it is easy to convert between the 3D and 4D representatons of the point. 
+That is, with the 4D point $(x,y,z,w)$ where $w=1$, we can divide $x$, $y$, and $z$ by $w$ to get the same point in 3D:
 $$(x/w,y/w,z/w)=(x/1,y/1,z/1)=(x,y,z)$$
 
 This is called *perspective division* and it provides some unique advantages for calculating the projections of a 3D scene (as we will see later in the section [**Perspective Projection**](#perspective-projection)).
 
-If we are going to create a homogeneous coordinate system by adding an extra coordinate, then we should review the previous transformations with the new system applied. 
+Now let's quickly review the previous transformations with consideration for using the homogeneous coordinate system. 
 For 2D transformations, the function $F(\langle x,y \rangle)=\langle a \cdot x+b \cdot y,c \cdot x+d \cdot y \rangle$ becomes $F(\langle x,y,1 \rangle)=\langle a \cdot x+b \cdot y,c \cdot x+d \cdot y,1 \rangle$ and the matrix calculation is,
 $$\begin{bmatrix}
     a & b & 0 \\
@@ -362,34 +364,46 @@ $$\begin{bmatrix}
 When rendering a 3D scene using OpenGL, we need to map coordinates of the viewable area to the coordinates of the *clip space* where all $x$, $y$, and $z$ coordinates are between the values of $+1.0$ and $-1.0$. 
 Remember, in our previous programs we drew shapes with $x$ and $y$ coordinates in the range of $-1.0$ to $1.0$. 
 That is the coordinate space of everything that OpenGL renders on screen. 
-But when our scenes are defined in a much larger coordinate system, we need to map the vertices from the scene space to the clip space.
+But scenes are typically defined in a much larger coordinate system, so we need a way to map the vertices from the scene space to the clip space.
 
-For this purpose, we need to calculate a volume of the world space that will be rendered on screen, called the *viewing volume*.
-There are different approaches to projecting coordinates from world space to screen space, but we will only cover the one that closely models human perspective in the real world.
+For this purpose, we need to calculate the volume of the world space that will be rendered on screen, called the *viewing volume*.
+There are different approaches to projecting coordinates from world space to screen space, but we will only cover the *view frustum* which closely models real-world perspective.
 
 ## The View Frustum
 
-We represent the viewable area using a shape called a *frustum*, which is basically a pyramid lying on its side with its tip cut off. It is centered around the the negative $z$-axis with its top represents the location of the viewer's eye at the origin. The plane where the pyramids top is cut off represents the beginning of the viewable distance (often likened to the display screen) while the base of the pyramid is the end of the viewable distance. Everything inside the frustum will be rendered while all vertices outside the frustum are mostly ignored.
+We represent the viewable area using a shape called a *frustum*, which resembles a pyramid lying on its side with its tip cut off. 
+It is centered around the the negative $z$-axis with its top representing the location of the viewer's eye at the origin. 
+The plane where the pyramids top is cut off represents the beginning of the viewable distance (often likened to the display screen) while the base of the pyramid is the end of the viewable distance. 
+Everything inside the frustum will be rendered while all vertices outside the frustum are mostly ignored.
 
 ![The frustum is a pyramid on its side with the top cut off, pointing towards the viewer's position at the origin.](/software-engineering-lab/assets/images/perspective_frustum.png)
 
-We can adjust this shape to make objects appear farther away or closer to the camera, and decide which objects to render based on their distance within a specified range. The values we use to adjust the frustum are the *near distance*, the *far distance*, the *angle of view*, and the *aspect ratio*. 
+We can adjust this shape to make objects appear farther away or closer to the camera, and decide which objects to render based on their distance within a specified range. 
+The values we use to adjust the frustum are the *near distance*, the *far distance*, the *angle of view*, and the *aspect ratio*. 
 
-The near distance and far distance are measured in units along the $z$-axis. The near distance (also called the *near clipping distance*) sets the limit for the closest viewable vertices. Likewise, the far distance (also called the *far clipping distance*) sets the limit for the farthest viewable vertices. When we choose not to render a point based on its location, this is called *clipping*.
+The near distance and far distance are measured in units along the $z$-axis. 
+The near distance (also called the *near clipping distance*) sets the limit for the closest viewable vertices. 
+Likewise, the far distance (also called the *far clipping distance*) sets the limit for the farthest viewable vertices. 
+When we choose not to render a point based on its location, this is called *clipping*.
 
 The angle of view is the angle between the top and bottom planes of the frustum where they would intersect if they extended all the way to the origin.
 
 ![The angle of view is the angle formed by the intersection of the top and bottom planes of the frustum.](/software-engineering-lab/assets/images/perspective_angle.png)
 
-From the point of view at the origin, the far distance plane appears to be the same size as the near distance plane. Since a rendered image is a 2D projection of a 3D scene, we must map all the points inside the frustum to the *projection window*. Imagine drawing a line from the origin to the point $P$. The point $Q$ where that line intersects with the projection window is the point that we render on screen.
+From the point of view at the origin, the far distance plane appears to be the same size as the near distance plane. 
+Since a rendered image is a 2D projection of a 3D scene, we must map all the points inside the frustum to the *projection window*. 
+Imagine drawing a line from the origin to the point $P$. 
+The point $Q$ where that line intersects with the projection window is the point that we render on screen.
 
 ![Rendered points are determined by mapping points from the scene onto to the projection window.](/software-engineering-lab/assets/images/mapping_points.png)
 
-The size of the projection window determines the *aspect ratio* $r$ of the image. We define the aspect ratio with the width $w$ and height $h$ of the image as $r=w/h$.
+The size of the projection window determines the *aspect ratio* $r$ of the image. 
+We define the aspect ratio with the width $w$ and height $h$ of the image as $r=w/h$.
 
 ## Perspective Projection
 
-The transformation that converts the coordinates of target vectors to coordinates of the clipping space is called *perspective projection*. In order to calculate this transformation, we need to find the matrix $A$ that will transform the target point $P$ from the world space to the point $Q$ in clipping space.
+The transformation that converts the coordinates of target vectors to coordinates of the clipping space is called *perspective projection*. 
+In order to calculate this transformation, we need to find the matrix $A$ that will transform the target point $P$ from the world space to the point $Q$ in clipping space.
 
 $$F(P)=A \cdot \begin{bmatrix}
     P_x \\
@@ -401,15 +415,20 @@ $$F(P)=A \cdot \begin{bmatrix}
     Q_z
 \end{bmatrix} = Q$$
 
-The bounds of the $x$-coordinates and $y$-coordinates in the clipping space are the same as the projection window. We define the projection window with the angle of view $a$ and $y$-coordinates between $-1$ and $1$. This will make it easier to use OpenGL which renders everything in a box with all coordinate values between $-1$ and $1$. Then, we know that the distance between the viewer and the projection window is $d=\frac{1}{\tan(a/2)}$.
+The bounds of the $x$-coordinates and $y$-coordinates in the clipping space are the same as the projection window. 
+We define the projection window with the angle of view $a$ and $y$-coordinates between $-1$ and $1$. 
+This will make it easier to use OpenGL which renders everything in a box with all coordinate values between $-1$ and $1$. 
+Then, we know that the distance between the viewer and the projection window is $d=\frac{1}{\tan(a/2)}$.
 
 ![Distance between viewer and projection window is determined by the angle of view.](/software-engineering-lab/assets/images/projection_distance.png)
 
-Now, the right triangles formed by drawing a line through points $Q$ and point $P$ share the same angle. Since both triangles have the same $\tan(\theta)$, then we know $\frac{Q_y}{-d}=\frac{P_y}{P_z}$. 
+Now, since the points $P$, $Q$, and the origin form a straight line, we can draw right triangles between that line and the $z$-axis with a shared angle $\theta$. 
+These right triangles give us $\tan(\theta_Q)=\frac{Q_y}{-d}$ and $\tan(\theta_P)=\frac{P_y}{P_z}$, and since $\theta_Q=\theta_P$ then we know $\frac{Q_y}{-d}=\frac{P_y}{P_z}$. 
 
 ![Using right triangles, we can find an equation for y-coordinates in clipping space.](/software-engineering-lab/assets/images/mapping_y-coords.png)
 
-Solving for $Q_y$ then gives us $Q_y=\frac{d \cdot P_y}{-P_z}$. (Here we apply the negative to $P_z$ so that we can do a trick later.)
+Solving for $Q_y$ then gives us $Q_y=\frac{d \cdot P_y}{-P_z}$. 
+(Here we apply the negative sign to $P_z$ so that we can do a trick later.)
 
 In terms of our transformation function, this equation tells us that,
 $$F(P)=A \cdot \begin{bmatrix}
@@ -422,13 +441,18 @@ $$F(P)=A \cdot \begin{bmatrix}
     Q_z
 \end{bmatrix}$$
 
-This does not look like a linear transformation yet because $Q_y$ depends on both $P_y$ and $-P_z$, but that is okay for now. Let's look at the $x$-coordinates before coming back to this.
+This does not look like a linear transformation yet because $Q_y$ depends on both $P_y$ and $-P_z$, but that is okay for now. 
+Let's look at the $x$-coordinates before coming back to this.
 
-We find the $x$-coordinates in a similar way, looking at the right triangles that form with the line between $Q$ and $P$. 
+We find the $x$-coordinates similarly from the right triangles that form between the $z$-axis and the line through $Q$ and $P$. 
 
 ![We can find x-coordinates similarly to how we found y-coordinates.](/software-engineering-lab/assets/images/mapping_x-coords.png)
 
-As before, we can find $Q_x$ with the equation $\frac{Q_x}{-d}=\frac{P_x}{P_z}$ to get $Q_x=\frac{d \cdot P_x}{-P_z}$. Now we also need to apply the aspect ratio $r$ to the $x$ values. Since our $y$ values are in the range $-1$ to $1$, then the $x$ values will be in the range $-r$ to $r$ which might not match the clipping space. In order to get the $x$ values into the range $-1$ to $1$ also, we divide by $r$. This effectively scales the range of $x$ values to the clipping space range.
+As before, we can find $Q_x$ with the equation $\frac{Q_x}{-d}=\frac{P_x}{P_z}$ to get $Q_x=\frac{d \cdot P_x}{-P_z}$. 
+Now we also need to apply the aspect ratio $r$ to the $x$ values. 
+Since our $y$ values are in the range $-1$ to $1$, then the $x$ values will be in the range $-r$ to $r$ which might not match the clipping space. 
+In order to get the $x$ values into the range $-1$ to $1$ also, we divide by $r$. 
+This effectively scales the range of $x$ values to the clipping space range.
 $$Q_x=\frac{d/r \cdot P_x}{-P_z}$$
 
 And our transformation function is now:
@@ -442,11 +466,15 @@ $$F(P)=A \cdot \begin{bmatrix}
     Q_z
 \end{bmatrix}$$
 
-Did you notice that both $Q_x$ and $Q_y$ have $-P_z$ in the denominator? This makes things easier when we work with *homogeneous coordinates* where our $(x,y,z)$ coordinates become $(x,y,z,w)$. In OpenGL, the GPU automatically calculates 3D vertices from 4D homogeneous coordinates with *perspective division* as below.  
+Did you notice that both $Q_x$ and $Q_y$ have $-P_z$ in the denominator? 
+This makes things easier when we work with *homogeneous coordinates* where our $(x,y,z)$ coordinates become $(x,y,z,w)$. 
+In OpenGL, the GPU automatically calculates 3D vertices from 4D homogeneous coordinates with *perspective division* as below.  
 
 $$(x,y,z) = (x/w,y/w,z/w)$$
 
-We can take advantage of perspective division to extract the $z$ component from the $x$ and $y$ components of $Q$. Specifically, $Q=(Q_x,Q_y,Q_z,Q_w)$ becomes $\left(\frac{Q_x}{Q_w},\frac{Q_y}{Q_w},\frac{Q_z}{Q_w}\right)$. Now if we set $Q_w=-P_z$, it solves our function very conveniently:
+We can take advantage of perspective division to extract the $z$ component from the $x$ and $y$ components of $Q$. 
+Specifically, $Q=(Q_x,Q_y,Q_z,Q_w)$ becomes $\left(\frac{Q_x}{Q_w},\frac{Q_y}{Q_w},\frac{Q_z}{Q_w}\right)$. 
+Now if we set $Q_w=-P_z$, it solves our function very conveniently:
 $$F(P)=A \cdot \begin{bmatrix}
     P_x \\ \\
     P_y \\ \\
@@ -464,9 +492,13 @@ $$F(P)=A \cdot \begin{bmatrix}
     -P_z
 \end{bmatrix}$$
 
-Now we just need to understand $Q_z$ before we can assemble our complete transformation matrix $A$.
+The last component we need to understand is $Q_z$ before we can complete transformation matrix $A$.
 
-Remember that the view frustum lies parallel to the $z$-axis, so the values of the $z$-coordinates do not affect where the point is mapped onto the projection window. Instead, we only render points with $z$ values in between the near distance and far distance which define the visible space. With this in mind, we can express the calculation of $Q_z$ from $P$ with $0$ for the $x$ and $y$ components, and unknowns for the $z$ and $w$ components. That is, 
+Remember that the view frustum lies parallel to the $z$-axis, so the values of the $z$-coordinates do not affect where the point is mapped onto the projection window. 
+Instead, we only render points with $z$ values in between the near distance and far distance which define the visible space. 
+With this in mind, we can express the calculation of $Q_z$ from $P$ with $0$ for the $x$ and $y$ components, and unknowns for the $z$ and $w$ components. 
+(Since we already used $a$ for our viewing angle, we will use $b$ and $c$ for these new unknowns.)
+That is, 
 $$Q_z=A_z \cdot P = \begin{bmatrix}
     0 & 0 & b & c
 \end{bmatrix} \cdot \begin{bmatrix}
@@ -478,7 +510,11 @@ $$Q_z=A_z \cdot P = \begin{bmatrix}
 Then apply perspective division from above to complete our transformation function:
 $$F(P_z)=\frac{Q_z}{-P_z}=\frac{A_z \cdot P}{-P_z}=\frac{b \cdot P_z+c}{-P_z}=-b-\frac{c}{P_z}$$
 
-Now we just need to find values for $b$ and $c$. Since the frustum lies on the negative $z$-axis, we know that the nearest visible point will have $P_z=-n$ and the farthest will have $P_z=-f$. But the clipping space is bound by values $-1$ and $1$. In the clipping space of OpenGL, the $z$-axis is inverted, so the nearest $z$-coordinate of $P_z=-n$ will convert to $Q_z=-1$ and the farthest $z$-coordinate at $P_z=-f$ will convert to $Q_z=1$. This means that our expression from above gives:
+Now we just need to find values for $b$ and $c$. 
+Since the frustum lies on the negative $z$-axis, we know that the nearest visible point will have $P_z=-n$ and the farthest will have $P_z=-f$. 
+But the clipping space is bound by values $-1$ and $1$. 
+In the clipping space of OpenGL, the $z$-axis is inverted, so the nearest $z$-coordinate of $P_z=-n$ will convert to $Q_z=-1$ and the farthest $z$-coordinate at $P_z=-f$ will convert to $Q_z=1$. 
+This means that our expression from above gives:
 
 $$-b-\frac{c}{-n}=-1 \quad \text{and} \quad -b-\frac{c}{-f}=1$$
 
@@ -562,20 +598,26 @@ So how can we use our matrix multiplication method to perform a local transforma
 
 ![A local transformation not at the origin of world space.](/software-engineering-lab/assets/images/local_rotation.png)
 
-We must first understand that an object's points are defined using local coordinates and OpenGL does not change these points when there is a transformation. 
+We must first understand that with OpenGL an object's points are defined using local coordinates and we do not change these points when there is a transformation. 
 Instead, it keeps a separate matrix, called a *model matrix* which is the cumulative product of all transformations on the object. 
-Then, it calculates the world coordinates $P_g$ by multiplying the object's local coordinates $P_l$ by the model matrix $M$.
+Then, we calculate the world coordinates $P_g$ by multiplying the object's local coordinates $P_l$ by the model matrix $M$.
 
-$$P_g =M \cdot P_l$$  
+$$
+P_g =M \cdot P_l 
+$$  
 
 Naturally, when there are no transformations acting on the object, $M$ is the identity matrix.  
 
-$$P_g = M \cdot P_l = I \cdot P_l = P_l$$
+$$
+P_g = M \cdot P_l = I \cdot P_l = P_l
+$$
 
 If $M$ is the product of all transformations leading to the world coordinates of the object, then we know the inverse of $M$, denoted $M^{-1}$, will undo those transformations and give us the original object coordinates in local space. 
 In other words, this converts the object's coordinates from world space back to local coordinate space, like so:
 
-$$P_l=M^{-1} \cdot P_g =M^{-1} \cdot M \cdot P_l$$  
+$$
+P_l=M^{-1} \cdot P_g =M^{-1} \cdot M \cdot P_l
+$$  
 
 Once we have the local coordinates of the object, we can apply our rotation $R$ as a local transformation. 
 Then, we move the object back to its previous world coordinates with transformation $M$ once more. 
