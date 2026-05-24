@@ -14,15 +14,15 @@ toc_sticky: false
 
 *In this lesson, we build a `Matrix` class that applies what we learned about calculating geometric transformations and integrate it with our CG framework.*
 
-Now that we have learned about the usefulness of [matrix calculations](/software-engineering-lab/notes/ch3-1/) for [geometric transformations](/software-engineering-lab/notes/ch3-2/), let's add a new component to our CG framework that provides matrices for transformations of objects in our apps. 
+Now that we have learned about the usefulness of [matrix calculations](/software-engineering-lab/notes/ch3-1/) for [geometric transformations](/software-engineering-lab/notes/ch3-2/), we can implement a new component in our CG framework that provides matrices for specific types of transformations. 
 Our framework will always use 4x4 matrices so that we can easily handle both 2D and 3D graphics. 
 When rendering in 2D, we simply use a consistent value for all the $z$ coordinates so everything renders on the same plane.
 
 # The Matrix Class
 
-Our `Matrix` class will have static methods that return different transformation matrices from the given parameters. 
+Our `Matrix` class will have static methods that return transformation matrices for the given parameters. 
 With static methods, we do not need to create an instance of the `Matrix` class or manage state variables. 
-Simply calling these methods will give us the matrix data we need to do geometric transformations.
+Simply calling these methods will give us the matrix we need to do geometric transformations.
 
 :heavy_check_mark: ***Try it!***  
 <input type="checkbox" class="checkbox inline"> In your `graphics/core` folder, create a new file called `matrix.py`.  
@@ -35,9 +35,9 @@ import numpy as np
 ```
 
 We first import the `math` functions for sine, cosine and tangent to use when calculating our matrices, and the constant $\pi$ (pi) for converting view angles to radians. 
-We also use the [`numpy.array`](https://numpy.org/doc/stable/reference/generated/numpy.array.html){:target="_blank"} function to create NumPy arrays for each of our matrices. 
-This gives us an advantages of less memory use, shorter processing times, and access to the `@` operator for easy matrix multiplication. 
-Instead of unpacking each matrix and calculating the product manually, we can simply multiply matrices as `matrix1 @ matrix2`. 
+Here we use the [`numpy.array`](https://numpy.org/doc/stable/reference/generated/numpy.array.html){:target="_blank"} function to create NumPy arrays for each of our matrices. 
+This gives us access to the performance benefits of the NumPy library as well as the `@` operator for easy matrix multiplication. 
+Without the `@` operator, we would need to unpack each matrix and calculate the product manually, but with NumPy we can simply multiply matrices like this `matrix1 @ matrix2` instead. 
 
 <input type="checkbox" class="checkbox inline"> Add the following code to `matrix.py` for defining the class and its method which gives the identity matrix.  
 
@@ -61,20 +61,19 @@ class Matrix:
 
 Here we create the identity matrix as a NumPy array and store it to a class variable. 
 Then we make a class method to give access to the identity matrix with the `@classmethod` decorator. 
-Class methods access class variables and methods using the `cls` parameter without creating an instance of the class. 
-Our applications will be able to access these class methods directly on the class itself, for example `Matrix.identity()`.
+Class methods access class variables and methods using the `cls` parameter without the need to create an instance of the class itself. 
+Our applications will be able to access these class methods directly from the class, for example `Matrix.identity()`.
 
-We are using a class variable and a class method that returns copies of the identity matrix in order to prevent the original value from being changed. 
-If we do not give a copy of the matrix, then the method would give a reference to the value stored in the class. 
-Then our apps would be able to accidentally change the original identity matrix itself. 
-That would cause all kinds of confusion in our apps! 
-So we make the matrix read-only using this approach.
+The `identity()` method returns a copy of the identity matrix instead of the matrix itself in order to prevent the original value from being changed. 
+If we do not give a copy of the matrix, our apps would have access to the original identity matrix and could potentially change its values. 
+And since the identity matrix is used by all objects in the scene, any changes to it would create all kinds of confusion in our apps! 
+So we make the matrix read-only with this approach.
 
 Note that when we create a NumPy array, all of its values must be the same type. 
-So we will fill each of our matrices with `float` values by calling the `astype()` method on each newly created array. 
-The return type is a NumPy [ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html){:target="_blank"}.
+So we fill each of our matrices with `float` values by calling the `astype()` method on each newly created array. 
+Each of these matrix methods will return a NumPy [ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html){:target="_blank"}.
 
-<input type="checkbox" class="checkbox inline"> Add the next code to the `Matrix` class which creates a translation matrix.  
+<input type="checkbox" class="checkbox inline"> Add the next code to the `Matrix` class for the translation matrix.  
 
 ```python
     @staticmethod
@@ -94,9 +93,9 @@ Static methods are like class methods but static methods do not access the class
 We can still call static methods directly on the class itself (for example, `shift_matrix = Matrix.translation(1, 2, 3)`).
 
 The parameters `x`, `y`, and `z` are the components of the translation vector. 
-We simply plug those values into their respective locations within a numpy array representing the translation matrix and return it with all values converted to the `float` type.
+We simply plug those values into their respective locations within a numpy array and return it with all values converted to the `float` type.
 
-<input type="checkbox" class="checkbox inline"> Next, add the following methods to the `Matrix` class that create matrices for rotations around each of the three axes $x$, $y$, and $z$.  
+<input type="checkbox" class="checkbox inline"> Next, add the following methods to the `Matrix` class for the rotation matrices around each of the three axes $x$, $y$, and $z$.  
 
 ```python
     @staticmethod
@@ -139,7 +138,7 @@ We simply plug those values into their respective locations within a numpy array
 These methods all take the angle of rotation in radians. 
 Then we can simply calculate sine and cosine of the angle before constructing a matrix with the appropriate values.
 
-<input type="checkbox" class="checkbox inline"> Add the `scale` method to the `Matrix` class for scaling transformations.  
+<input type="checkbox" class="checkbox inline"> Add the `scale` method to the `Matrix` class for the scaling matrix.  
 
 ```python
     @staticmethod
@@ -176,8 +175,8 @@ In that case, we just need to use the same value for `r`, `s`, and `t`.
         )).astype(float)
 ```
 
-This method definition provides values for a default perspective so we do not need to specify them in every app. 
-The `angle_of_view` parameter should have a value in degrees, so we need to convert it into radians `a` before we can calculate the distance between the projection window and the camera `d`. 
+The method definition provides values for a default perspective so we do not need to specify them in every app. 
+The `angle_of_view` parameter is specified in degrees, so we need to convert it into radians `a` before we can calculate the distance between the projection window and the camera `d`. 
 The depth components `b` and `c` are calculated from the *near clipping distance* and *far clipping distance* as explained in the [previous lesson](http://127.0.0.1:4000/software-engineering-lab/notes/geometric_transformations/#perspective-projection). The `aspect_ratio` is just abbreviated as `r` for the sake of readibility.
 
 Now we have everything we need in the `Matrix` class. 
@@ -209,7 +208,7 @@ We can use the `glUniformMatrix4fv` function to upload data for `mat4` shader va
 
 When calling the `glUniformMatrix4fv` function, the second parameter specifies the number of matrices to associate with the variable. For our `Uniform` objects, this will always be `1`. 
 The third parameter tells OpenGL that our matrix data is stored as an array of *row* vectors. 
-If we ever give the data as an array of *column* vectors (spoiler alert; we won't), then that parameter would be `GL.GL_FALSE` instead.
+If we ever give the data as an array of *column* vectors (spoiler alert: we won't), then that parameter would be `GL.GL_FALSE` instead.
 
 # A Test of Transformations
 
@@ -321,7 +320,7 @@ The camera itself stays stationary, so we call `Matrix.perspective` just once he
 
 Our triangle's shape will be taller than it is wide so that we can see its orientation as it rotates around the screen. 
 Since the camera is located at the origin, we would not be able to see the triangle if it was also on the $z=0$ plane. 
-So we move the triangle in front of the camera by setting its intial model matrix to a translation matrix that moves the triangle down the $z$-axis to $z=-5$. 
+So we move the triangle in front of the camera on the $z$-axis to $z=-5$ by setting its intial model matrix to a translation matrix. 
 
 The movement speed is set to units in world space. 
 This means that the greater the distance between the object and the camera, the slower it appears to move. 
@@ -344,7 +343,7 @@ This is an unnecessary calculation when there is only one object in the scene, b
 As we did in the [Animations](/software-engineering-lab/notes/animations/#animations) lesson, we first calculate distances based on the time that has passed between frames. 
 This time we also have a rotation distance calculated as the size of the rotation angle in radians.
 
-<input type="checkbox" class="checkbox inline"> Next, add code for handling translations in the global context to the `update` method.  
+<input type="checkbox" class="checkbox inline"> Next, add code to the `update` method for handling translations in the global context.  
 
 ```python
         # global translations
@@ -367,8 +366,8 @@ This time we also have a rotation distance calculated as the size of the rotatio
 ```
 
 Similar to our [Test 4-6](/software-engineering-lab/notes/animations/#incorporating-with-graphics-programs) application, we move the triangle in the direction specified by the key press. 
-Here, we make a translation matrix for the movement and then multiply it by the existing model matrix to get a new model matrix. 
-We use the `@` operator to compose the matrices since they are NumPy arrays.
+Here, we make a translation matrix and then multiply it by the existing model matrix to get a new model matrix. 
+We can use the `@` operator to compose the matrices since they are NumPy arrays.
 
 <input type="checkbox" class="checkbox inline"> Now add code for handling global rotations to the `update` method.  
 
